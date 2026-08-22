@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>INKWAVE | SECURE CHECKOUT</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Syne:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .neon-glow:focus-within {
+            box-shadow: 0 0 15px rgba(157, 0, 255, 0.3);
+            border-color: #dfb7ff;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .accordion-item.active .accordion-content {
+            max-height: 800px;
+        }
+        .accordion-item.active .chevron {
+            transform: rotate(180deg);
+        }
+        body {
+            background-color: #121414;
+            color: #e2e2e2;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#454747",
+                        "inverse-on-surface": "#2f3131",
+                        "primary-fixed": "#e2e2e2",
+                        "on-tertiary-fixed-variant": "#6b00b0",
+                        "tertiary-fixed-dim": "#dfb7ff",
+                        "on-error-container": "#ffdad6",
+                        "error": "#ffb4ab",
+                        "surface": "#121414",
+                        "on-tertiary-fixed": "#2d004f",
+                        "inverse-surface": "#e2e2e2",
+                        "primary-container": "#000000",
+                        "on-surface-variant": "#cfc4c5",
+                        "secondary-fixed": "#e2e2e2",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-secondary": "#2f3131",
+                        "surface-container": "#1e2020",
+                        "surface-container-highest": "#333535",
+                        "on-primary-fixed": "#1b1b1b",
+                        "outline-variant": "#4c4546",
+                        "on-primary-container": "#757575",
+                        "on-tertiary": "#4b007e",
+                        "outline": "#988e90",
+                        "background": "#121414",
+                        "tertiary": "#dfb7ff",
+                        "surface-tint": "#c6c6c6",
+                        "on-secondary-container": "#b4b5b5",
+                        "tertiary-container": "#000000",
+                        "on-surface": "#e2e2e2",
+                        "inverse-primary": "#5e5e5e",
+                        "tertiary-fixed": "#f1daff",
+                        "surface-container-lowest": "#0c0f0f",
+                        "surface-container-high": "#282a2b",
+                        "primary": "#c6c6c6",
+                        "on-tertiary-container": "#a635ff",
+                        "on-error": "#690005",
+                        "surface-variant": "#333535",
+                        "surface-bright": "#38393a",
+                        "secondary": "#c6c6c7",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "on-background": "#e2e2e2",
+                        "on-primary-fixed-variant": "#474747",
+                        "surface-container-low": "#1a1c1c",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-primary": "#303030",
+                        "surface-dim": "#121414"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "margin-desktop": "64px",
+                        "unit": "8px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Syne"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Syne"],
+                        "label-caps": ["Inter"],
+                        "display-2xl": ["Syne"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.15em", "fontWeight": "600"}],
+                        "display-2xl": ["80px", {"lineHeight": "1.0", "letterSpacing": "-0.04em", "fontWeight": "800"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-body-md text-body-md overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-black/70 backdrop-blur-xl border-b border-white/10 shadow-[0_0_20px_rgba(157,0,255,0.2)]">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 w-full">
+<div class="font-display-2xl text-headline-lg-mobile md:text-headline-lg tracking-tighter text-on-surface uppercase cursor-pointer" onclick="window.location.reload()">INKWAVE</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors hover:scale-105 transition-transform duration-300" href="#">DROPS</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors hover:scale-105 transition-transform duration-300" href="#">COLLECTIONS</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors hover:scale-105 transition-transform duration-300" href="#">ARCHIVE</a>
+</div>
+<div class="flex items-center gap-6">
+<button class="material-symbols-outlined text-on-surface hover:text-tertiary transition-colors" data-icon="search">search</button>
+<button class="material-symbols-outlined text-on-surface hover:text-tertiary transition-colors" data-icon="shopping_bag">shopping_bag</button>
+<button class="material-symbols-outlined text-on-surface hover:text-tertiary transition-colors" data-icon="person">person</button>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="flex flex-col lg:flex-row gap-gutter">
+<!-- Left Side: Checkout Accordion -->
+<div class="flex-1 space-y-4">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-10 uppercase">Checkout</h1>
+<!-- Step 1: Shipping Address -->
+<div class="accordion-item active border border-white/10 glass-panel rounded-xl overflow-hidden" id="step-shipping">
+<button class="w-full flex justify-between items-center p-6 text-left group" onclick="toggleAccordion('step-shipping')">
+<div class="flex items-center gap-4">
+<span class="w-8 h-8 rounded-full border border-tertiary text-tertiary flex items-center justify-center font-label-caps">01</span>
+<h2 class="font-label-caps text-label-caps tracking-widest uppercase">Shipping Address</h2>
+</div>
+<span class="material-symbols-outlined chevron transition-transform duration-300" data-icon="expand_more">expand_more</span>
+</button>
+<div class="accordion-content">
+<div class="p-6 pt-0 grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Address Card -->
+<div class="p-4 border border-tertiary/50 bg-tertiary/5 rounded-lg cursor-pointer relative overflow-hidden group">
+<div class="absolute top-3 right-3 text-tertiary material-symbols-outlined" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</div>
+<p class="font-label-caps text-white mb-2">Home (Primary)</p>
+<p class="text-on-surface-variant text-sm">Alexander Vane</p>
+<p class="text-on-surface-variant text-sm">742 Evergreen Terrace, Cyberia 404</p>
+<p class="text-on-surface-variant text-sm">Neo City, NC 8091</p>
+</div>
+<!-- Address Card -->
+<div class="p-4 border border-white/10 hover:border-white/30 rounded-lg cursor-pointer transition-colors group">
+<p class="font-label-caps text-on-surface mb-2">Studio</p>
+<p class="text-on-surface-variant text-sm">Alexander Vane</p>
+<p class="text-on-surface-variant text-sm">221B Baker St, Tech District</p>
+<p class="text-on-surface-variant text-sm">Neo City, NC 8092</p>
+</div>
+<button class="md:col-span-2 py-4 border border-dashed border-white/20 rounded-lg text-on-surface-variant hover:text-white hover:border-white/40 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span class="font-label-caps text-label-caps">Add New Address</span>
+</button>
+</div>
+<div class="p-6 border-t border-white/10 flex justify-end">
+<button class="px-8 py-3 bg-white text-black font-label-caps text-label-caps rounded-sm hover:scale-105 hover:shadow-[0_0_20px_rgba(157,0,255,0.4)] transition-all duration-300" onclick="nextStep('step-delivery')">Continue</button>
+</div>
+</div>
+</div>
+<!-- Step 2: Delivery Method -->
+<div class="accordion-item border border-white/10 glass-panel rounded-xl overflow-hidden" id="step-delivery">
+<button class="w-full flex justify-between items-center p-6 text-left group" onclick="toggleAccordion('step-delivery')">
+<div class="flex items-center gap-4">
+<span class="w-8 h-8 rounded-full border border-white/20 text-on-surface-variant flex items-center justify-center font-label-caps">02</span>
+<h2 class="font-label-caps text-label-caps tracking-widest uppercase">Delivery Method</h2>
+</div>
+<span class="material-symbols-outlined chevron transition-transform duration-300" data-icon="expand_more">expand_more</span>
+</button>
+<div class="accordion-content">
+<div class="p-6 pt-0 space-y-4">
+<label class="flex items-center justify-between p-4 border border-tertiary bg-tertiary/5 rounded-lg cursor-pointer">
+<div class="flex items-center gap-4">
+<input checked="" class="text-tertiary focus:ring-tertiary bg-black border-white/20" name="delivery" type="radio"/>
+<div>
+<p class="font-label-caps text-white">Express Stealth</p>
+<p class="text-on-surface-variant text-sm">Next Day Delivery • Insured</p>
+</div>
+</div>
+<p class="font-label-caps text-tertiary">+$15.00</p>
+</label>
+<label class="flex items-center justify-between p-4 border border-white/10 hover:border-white/30 rounded-lg cursor-pointer transition-colors">
+<div class="flex items-center gap-4">
+<input class="text-tertiary focus:ring-tertiary bg-black border-white/20" name="delivery" type="radio"/>
+<div>
+<p class="font-label-caps text-white">Standard Fleet</p>
+<p class="text-on-surface-variant text-sm">3-5 Business Days</p>
+</div>
+</div>
+<p class="font-label-caps text-white">FREE</p>
+</label>
+</div>
+<div class="p-6 border-t border-white/10 flex justify-end">
+<button class="px-8 py-3 bg-white text-black font-label-caps text-label-caps rounded-sm hover:scale-105 hover:shadow-[0_0_20px_rgba(157,0,255,0.4)] transition-all duration-300" onclick="nextStep('step-payment')">Continue</button>
+</div>
+</div>
+</div>
+<!-- Step 3: Payment -->
+<div class="accordion-item border border-white/10 glass-panel rounded-xl overflow-hidden" id="step-payment">
+<button class="w-full flex justify-between items-center p-6 text-left group" onclick="toggleAccordion('step-payment')">
+<div class="flex items-center gap-4">
+<span class="w-8 h-8 rounded-full border border-white/20 text-on-surface-variant flex items-center justify-center font-label-caps">03</span>
+<h2 class="font-label-caps text-label-caps tracking-widest uppercase">Payment Information</h2>
+</div>
+<span class="material-symbols-outlined chevron transition-transform duration-300" data-icon="expand_more">expand_more</span>
+</button>
+<div class="accordion-content">
+<div class="p-6 pt-0">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+<button class="flex flex-col items-center justify-center p-4 rounded-lg border border-tertiary bg-tertiary/5 gap-2 group transition-all">
+<span class="material-symbols-outlined text-tertiary" data-icon="payments">payments</span>
+<span class="text-[10px] font-label-caps uppercase tracking-tighter">Razorpay</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-lg border border-white/10 hover:border-white/30 gap-2 group transition-all">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-white" data-icon="credit_card">credit_card</span>
+<span class="text-[10px] font-label-caps uppercase tracking-tighter">Stripe</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-lg border border-white/10 hover:border-white/30 gap-2 group transition-all">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-white" data-icon="qr_code_2">qr_code_2</span>
+<span class="text-[10px] font-label-caps uppercase tracking-tighter">UPI</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-lg border border-white/10 hover:border-white/30 gap-2 group transition-all">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-white" data-icon="local_shipping">local_shipping</span>
+<span class="text-[10px] font-label-caps uppercase tracking-tighter">COD</span>
+</button>
+</div>
+<div class="space-y-4 max-w-md mx-auto">
+<div class="relative neon-glow">
+<input class="w-full bg-transparent border-b border-white/20 focus:border-tertiary focus:ring-0 text-white font-label-caps px-0 py-3 placeholder:text-white/20" placeholder="CARD NUMBER" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="relative neon-glow">
+<input class="w-full bg-transparent border-b border-white/20 focus:border-tertiary focus:ring-0 text-white font-label-caps px-0 py-3 placeholder:text-white/20" placeholder="MM/YY" type="text"/>
+</div>
+<div class="relative neon-glow">
+<input class="w-full bg-transparent border-b border-white/20 focus:border-tertiary focus:ring-0 text-white font-label-caps px-0 py-3 placeholder:text-white/20" placeholder="CVV" type="text"/>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6 border-t border-white/10">
+<button class="w-full py-5 bg-white text-black font-headline-lg-mobile text-sm tracking-widest uppercase hover:bg-tertiary hover:scale-[1.01] transition-all duration-500 shadow-[0_0_40px_rgba(157,0,255,0.2)]">Place Secure Order</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side: Order Summary -->
+<aside class="w-full lg:w-[400px]">
+<div class="sticky top-28 glass-panel p-8 rounded-xl border border-white/10">
+<h3 class="font-label-caps text-label-caps mb-8 tracking-widest uppercase border-b border-white/10 pb-4">Order Summary</h3>
+<div class="space-y-6 mb-8">
+<!-- Item -->
+<div class="flex gap-4">
+<div class="w-20 h-24 bg-surface-container-highest rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Close-up shot of a luxury streetwear black heavy cotton oversized hoodie with reflective silver inkwave logo, studio lighting on deep black background, cinematic fashion photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGG4_27BicUCv2a0OpQh1E5_KmOy8jfzAohwfANUwpBu7kRA4Xe7quYQP3V43XBnbfsuIzYp3s1sUqzaE7FuR-4l7XZamrqOcp4L1z5hYEOJR_crxRVp_OzRBJ6iDyeC2zK2qIeuk0ZrwIjUOa98db0L6tcpC6khSsUoHwGDNSmpzqA1OoCEg8LSyPGehC-bbSV3lg7yjJy6p6ZHfWHXNd7XUaRkm4CWmRx_n0dXf6o_tqmvXoYPyW"/>
+</div>
+<div class="flex-1 flex flex-col justify-between py-1">
+<div>
+<h4 class="font-label-caps text-white text-sm">Oversized "NIGHT-OPS" Hoodie</h4>
+<p class="text-xs text-on-surface-variant mt-1">SIZE: XL • QTY: 1</p>
+</div>
+<p class="font-label-caps text-tertiary">$185.00</p>
+</div>
+</div>
+<!-- Item -->
+<div class="flex gap-4">
+<div class="w-20 h-24 bg-surface-container-highest rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="High-end tactical street pants with multiple technical pockets and adjustable straps, premium charcoal tech-fabric, sharp dramatic lighting, minimalist industrial aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaFpT7B4M-_CbrdOwPjYA_mbjOx8sWfdqJhUTCWtz63nC6APbZ2q2_WV5DU2ZA8chYhRoxhhPtg-Eh8yC2rNQybehgW4452CT2i7ng75Hckz6-ytdpnTI42RBCJ7BCYJVFT9ErlDz07wQBxclxwdFLPSGtlVyiq95X1LNfYWLUoGUGt46lBDHpjG4FmMDrmnVArB8J52ETFuIPrHL90bCCUmNkRqZ2dtydgUbvv5dDbD8K1s8kb6IM"/>
+</div>
+<div class="flex-1 flex flex-col justify-between py-1">
+<div>
+<h4 class="font-label-caps text-white text-sm">Aero-Cargo Tech Pants</h4>
+<p class="text-xs text-on-surface-variant mt-1">SIZE: 34 • QTY: 1</p>
+</div>
+<p class="font-label-caps text-tertiary">$240.00</p>
+</div>
+</div>
+</div>
+<!-- Coupon Input -->
+<div class="flex gap-2 mb-8 group">
+<div class="flex-1 relative neon-glow">
+<input class="w-full bg-black/40 border border-white/10 rounded-sm px-4 py-3 text-xs font-label-caps text-white placeholder:text-white/20 focus:border-tertiary focus:ring-0" placeholder="COUPON CODE" type="text"/>
+</div>
+<button class="px-6 border border-white/10 hover:border-white/40 font-label-caps text-xs tracking-widest uppercase transition-colors">Apply</button>
+</div>
+<!-- Price Breakdown -->
+<div class="space-y-3 pt-6 border-t border-white/10">
+<div class="flex justify-between">
+<span class="text-on-surface-variant text-sm font-label-caps">Subtotal</span>
+<span class="text-white text-sm font-label-caps">$425.00</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant text-sm font-label-caps">Shipping</span>
+<span class="text-white text-sm font-label-caps">$15.00</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant text-sm font-label-caps">Tax</span>
+<span class="text-white text-sm font-label-caps">$34.00</span>
+</div>
+<div class="flex justify-between pt-4 border-t border-white/10 mt-4">
+<span class="text-white font-label-caps text-base tracking-widest">TOTAL</span>
+<span class="text-tertiary font-label-caps text-lg">$474.00</span>
+</div>
+</div>
+<div class="mt-8 p-4 bg-tertiary/5 border border-tertiary/10 rounded-lg flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary text-sm" data-icon="lock" style="font-variation-settings: 'FILL' 1;">lock</span>
+<p class="text-[10px] text-on-surface-variant leading-tight">Your payment is encrypted and processed via our secure PCI-DSS compliant vault. We do not store full card details.</p>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-20 bg-black border-t border-white/5">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop gap-gutter">
+<div class="font-headline-lg text-primary text-2xl uppercase tracking-widest mb-8 md:mb-0">INKWAVE</div>
+<div class="flex flex-wrap justify-center gap-8 mb-8 md:mb-0">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-tertiary transition-colors" href="#">PRIVACY</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-tertiary transition-colors" href="#">TERMS</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-tertiary transition-colors" href="#">SHIPPING</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-tertiary transition-colors" href="#">RETURNS</a>
+</div>
+<div class="text-on-surface-variant font-body-md text-body-md text-sm">
+                © 2024 INKWAVE STUDIOS. ALL RIGHTS RESERVED.
+            </div>
+</div>
+</footer>
+<script>
+        function toggleAccordion(id) {
+            const items = document.querySelectorAll('.accordion-item');
+            items.forEach(item => {
+                if (item.id === id) {
+                    item.classList.toggle('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        function nextStep(nextId) {
+            const items = document.querySelectorAll('.accordion-item');
+            items.forEach(item => item.classList.remove('active'));
+            
+            const nextItem = document.getElementById(nextId);
+            if (nextItem) {
+                nextItem.classList.add('active');
+                nextItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Visual update for step number
+                const prevStepNumber = nextItem.previousElementSibling.querySelector('.w-8.h-8');
+                if (prevStepNumber) {
+                    prevStepNumber.classList.add('bg-tertiary', 'text-black', 'border-tertiary');
+                    prevStepNumber.innerHTML = '<span class="material-symbols-outlined text-sm">check</span>';
+                }
+                
+                const currentNumber = nextItem.querySelector('.w-8.h-8');
+                currentNumber.classList.add('border-tertiary', 'text-tertiary');
+            }
+        }
+    </script>
+</body></html>

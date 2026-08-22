@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>INKWAVE | Vanguard Community</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Syne:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#454747",
+                    "tertiary-container": "#000000",
+                    "secondary-fixed": "#e2e2e2",
+                    "on-primary-fixed": "#1b1b1b",
+                    "surface-container-low": "#1a1c1c",
+                    "outline-variant": "#4c4546",
+                    "on-primary-fixed-variant": "#474747",
+                    "outline": "#988e90",
+                    "on-tertiary": "#4b007e",
+                    "inverse-on-surface": "#2f3131",
+                    "on-secondary": "#2f3131",
+                    "surface-container-highest": "#333535",
+                    "on-surface-variant": "#cfc4c5",
+                    "surface-container-lowest": "#0c0f0f",
+                    "on-tertiary-fixed": "#2d004f",
+                    "on-primary-container": "#757575",
+                    "surface-variant": "#333535",
+                    "on-surface": "#e2e2e2",
+                    "background": "#121414",
+                    "primary-container": "#000000",
+                    "inverse-primary": "#5e5e5e",
+                    "tertiary-fixed-dim": "#dfb7ff",
+                    "error": "#ffb4ab",
+                    "surface-bright": "#38393a",
+                    "surface-tint": "#c6c6c6",
+                    "on-tertiary-fixed-variant": "#6b00b0",
+                    "secondary": "#c6c6c7",
+                    "on-primary": "#303030",
+                    "tertiary-fixed": "#f1daff",
+                    "primary": "#c6c6c6",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "on-error": "#690005",
+                    "on-background": "#e2e2e2",
+                    "surface-dim": "#121414",
+                    "tertiary": "#dfb7ff",
+                    "surface-container-high": "#282a2b",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "on-secondary-fixed-variant": "#454747",
+                    "inverse-surface": "#e2e2e2",
+                    "error-container": "#93000a",
+                    "surface": "#121414",
+                    "surface-container": "#1e2020",
+                    "on-secondary-container": "#b4b5b5",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "on-error-container": "#ffdad6",
+                    "primary-fixed": "#e2e2e2",
+                    "on-tertiary-container": "#a635ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1440px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "64px",
+                    "gutter": "24px",
+                    "unit": "8px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Syne"],
+                    "body-md": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "headline-lg-mobile": ["Syne"],
+                    "display-2xl": ["Syne"]
+            },
+            "fontSize": {
+                    "headline-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.15em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "display-2xl": ["80px", {"lineHeight": "1.0", "letterSpacing": "-0.04em", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #000000;
+            color: #e2e2e2;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(157, 0, 255, 0.4);
+            box-shadow: 0 0 20px rgba(157, 0, 255, 0.2);
+            transform: translateY(-4px);
+        }
+        .neon-text-glow {
+            text-shadow: 0 0 10px rgba(157, 0, 255, 0.8);
+        }
+        .silver-gradient-border {
+            border-image: linear-gradient(to bottom right, rgba(255,255,255,0.3), rgba(255,255,255,0.05)) 1;
+        }
+        .mask-fade-bottom {
+            mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+        }
+        .kerning-tight {
+            letter-spacing: -0.05em;
+        }
+        .vanguard-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- TopNavBar Navigation Shell -->
+<nav class="fixed top-0 w-full z-50 bg-black/70 backdrop-blur-xl border-b border-white/10 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20">
+<div class="font-display-2xl text-[24px] tracking-tighter text-on-surface uppercase">INKWAVE</div>
+<div class="hidden md:flex gap-8">
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-300" href="#">EDITORIAL</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-300" href="#">LOOKBOOK</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1" href="#">COMMUNITY</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-300" href="#">SHOP</a>
+</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">shopping_bag</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">person</span>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Hero: The Vanguard Collective -->
+<section class="relative min-h-[921px] flex items-center overflow-hidden">
+
+<div class="relative z-10 w-full px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<div class="md:col-span-8 flex flex-col justify-center">
+<span class="font-label-caps text-label-caps text-primary mb-4 tracking-[0.3em] uppercase">The Underground Pulse</span>
+<h1 class="font-display-2xl text-[64px] md:text-display-2xl kerning-tight uppercase leading-none mb-8">Vanguard<br/><span class="text-on-surface/40">Community</span></h1>
+<div class="flex flex-wrap gap-4">
+<button class="bg-white text-black px-12 py-4 font-label-caps text-label-caps uppercase tracking-widest hover:scale-105 transition-transform border border-white/20 active:shadow-[0_0_20px_rgba(157,0,255,0.4)]">
+                            Join the Collective
+                        </button>
+<button class="bg-transparent text-white px-12 py-4 font-label-caps text-label-caps uppercase tracking-widest border border-white/30 hover:bg-white/5 transition-all">
+                            View Manifest
+                        </button>
+</div>
+</div>
+<div class="md:col-span-4 hidden md:flex items-center">
+<div class="glass-card p-8 rotate-3">
+<p class="font-body-md text-on-surface-variant italic mb-4">"INKWAVE isn't a brand; it's an encrypted frequency for those who live in the shadows of the mainstream."</p>
+<div class="h-px w-12 bg-primary mb-2"></div>
+<span class="font-label-caps text-[10px] uppercase opacity-50">Identity Verified // 0x429A</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid: Programs & Style Quiz -->
+<section class="py-24 px-margin-mobile md:px-margin-desktop">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Style Quiz Entry -->
+<div class="md:col-span-7 group relative overflow-hidden h-[500px] border border-white/10">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="A moody, high-contrast fashion photography of a person wearing futuristic streetwear with neon accents, standing in a rain-slicked dark alleyway. The scene is lit by purple and electric blue neon signs reflecting on the wet pavement. The overall aesthetic is cyber-minimalist with a premium, luxury underground feel, emphasizing dark silhouettes and sharp lighting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuARE0ohd8__quPgYFAj9dNwB5ybJXG7Gz_UWuSZliLUExtWz-yK6HV72YeATI_kOZJlWHJj-7MuJg7df8o6-ca61_PUkWk5Szw2NXEepATlK-w692XSvJwj1fH6PC6zJwWOfdIVlalmSrOLXL82P0f8Lw-pBoDqMfLPA-C4O89mMlxKYH-K-yi4A5W3GSUcdyat6M-JfPRx2GYf-5UnokMacyTKFci8ABsHoMrhYFnSs6-OKB_4B7Hg')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+<div class="absolute bottom-12 left-12 right-12">
+<h2 class="font-headline-lg text-white mb-4 uppercase">Find Your Cipher</h2>
+<p class="text-on-surface-variant font-body-md mb-6 max-w-md">Our neural-link style quiz determines your place in the Vanguard aesthetic hierarchy. Recieve a curated capsule based on your DNA.</p>
+<button class="bg-black text-white px-8 py-3 border border-white/30 font-label-caps hover:bg-white hover:text-black transition-colors">Start Style Quiz</button>
+</div>
+</div>
+<!-- Small Cards Column -->
+<div class="md:col-span-5 grid grid-rows-2 gap-gutter h-[500px]">
+<!-- Influencer Program -->
+<div class="glass-card p-8 flex flex-col justify-between group cursor-pointer">
+<div>
+<div class="flex justify-between items-start mb-6">
+<span class="material-symbols-outlined text-4xl text-primary">star</span>
+<span class="font-label-caps text-[10px] border border-white/20 px-2 py-1">OPEN ACCESS</span>
+</div>
+<h3 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-[32px] uppercase">Influencer Program</h3>
+<p class="text-on-surface-variant text-sm mt-2">Scale your presence with exclusive drops and early access codes.</p>
+</div>
+<div class="flex items-center gap-2 font-label-caps text-primary group-hover:gap-4 transition-all">
+                            Apply Now <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</div>
+</div>
+<!-- Affiliate Program -->
+<div class="glass-card p-8 flex flex-col justify-between group cursor-pointer">
+<div>
+<div class="flex justify-between items-start mb-6">
+<span class="material-symbols-outlined text-4xl text-primary" data-weight="fill" style="font-variation-settings: 'FILL' 1;">group_add</span>
+<span class="font-label-caps text-[10px] border border-white/20 px-2 py-1">PARTNERSHIP</span>
+</div>
+<h3 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-[32px] uppercase">Affiliate Program</h3>
+<p class="text-on-surface-variant text-sm mt-2">Earn 15% commission on all encrypted sales generated through your link.</p>
+</div>
+<div class="flex items-center gap-2 font-label-caps text-primary group-hover:gap-4 transition-all">
+                            Join Network <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Customer Photos: The Gallery -->
+<section class="py-24 bg-surface-container-lowest">
+<div class="px-margin-mobile md:px-margin-desktop mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<span class="font-label-caps text-primary tracking-[0.2em]">#INKWAVE_VANGUARD</span>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg uppercase mt-2">The Visual Archive</h2>
+</div>
+<button class="bg-white/5 border border-white/10 px-8 py-3 font-label-caps hover:bg-white/10 transition-colors">Upload Your Frame</button>
+</div>
+<!-- Asymmetric Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 md:px-8">
+<div class="space-y-4">
+<img class="w-full grayscale hover:grayscale-0 transition-all duration-500 cursor-crosshair" data-alt="A portrait of a person with silver hair wearing oversized techwear jacket and metal hardware accessories. The lighting is harsh, top-down white light in a dark warehouse setting. Cyber-minimalist fashion style with deep shadows and metallic textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCO6ytFbjS0ZPRyGPETaHMx71_LaB9RHB8Pl8CZsPrN6GhALoFUiV03OotK4yPg0Seb9crTlcwerQ9WV3v8umWnwlfWOFzssbG1ex5nMQlBcfax6EHaBz8yurUP9aU1MBRfld2KMHTEzyb9Zd42eMW9nPYmMebamedx9oYaQXjAB7huBmHBaEhJasu4GVHe1K7OfID4Ws7xx0uz5NDWCiUMYP39-ofPranQdVSKFNnnjas5TQn6FXPH"/>
+<img class="w-full grayscale hover:grayscale-0 transition-all duration-500 cursor-crosshair" data-alt="A close-up of futuristic sneakers with glowing LED soles standing on a reflective metal floor. The background is a dark obsidian room with subtle glassmorphism elements. High-end streetwear photography with a focus on details and neon light spills." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJDV2SO8YSxs2BZ8ebS13smzWKsjAHMIU34Xfa13OnOnb6M0nOKk2nWNVyM2mxTr0bFqfHLpXQn6-FbUlCM64ddd6Z7skhILbZiG4eAVdaOmD0BGaJmmHFrqn3FNrFmX5oHFCYVfKN-ofuHeJtDyM5ZokEIfGA7JSc2u85YZo8ma4duph5O92DMHxp6y2zkEUbqAnmc3ihP5Pkf1qbTY31Al0JhTSXIg3xh_7o8WzlUJUL16dmIZDo"/>
+</div>
+<div class="space-y-4 pt-12">
+<img class="w-full grayscale hover:grayscale-0 transition-all duration-500 cursor-crosshair" data-alt="Two people walking through a futuristic urban landscape at night. They are wearing dark, multi-pocketed utility vests and wide-leg trousers. The surrounding buildings have electric purple neon signage. The mood is cinematic, luxury underground, and nocturnally energetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRMUkbLy2WQ6_8pOc6UxfKY3NMU5xXkNdf0jnWsTVkbh_LkriMX0KL471Q070FuyiAV3IB57AxFi04Teyz4cjgz0DDT5EHmsvrXryMtyKZiWHRixOPnHRifOsF9U5FZiLB5A80cBv0TrqjrzDMCrrZUhw9u5RkJqjQl2LGfhM3D3wUJWoSWxs4m5baFbyw2GESo6A7_o-bosY2UH0-ck6C2hTBliBT2tIP4Y9-jOh8C8Qpf8DVpSGA"/>
+<img class="w-full grayscale hover:grayscale-0 transition-all duration-500 cursor-crosshair" data-alt="A minimalist overhead shot of a flat-lay containing a silver bracelet, an encrypted black invitation card, and a pair of dark sunglasses. The aesthetic is extremely clean, high-fashion minimalism with surgical white highlights on black surfaces." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGAsBb_BfGOiaL3oyN9Ehac216_E_CqCCfUWZJ2HUxwATzu60LEn4sSQB4R5Uv6XPoymUcr36C0J7sI64UqJkL-0BOtsCTrOsaKW7Umdp4o-C18xquMOLn4FhWb3bUbuS9aRBekTErSFIY-NlIJ1PJRt8Eu-kt8Z4HmX1kk-NVRu1SWz1IKmBi6rs3sbcJYnhjj-vAAYdoNttao5csbZBRLpGzr-9FQPO7yERL43IKdwHmzC5juibQ"/>
+</div>
+<div class="space-y-4">
+<img class="w-full grayscale hover:grayscale-0 transition-all duration-500 cursor-crosshair" data-alt="A person leaning against a frosted glass wall with a blurred silhouette of a neon city behind it. They are wearing a mesh top and silver chains. The lighting is soft-focus purple and deep black, creating a mysterious digital fluidity mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBf9idb31ybojbhupxLZcG1R6KtF_TtaUWPqKpVplULCIaGX_LNsINzes4YVwgyQg6oVPDde1TGEMK25yrMwkPvMeqSKkQAe9Lsauh1ZSqCHDKNx9TNDxs1AvHgiur2htq7H5midU0JIcDjjAfLDQU_zMKAXI7621dbIYd1kOxLM1D66VZc95XQBuTWVwB_l0FdRqqEgsqObIFjzzcmFNYyjB5-saJYjOSVXvo9NOGsHsgbHPP6WJsH"/>
+<img class="w-full grayscale hover:grayscale-0 transition-all duration-500 cursor-crosshair" data-alt="Dynamic shot of a skateboarder in an underground concrete park wearing all black INKWAVE gear. The motion is blurred slightly to show speed, captured with high-contrast monochrome lighting. Rugged yet premium streetwear vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKH4VVHJgE_dts-NUx9zZ8a_q_4cdNCxwZBAW4FGmc4N8mikiY2-MyiWEgJLo3pWb3WBs84ovuWfyoiholAs2N8nwkKscEOxwivdvlvQTgPUZ-Tc33Km4WROe9DUJ11pBdGFgnN6jt12JKOaogFKxXdpneO5OweRgF0reRYBzQMbKBzkD8oDMHoR3o1u37c6cteXD0xFOVjIUGaWL9Iw5YEzt992m60Mn6T2nhuhzxLx6FrYYpZpmt"/>
+</div>
+<div class="space-y-4 pt-8">
+<img class="w-full grayscale hover:grayscale-0 transition-all duration-500 cursor-crosshair" data-alt="Close-up of a face partially covered by a techwear mask with digital readouts. The eyes are focused and sharp. Background is a dark electronic circuit pattern. Aesthetic is heavy-duty minimalism and futuristic technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB144D6O34anyz1VZPpntDg0CIE1h5mqvkZlcLM33pzNNCi6a5WBwnTXRTaQFX1oaTbfUOiCvjaUofNZnBZE3k7spvD43e4aSkulYOjT_B2EOnPMTRaZ_qD5_uso7wLdTzjcyhKzf6Z99vY2VNok_Xoiw6VEx21lZnM3FYzZeHJ_H7E4QA4CQJ7Dv3M3igedBAmi-dXtXJdGLqGC82BfcW-R8BPZ0dVSlQ6ZlFbOzrdKc866JeEM5Cz"/>
+<img class="w-full grayscale hover:grayscale-0 transition-all duration-500 cursor-crosshair" data-alt="Street photography of a person standing under a bright white spotlight in an otherwise pitch-black street. They are holding a transparent bag with glowing contents. The look is avant-garde streetwear, clean and high-impact." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtAQWk-9fXCt8GXTT3Wd7jTsbvknwjBX3d94r5exQB7fEvHdAywAhVYdqWsgTe_dPzu5ahYfoaUBfjcgyL2OVMoz1mWlSTMKpaByL98Da7JKaJWCZUPVgRKqQrdMsStut14XmhShpDKVniFeyPb-pfd5yXIZ2sOfou1CT4fB8Vb9y6eHhUStfLk02VaD95FQtxHSDNUM6B_LeSLfjAQdainl3gsITq4epYiyAnCYEN9CsmG0FQEdPT"/>
+</div>
+</div>
+</section>
+<!-- Fashion Stories: Blog Previews -->
+<section class="py-32 px-margin-mobile md:px-margin-desktop">
+<div class="mb-16">
+<h2 class="font-headline-lg uppercase text-center">Fashion Stories</h2>
+<div class="w-24 h-1 bg-primary mx-auto mt-4"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+<!-- Story 1 -->
+<article class="group">
+<div class="relative overflow-hidden aspect-[4/5] mb-6">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Editorial fashion photography featuring a model in a voluminous black coat standing in a pristine white studio. The lighting is high-key with soft grey shadows, emphasizing the texture of the fabric. Luxury minimalist aesthetic with a focus on silhouettes and structure." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa1sGlXBal0duEl2VFqiM_yLY1drygf24nZjpfgTH1UBAq1y-DgjHdDi4XS-H_G10Fhh4NexjLIY9OiqhS-ex--qB-0rNckGMH2Upi269bDI5tC95ynPA7mNZsD-8YLQXCTemuFeZxjuSQTt-iXoykYi9uTnX-V2kWveY_fxMd0ZyaHg4Y9-wisiM_NKdUzXY77tAKv0Z_kFKgJK_uxmNszlNNE8f7Z32wAWuhghh6QEtSd2SwXkaJ"/>
+<div class="absolute top-4 left-4 bg-black/80 backdrop-blur px-3 py-1 font-label-caps text-[10px]">EDITION 001</div>
+</div>
+<h3 class="font-headline-lg-mobile uppercase group-hover:text-primary transition-colors cursor-pointer">The Obsidian Epoch: Winter Core</h3>
+<p class="text-on-surface-variant font-body-md mt-4 line-clamp-2">Exploring the transition from raw techwear to luxury obsidian aesthetics in the upcoming season...</p>
+<div class="mt-6 font-label-caps text-[10px] tracking-widest text-primary flex items-center gap-2">
+                        READ MORE <span class="material-symbols-outlined text-xs">arrow_outward</span>
+</div>
+</article>
+<!-- Story 2 -->
+<article class="group">
+<div class="relative overflow-hidden aspect-[4/5] mb-6">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A night-time city street reflected in a rain puddle. Streetwear shoes are visible at the edge of the frame. The reflection shows electric purple and blue neon lights. Digital fluidity and nocturnal energy are the main themes of this fashion photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2zC4YNoGOCsiHZuU2gU9tP1n5zPW4i1NG1HWcZEEd80r5Z-Darx_ZEAbrk6e849Zxq_UYOsi0Jyo1LF3BaA2uaSqVg9GyFTzW-j_N4wafqCNEbYtvqnKukEWI6eGGip0Rz71dB1nuM9EcP06A7at1-_3rO9vk6AXKmY92t-l8xTfrlFJI554HOtMPMYo9714U8QmTum7aZ8AaVyzO6VQZwwmVyhEn1D6zMaLdSVi-dcv3Y6D8yRHv"/>
+<div class="absolute top-4 left-4 bg-black/80 backdrop-blur px-3 py-1 font-label-caps text-[10px]">EDITION 002</div>
+</div>
+<h3 class="font-headline-lg-mobile uppercase group-hover:text-primary transition-colors cursor-pointer">Digital Fluidity in Subculture</h3>
+<p class="text-on-surface-variant font-body-md mt-4 line-clamp-2">How the digital world is reshaping the physical threads we wear in the underground scene...</p>
+<div class="mt-6 font-label-caps text-[10px] tracking-widest text-primary flex items-center gap-2">
+                        READ MORE <span class="material-symbols-outlined text-xs">arrow_outward</span>
+</div>
+</article>
+<!-- Story 3 -->
+<article class="group">
+<div class="relative overflow-hidden aspect-[4/5] mb-6">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="An industrial concrete space with a single shaft of light illuminating a metallic fashion accessory on a pedestal. The atmosphere is cold, minimal, and premium. The lighting creates sharp silver highlights on dark surfaces." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAd3zZTitv-En-6xAXb6GdmzlPI54HEmy0zqwNbBl5oD_-kaXQGuc8NszUXpTdnKrhRfyqPJhvY6kPTaxybzfedS6mJqHGq45mAUVMISqzDixMqOFTwaG4waGwEa9Xa2U8XSnXIIdVlu_PDRbZKC0Nrpr4a4OdXA77lu3WrcKnx02wZQuUDFfOO03H5wMsDil2Kbrdfa6sA9-w0WjCQAz5iLkr4-6H0VzHLHMZXG3Ov1M_SEbEcgdXT"/>
+<div class="absolute top-4 left-4 bg-black/80 backdrop-blur px-3 py-1 font-label-caps text-[10px]">EDITION 003</div>
+</div>
+<h3 class="font-headline-lg-mobile uppercase group-hover:text-primary transition-colors cursor-pointer">Hardware &amp; Heritage</h3>
+<p class="text-on-surface-variant font-body-md mt-4 line-clamp-2">The return of heavy-duty metal hardware in high-end streetwear. A look at the surgical precision of INKWAVE's new collection.</p>
+<div class="mt-6 font-label-caps text-[10px] tracking-widest text-primary flex items-center gap-2">
+                        READ MORE <span class="material-symbols-outlined text-xs">arrow_outward</span>
+</div>
+</article>
+</div>
+</section>
+<!-- CTA: Join the Collective -->
+<section class="py-32 relative overflow-hidden">
+<div class="absolute inset-0 bg-primary/5 opacity-30"></div>
+<div class="relative z-10 text-center px-margin-mobile">
+<h2 class="font-display-2xl text-headline-lg-mobile md:text-[80px] uppercase kerning-tight mb-8">Join the Collective</h2>
+<p class="font-body-md text-on-surface-variant max-w-2xl mx-auto mb-12">Entry into the Vanguard is selective. We are looking for creators, disruptors, and the digitally native to represent the frequency.</p>
+<div class="flex flex-col md:flex-row justify-center items-center gap-6">
+<input class="bg-transparent border-b border-white/30 text-white font-label-caps text-center focus:border-primary focus:ring-0 w-80 py-4 transition-all outline-none" placeholder="ENTER ENCRYPTED EMAIL" type="email"/>
+<button class="bg-white text-black px-12 py-4 font-label-caps hover:scale-105 transition-transform">REQUEST ACCESS</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Navigation Shell -->
+<footer class="bg-black py-16 px-margin-mobile md:px-margin-desktop border-t border-white/10 flex flex-col md:flex-row justify-between items-start gap-12">
+<div class="flex flex-col gap-6">
+<div class="font-display-2xl text-headline-lg-mobile text-on-surface">INKWAVE</div>
+<p class="text-on-secondary-container max-w-xs font-body-md">Luxury Underground. Digital Fluidity. Nocturnal Energy. The final frequency in high-end streetwear.</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-2 gap-x-16 gap-y-4">
+<div class="flex flex-col gap-3">
+<span class="font-label-caps text-white mb-2">NETWORK</span>
+<a class="text-on-secondary-container hover:text-white transition-opacity" href="#">Contact</a>
+<a class="text-on-secondary-container hover:text-white transition-opacity" href="#">Shipping</a>
+<a class="text-on-secondary-container hover:text-white transition-opacity" href="#">Privacy</a>
+<a class="text-on-secondary-container hover:text-white transition-opacity" href="#">Terms</a>
+</div>
+<div class="flex flex-col gap-3">
+<span class="font-label-caps text-white mb-2">COLLECTIVE</span>
+<a class="text-on-secondary-container hover:text-white transition-opacity" href="#">About Us</a>
+<a class="text-on-secondary-container hover:text-white transition-opacity" href="#">Inkwave Blog</a>
+<a class="text-on-secondary-container hover:text-white transition-opacity" href="#">Affiliates</a>
+<a class="text-on-secondary-container hover:text-white transition-opacity" href="#">Careers</a>
+</div>
+</div>
+<div class="flex flex-col justify-end h-full">
+<div class="flex gap-4 mb-4">
+<span class="material-symbols-outlined text-white cursor-pointer opacity-50 hover:opacity-100">language</span>
+<span class="material-symbols-outlined text-white cursor-pointer opacity-50 hover:opacity-100">camera</span>
+<span class="material-symbols-outlined text-white cursor-pointer opacity-50 hover:opacity-100">podcasts</span>
+</div>
+<p class="font-body-md text-body-md text-on-secondary-container opacity-50">© 2024 INKWAVE. ALL RIGHTS RESERVED.</p>
+</div>
+</footer>
+<!-- SideNavBar (Hidden by default, triggered on mobile or sidebar interaction) -->
+<aside class="hidden h-full w-80 fixed left-0 top-0 z-[60] bg-surface-container-lowest/95 backdrop-blur-2xl border-r border-white/5 shadow-[20px_0_40px_rgba(0,0,0,0.8)] flex flex-col p-8 space-y-6" id="side-nav">
+<div class="flex justify-between items-center mb-8">
+<div>
+<div class="font-display-2xl text-headline-lg text-on-surface">INKWAVE</div>
+<div class="font-label-caps text-label-caps text-primary opacity-60">Luxury Underground</div>
+</div>
+<button class="material-symbols-outlined text-white" onclick="toggleSideNav()">close</button>
+</div>
+<nav class="flex flex-col gap-4">
+<a class="text-on-surface-variant flex items-center gap-4 p-3 hover:bg-white/5 hover:text-white rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">info</span> About Us
+            </a>
+<a class="text-on-surface-variant flex items-center gap-4 p-3 hover:bg-white/5 hover:text-white rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">menu_book</span> Inkwave Blog
+            </a>
+<a class="text-white bg-white/10 flex items-center gap-4 p-3 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined text-primary">group_add</span> Affiliates
+            </a>
+<a class="text-on-surface-variant flex items-center gap-4 p-3 hover:bg-white/5 hover:text-white rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">star</span> Influencers
+            </a>
+<a class="text-on-surface-variant flex items-center gap-4 p-3 hover:bg-white/5 hover:text-white rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">redeem</span> Gift Cards
+            </a>
+<a class="text-on-surface-variant flex items-center gap-4 p-3 hover:bg-white/5 hover:text-white rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">work</span> Careers
+            </a>
+</nav>
+</aside>
+<script>
+        function toggleSideNav() {
+            const nav = document.getElementById('side-nav');
+            nav.classList.toggle('hidden');
+            nav.classList.toggle('flex');
+        }
+
+        // Smooth scroll reveal logic for aesthetic polish
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                threshold: 0.1
+            };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('section, article, .glass-card').forEach(el => {
+                el.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+                observer.observe(el);
+            });
+        });
+    </script>
+</body></html>

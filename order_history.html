@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Order History | INKWAVE LUXURY UNDERGROUND</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Syne:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .neon-glow-hover:hover {
+            box-shadow: 0 0 20px rgba(223, 183, 255, 0.2);
+            border-color: rgba(223, 183, 255, 0.5);
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121414;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333535;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #dfb7ff;
+        }
+    </style>
+<!-- Include the provided Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#000000",
+                    "on-primary-fixed": "#1b1b1b",
+                    "surface-tint": "#c6c6c6",
+                    "surface-variant": "#333535",
+                    "surface-container": "#1e2020",
+                    "surface-container-highest": "#333535",
+                    "primary-container": "#000000",
+                    "inverse-surface": "#e2e2e2",
+                    "secondary-fixed": "#e2e2e2",
+                    "surface-dim": "#121414",
+                    "on-primary-fixed-variant": "#474747",
+                    "surface-bright": "#38393a",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "tertiary-fixed": "#f1daff",
+                    "on-surface-variant": "#cfc4c5",
+                    "background": "#121414",
+                    "tertiary-fixed-dim": "#dfb7ff",
+                    "on-tertiary-fixed-variant": "#6b00b0",
+                    "surface": "#121414",
+                    "outline": "#988e90",
+                    "on-tertiary-fixed": "#2d004f",
+                    "on-secondary-container": "#b4b5b5",
+                    "on-primary": "#303030",
+                    "on-error-container": "#ffdad6",
+                    "error-container": "#93000a",
+                    "outline-variant": "#4c4546",
+                    "error": "#ffb4ab",
+                    "on-tertiary-container": "#a635ff",
+                    "on-secondary": "#2f3131",
+                    "primary-fixed": "#e2e2e2",
+                    "on-background": "#e2e2e2",
+                    "primary": "#c6c6c6",
+                    "surface-container-high": "#282a2b",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "secondary": "#c6c6c7",
+                    "on-tertiary": "#4b007e",
+                    "on-error": "#690005",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "inverse-primary": "#5e5e5e",
+                    "secondary-container": "#454747",
+                    "on-surface": "#e2e2e2",
+                    "surface-container-lowest": "#0c0f0f",
+                    "inverse-on-surface": "#2f3131",
+                    "on-primary-container": "#757575",
+                    "tertiary": "#dfb7ff",
+                    "surface-container-low": "#1a1c1c",
+                    "on-secondary-fixed-variant": "#454747"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "gutter": "24px",
+                    "margin-desktop": "64px",
+                    "unit": "8px",
+                    "container-max": "1440px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Syne"],
+                    "display-2xl": ["Syne"],
+                    "headline-lg-mobile": ["Syne"],
+                    "body-md": ["Inter"],
+                    "label-caps": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-2xl": ["80px", {"lineHeight": "1.0", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.15em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-background/70 backdrop-blur-xl border-b border-outline-variant/30 h-20 flex justify-between items-center px-margin-mobile md:px-margin-desktop">
+<div class="flex items-center gap-8">
+<span class="font-headline-lg text-headline-lg-mobile text-on-background tracking-tighter uppercase">INKWAVE</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">search</span>
+<input class="bg-transparent border-none focus:ring-0 font-label-caps text-label-caps uppercase placeholder:text-on-surface-variant/40 w-48" placeholder="SEARCH ORDERS..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer transition-transform active:scale-95">shopping_bag</span>
+<span class="material-symbols-outlined text-primary cursor-pointer transition-transform active:scale-95">notifications</span>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant/30">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a stylish young individual with avant-garde streetwear makeup, wearing a matte black tactical vest. The lighting is cinematic and moody, with high contrast and a cool-toned industrial background. The aesthetic reflects a premium, luxury underground vibe consistent with the Inkwave brand's obsidian and silver color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYMVVACkE_wIt9dcCPuaBzDaz-2HyEG5aO7sTIsMnL-QM8sZXw2-310ZFvtQcwTT30X40UhCos6XHP-hlo59r8KJJxV7CUSXKLXuw4JRwqzHcnmqbZJPxcOhhDU0xpJAe96yyJTdNH36iDsDzg3TNH95jV2SMLZx5DgwJp_JwgZz2ZVrcAC4YwIjJTlCa5_FB9MxybZKM-J3F2WM8h2EFpO4uhmu41fXlNUmduvKkV1su_TIxkwrPU"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex pt-20">
+<!-- SideNavBar -->
+<aside class="h-screen w-72 sticky top-20 left-0 hidden md:flex flex-col py-8 overflow-y-auto bg-surface-container-lowest border-r border-outline-variant/20">
+<div class="px-6 mb-10">
+<p class="font-label-caps text-label-caps text-tertiary">Premium Member</p>
+<p class="text-on-surface-variant text-xs opacity-60">Verified Enthusiast</p>
+</div>
+<nav class="flex flex-col">
+<!-- Manual construction based on JSON structure -->
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps uppercase">Profile</span>
+</a>
+<a class="bg-white/5 border-r-2 border-tertiary text-tertiary flex items-center gap-4 px-6 py-4 shadow-[0_0_15px_rgba(223,183,255,0.2)] transition-all duration-200 translate-x-1" href="#">
+<span class="material-symbols-outlined">package</span>
+<span class="font-label-caps text-label-caps uppercase">Orders</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-label-caps text-label-caps uppercase">Wishlist</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">location_on</span>
+<span class="font-label-caps text-label-caps uppercase">Addresses</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">credit_card</span>
+<span class="font-label-caps text-label-caps uppercase">Payments</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">keyboard_return</span>
+<span class="font-label-caps text-label-caps uppercase">Returns</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="font-label-caps text-label-caps uppercase">Coupons</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">checkroom</span>
+<span class="font-label-caps text-label-caps uppercase">Try On</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-caps text-label-caps uppercase">Recent</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">stars</span>
+<span class="font-label-caps text-label-caps uppercase">Rewards</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">group_add</span>
+<span class="font-label-caps text-label-caps uppercase">Referral</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">help_center</span>
+<span class="font-label-caps text-label-caps uppercase">Support</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 min-h-screen px-margin-mobile md:px-margin-desktop py-12">
+<!-- Header Section -->
+<div class="mb-12">
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg uppercase mb-4">My Orders</h1>
+<p class="text-on-surface-variant/60 max-w-xl">Track, manage and review your underground luxury acquisitions. All shipments are handled with discrete, premium packaging.</p>
+</div>
+<!-- Filter & Search Bar -->
+<div class="glass-panel p-6 mb-12 flex flex-col lg:flex-row gap-6 items-center justify-between">
+<div class="flex flex-wrap gap-3">
+<button class="px-5 py-2 rounded-full font-label-caps text-label-caps bg-on-background text-background border border-on-background">ALL</button>
+<button class="px-5 py-2 rounded-full font-label-caps text-label-caps bg-white/5 border border-outline-variant/30 hover:border-primary transition-colors">IN PROGRESS</button>
+<button class="px-5 py-2 rounded-full font-label-caps text-label-caps bg-white/5 border border-outline-variant/30 hover:border-primary transition-colors">DELIVERED</button>
+<button class="px-5 py-2 rounded-full font-label-caps text-label-caps bg-white/5 border border-outline-variant/30 hover:border-primary transition-colors">RETURNED</button>
+</div>
+<div class="flex gap-4 w-full lg:w-auto">
+<div class="relative flex-1 lg:w-64">
+<select class="w-full bg-white/5 border border-outline-variant/30 text-on-surface px-4 py-2 font-label-caps text-label-caps appearance-none focus:border-tertiary focus:ring-0">
+<option>LAST 3 MONTHS</option>
+<option>2023</option>
+<option>2022</option>
+<option>ALL TIME</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Order Cards List -->
+<div class="space-y-8">
+<!-- Order Card 1: Delivered -->
+<div class="glass-panel group overflow-hidden transition-all duration-300 neon-glow-hover">
+<div class="p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start">
+<div class="flex-1 space-y-4">
+<div class="flex flex-wrap justify-between items-start gap-4">
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-1">ORDER NO.</h3>
+<p class="font-headline-lg-mobile text-xl tracking-widest">#IW-8829-01</p>
+</div>
+<div class="text-right">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-1 text-right">STATUS</h3>
+<span class="px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/30 text-[10px] font-bold tracking-tighter uppercase">DELIVERED</span>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 py-4 border-y border-outline-variant/20">
+<div>
+<h4 class="font-label-caps text-[10px] text-on-surface-variant uppercase opacity-50">Date</h4>
+<p class="font-semibold text-sm">OCT 14, 2024</p>
+</div>
+<div>
+<h4 class="font-label-caps text-[10px] text-on-surface-variant uppercase opacity-50">Items</h4>
+<p class="font-semibold text-sm">3 UNITS</p>
+</div>
+<div>
+<h4 class="font-label-caps text-[10px] text-on-surface-variant uppercase opacity-50">Total</h4>
+<p class="font-semibold text-sm">$1,240.00</p>
+</div>
+<div>
+<h4 class="font-label-caps text-[10px] text-on-surface-variant uppercase opacity-50">Ship To</h4>
+<p class="font-semibold text-sm">BERLIN, DE</p>
+</div>
+</div>
+<div class="flex gap-4 pt-4">
+<div class="w-16 h-20 bg-surface-container overflow-hidden border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="Close-up of a high-end streetwear hoodie in obsidian black, featuring complex heavy embroidery on the chest. The fabric texture is rich and high-quality. The lighting is focused and dramatic, highlighting the silver metallic thread in the embroidery. Part of a luxury underground fashion collection." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkPVlsMa0JLXwCgnTbAl08cWBNElFzF6X-P79bhf486MyaBnx_wWYqpksCoB2I7d1OOh_udGUdpqsPuQs-Nh6jSf5gegNmn0VQPZeC4WAXbc2cmhyHkAsl4eOPkYCyaz4dYqDF09Gw00lQx_N-vE4niSFowOrV4zVQkOsewlXB5HvrIZG9uSPttAUB64XlM4TNTy-9vCq3SCNQCqHWcxvoXQwFWA8jIiUWaNw9JsMTQLmq88XpPye_"/>
+</div>
+<div class="w-16 h-20 bg-surface-container overflow-hidden border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="Minimalist design of a futuristic silver utility belt with magnetic hardware. The belt is displayed against a dark, textured charcoal background with subtle purple light leaks. The image conveys a sense of high-tech, premium streetwear accessory craftsmanship." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOd97_6NdtGiqNU_HpZWNdlbVxMj-nEend9yZITb-4wrWhtA7f5V4Qconx_Ao7Y8A3h0tzIy2JPyBCbOpqDa14rSDX2XZhevuDrSIV0NEQjyw4Gp3XKTSSgjn5SKf_i56UbG7_rLKfXdDyUgc4lxvsGDRysPQXhnrgb7tpmltWPLIp7jZ1qMyIOtlPGsJvX0vVXwbfdPP7jk4L9YQyJQwAn0skKSe3Ifjdf9ZUpDgQjTWQbHX64NJb"/>
+</div>
+<div class="w-16 h-20 bg-surface-container overflow-hidden border border-outline-variant/20 flex items-center justify-center text-on-surface-variant bg-white/5">
+<span class="text-xs font-bold">+1</span>
+</div>
+</div>
+</div>
+<div class="w-full md:w-56 flex flex-col gap-3">
+<button class="w-full py-3 bg-white text-black font-label-caps text-label-caps hover:bg-primary transition-colors uppercase border border-white">Track Order</button>
+<button class="w-full py-3 bg-transparent border border-outline-variant/50 text-on-surface font-label-caps text-label-caps hover:bg-white/5 transition-colors uppercase">View Details</button>
+<button class="w-full py-3 bg-transparent border border-outline-variant/50 text-on-surface-variant font-label-caps text-label-caps hover:text-error transition-colors uppercase">Return Items</button>
+</div>
+</div>
+</div>
+<!-- Order Card 2: Shipped -->
+<div class="glass-panel group overflow-hidden transition-all duration-300 neon-glow-hover">
+<div class="p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start">
+<div class="flex-1 space-y-4">
+<div class="flex flex-wrap justify-between items-start gap-4">
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-1">ORDER NO.</h3>
+<p class="font-headline-lg-mobile text-xl tracking-widest">#IW-7710-92</p>
+</div>
+<div class="text-right">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-1 text-right">STATUS</h3>
+<span class="px-3 py-1 bg-tertiary/10 text-tertiary border border-tertiary/30 text-[10px] font-bold tracking-tighter uppercase">SHIPPED</span>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 py-4 border-y border-outline-variant/20">
+<div>
+<h4 class="font-label-caps text-[10px] text-on-surface-variant uppercase opacity-50">Date</h4>
+<p class="font-semibold text-sm">OCT 12, 2024</p>
+</div>
+<div>
+<h4 class="font-label-caps text-[10px] text-on-surface-variant uppercase opacity-50">Items</h4>
+<p class="font-semibold text-sm">1 UNIT</p>
+</div>
+<div>
+<h4 class="font-label-caps text-[10px] text-on-surface-variant uppercase opacity-50">Total</h4>
+<p class="font-semibold text-sm">$450.00</p>
+</div>
+<div>
+<h4 class="font-label-caps text-[10px] text-on-surface-variant uppercase opacity-50">Ship To</h4>
+<p class="font-semibold text-sm">TOKYO, JP</p>
+</div>
+</div>
+<div class="flex gap-4 pt-4">
+<div class="w-16 h-20 bg-surface-container overflow-hidden border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="A pair of oversized, structured tactical trousers in deep navy with multiple 3D cargo pockets and silver zippers. The garment is photographed in a high-contrast studio setting with soft glowing neon purple accents in the shadows. The image showcases the luxury utilitarian aesthetic of the Inkwave brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqyH5pHccE98KF4CxOXHd3GF-tfLCu2TNOL188FVhhiDnmvn-ye_LARfYojXH97NFMViyvMmTEDMxYT6msVC7p2zHZVAWhh9iYk5g9LmodQFLAAes3yntQ6qMlkN_ECye7LFNkQyMvwzKBkPDGDKVq1ucOS0oZnwL9YbfbHTYsaiboJSceNKRpOFNa5SooyciAVJxAP34xl-L51wYJ9YZfqXyD2lgheWLUrmLpL1c6aTOAwHGVlq8Y"/>
+</div>
+</div>
+</div>
+<div class="w-full md:w-56 flex flex-col gap-3">
+<button class="w-full py-3 bg-white text-black font-label-caps text-label-caps hover:bg-primary transition-colors uppercase border border-white">Track Order</button>
+<button class="w-full py-3 bg-transparent border border-outline-variant/50 text-on-surface font-label-caps text-label-caps hover:bg-white/5 transition-colors uppercase">View Details</button>
+<button class="w-full py-3 bg-transparent border border-outline-variant/50 text-on-surface-variant font-label-caps text-label-caps hover:text-error transition-colors uppercase">Return Items</button>
+</div>
+</div>
+</div>
+<!-- Order Card 3: Processing -->
+<div class="glass-panel group overflow-hidden transition-all duration-300 neon-glow-hover opacity-80">
+<div class="p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start">
+<div class="flex-1 space-y-4">
+<div class="flex flex-wrap justify-between items-start gap-4">
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-1">ORDER NO.</h3>
+<p class="font-headline-lg-mobile text-xl tracking-widest">#IW-4402-11</p>
+</div>
+<div class="text-right">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-1 text-right">STATUS</h3>
+<span class="px-3 py-1 bg-surface-variant text-on-surface-variant border border-outline-variant/30 text-[10px] font-bold tracking-tighter uppercase">PROCESSING</span>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 py-4 border-y border-outline-variant/20">
+<div>
+<h4 class="font-label-caps text-[10px] text-on-surface-variant uppercase opacity-50">Date</h4>
+<p class="font-semibold text-sm">OCT 15, 2024</p>
+</div>
+<div>
+<h4 class="font-label-caps text-[10px] text-on-surface-variant uppercase opacity-50">Items</h4>
+<p class="font-semibold text-sm">2 UNITS</p>
+</div>
+<div>
+<h4 class="font-label-caps text-[10px] text-on-surface-variant uppercase opacity-50">Total</h4>
+<p class="font-semibold text-sm">$890.00</p>
+</div>
+<div>
+<h4 class="font-label-caps text-[10px] text-on-surface-variant uppercase opacity-50">Ship To</h4>
+<p class="font-semibold text-sm">NEW YORK, US</p>
+</div>
+</div>
+<div class="flex gap-4 pt-4">
+<div class="w-16 h-20 bg-surface-container overflow-hidden border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="A heavy-weight, dropped-shoulder silver metallic parka with reflective details. The garment is shown on a minimalist mannequin against a solid black background. The lighting is surgical and sharp, emphasizing the high-tech fabric and futuristic silhouette characteristic of luxury underground fashion." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXT9jwDpX658zRpS6RT-wJjDr7NXtDaj2UVh--qcrdYO_3E8B5XukIFKFeLWfoeLbkXT85GxGlwPBXzkL7OIRXjPPo9uC6IqwiJ36_W9fTK5WFF25RJX17n_X5gIk9FCvZzZDO9pjPTOIDc5mJbNqy7DxDipVciWDqEo3TGsifILgiwGRHHr3O4UMPjXmtlt9N1ka7bXMFGHJFmVc8W_QdrzaoZpXbe3A8uAJpGmq3XcZasu2h-5bq"/>
+</div>
+<div class="w-16 h-20 bg-surface-container overflow-hidden border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="Graphic t-shirt with a complex, abstract monochromatic print of digital data waves and distorted logos. The photography is crisp and modern, focusing on the screen-printed texture against a matte black fabric. The lighting is dramatic and nocturnal, fitting the Gen-Z streetwear aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0NNKdR734szK_z0GFv7NZFCeXHqJ_kiNkiqlB0jCcXqwT_EjZc_8um4myOq1QmkedY7aoah9eI3HXWzRkNIi2esCWOUvwTmCME0_tkr9rYZgMgiacSj-oewwSsoND4KON4HvaqRCcCCN3nBNRtgRmCY6z_Pjn5oRBqgCsCND3yvJKBAqEsh9luTIuMxxKVc702pU1jTBu1iT1qJ4kR6J3qknfpywuPqHbg7XXAswcpTYzVX89vdIw"/>
+</div>
+</div>
+</div>
+<div class="w-full md:w-56 flex flex-col gap-3">
+<button class="w-full py-3 bg-white text-black font-label-caps text-label-caps hover:bg-primary transition-colors uppercase border border-white">Track Order</button>
+<button class="w-full py-3 bg-transparent border border-outline-variant/50 text-on-surface font-label-caps text-label-caps hover:bg-white/5 transition-colors uppercase">View Details</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination/Load More -->
+<div class="mt-16 flex justify-center">
+<button class="px-12 py-4 border border-outline-variant/30 text-on-surface-variant font-label-caps text-label-caps hover:text-on-surface hover:border-tertiary transition-all duration-300 uppercase tracking-[0.3em] flex items-center gap-4 group">
+                    Load Older Orders
+                    <span class="material-symbols-outlined group-hover:translate-y-1 transition-transform">keyboard_double_arrow_down</span>
+</button>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="w-full mt-auto bg-background border-t border-outline-variant/20 flex flex-col md:flex-row justify-between items-center px-margin-desktop py-12">
+<div class="text-headline-lg font-headline-lg text-primary opacity-20 mb-6 md:mb-0">INKWAVE</div>
+<div class="flex flex-col md:flex-row items-center gap-8">
+<nav class="flex gap-6">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-tertiary transition-colors uppercase" href="#">Privacy</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-tertiary transition-colors uppercase" href="#">Terms</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-tertiary transition-colors uppercase" href="#">Shipping</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-tertiary transition-colors uppercase" href="#">Sustainability</a>
+</nav>
+<p class="font-label-caps text-label-caps text-on-surface-variant opacity-40 uppercase">© 2024 INKWAVE LUXURY UNDERGROUND</p>
+</div>
+</footer>
+<!-- Atmosphere/Glass micro-interactions -->
+<script>
+        document.querySelectorAll('.glass-panel').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+    </script>
+</body></html>

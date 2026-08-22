@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INKWAVE — Drop Vol. 04 (Gen Z Theme)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAF6EC;
+  --bg-alt:#F1ECDD;
+  --ink:#0B0B0D;
+  --acid:#CCFF33;
+  --pink:#FF3E9A;
+  --blue:#4361FF;
+  --yellow:#FFD23F;
+  --cyan:#5FE3E3;
+  --white:#FFFFFF;
+  --font-display:'Unbounded', sans-serif;
+  --font-body:'Space Grotesk', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+  --border:3px solid var(--ink);
+  --shadow:6px 6px 0 var(--ink);
+  --shadow-lg:10px 10px 0 var(--ink);
+  --ease:cubic-bezier(.2,.9,.25,1.2);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--font-body);
+  overflow-x:hidden; -webkit-font-smoothing:antialiased;
+}
+img,svg{display:block; max-width:100%;}
+a{color:inherit; text-decoration:none;}
+button{font-family:inherit; cursor:pointer;}
+ul{list-style:none;}
+.wrap{max-width:1320px; margin:0 auto; padding:0 32px;}
+@media(max-width:640px){ .wrap{padding:0 18px;} }
+@media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+
+.tape{
+  font-family:var(--font-mono); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  background:var(--acid); border:var(--border); padding:6px 14px; display:inline-block;
+  transform:rotate(-3deg); box-shadow:var(--shadow);
+}
+
+/* ===== NAV ===== */
+.nav{ position:sticky; top:0; z-index:500; background:var(--bg); border-bottom:var(--border); }
+.nav-row{ display:flex; align-items:center; justify-content:space-between; gap:20px; padding:16px 0; }
+.logo{ font-family:var(--font-display); font-weight:900; font-size:22px; display:flex; align-items:center; gap:8px; }
+.logo .dot{ width:14px; height:14px; background:var(--pink); border:2px solid var(--ink); border-radius:50%; }
+.nav-links{ display:flex; gap:8px; font-family:var(--font-mono); font-size:12px; font-weight:700; text-transform:uppercase; }
+.nav-links a{ padding:8px 14px; border:var(--border); border-radius:30px; background:var(--white); transition:transform .15s var(--ease), background .15s; }
+.nav-links a:nth-child(2n){ background:var(--yellow); }
+.nav-links a:hover{ background:var(--acid); transform:translate(-2px,-2px); box-shadow:3px 3px 0 var(--ink); }
+.nav-icons{ display:flex; align-items:center; gap:10px; }
+.icon-btn{ width:38px; height:38px; border:var(--border); border-radius:50%; background:var(--white); display:flex; align-items:center; justify-content:center; position:relative; transition:transform .15s var(--ease); }
+.icon-btn:hover{ transform:translate(-2px,-2px); box-shadow:3px 3px 0 var(--ink); background:var(--cyan); }
+.icon-btn svg{ width:18px; height:18px; stroke:var(--ink); fill:none; stroke-width:2; }
+.bag-count{ position:absolute; top:-8px; right:-8px; background:var(--pink); border:2px solid var(--ink); color:var(--white); font-family:var(--font-mono); font-size:10px; font-weight:700; width:19px; height:19px; border-radius:50%; display:flex; align-items:center; justify-content:center; transform:scale(0); transition:transform .3s cubic-bezier(.34,1.7,.64,1); }
+.bag-count.show{ transform:scale(1); }
+.burger{ display:none; flex-direction:column; gap:5px; background:var(--white); border:var(--border); border-radius:8px; padding:9px 11px; }
+.burger span{ width:18px; height:2px; background:var(--ink); }
+@media(max-width:860px){ .nav-links{display:none;} .burger{display:flex;} }
+
+/* ===== HERO ===== */
+.hero{ position:relative; padding:70px 0 50px; border-bottom:var(--border); overflow:hidden; }
+.hero-grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:40px; align-items:center; }
+@media(max-width:900px){ .hero-grid{grid-template-columns:1fr;} }
+.hero h1{
+  font-family:var(--font-display); font-weight:900; text-transform:uppercase;
+  font-size:clamp(40px,7.2vw,88px); line-height:.98; letter-spacing:-.01em;
+}
+.hero h1 mark{ background:var(--acid); padding:0 10px; box-decoration-break:clone; -webkit-box-decoration-break:clone; }
+.hero p.lede{ font-size:17px; max-width:420px; margin-top:22px; font-weight:500; }
+.hero-ctas{ display:flex; gap:14px; margin-top:32px; flex-wrap:wrap; }
+.btn{
+  font-family:var(--font-mono); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+  padding:16px 26px; border:var(--border); border-radius:40px; box-shadow:var(--shadow);
+  display:inline-flex; align-items:center; gap:8px; transition:transform .15s var(--ease), box-shadow .15s var(--ease);
+}
+.btn:active{ transform:translate(4px,4px); box-shadow:0 0 0 var(--ink); }
+.btn-primary{ background:var(--pink); color:var(--white); }
+.btn-primary:hover{ transform:translate(-3px,-3px); box-shadow:9px 9px 0 var(--ink); }
+.btn-ghost{ background:var(--white); }
+.btn-ghost:hover{ transform:translate(-3px,-3px); box-shadow:9px 9px 0 var(--ink); background:var(--yellow); }
+
+.sticker-stack{ position:relative; height:400px; }
+.sticker{
+  position:absolute; border:var(--border); border-radius:20px; box-shadow:var(--shadow-lg);
+  overflow:hidden; background:var(--white);
+}
+.sticker .ink-pattern{ position:absolute; inset:0; }
+.s1{ width:230px; height:290px; top:0; right:40px; transform:rotate(6deg); z-index:3; animation:bob1 5s ease-in-out infinite; }
+.s2{ width:180px; height:180px; top:60px; left:0; transform:rotate(-9deg); z-index:2; animation:bob2 6s ease-in-out infinite; }
+.s3{ width:150px; height:150px; bottom:0; right:120px; transform:rotate(4deg); z-index:1; animation:bob3 7s ease-in-out infinite; }
+@keyframes bob1{ 0%,100%{transform:rotate(6deg) translateY(0);} 50%{transform:rotate(4deg) translateY(-14px);} }
+@keyframes bob2{ 0%,100%{transform:rotate(-9deg) translateY(0);} 50%{transform:rotate(-6deg) translateY(10px);} }
+@keyframes bob3{ 0%,100%{transform:rotate(4deg) translateY(0);} 50%{transform:rotate(7deg) translateY(-8px);} }
+.badge-pin{
+  position:absolute; top:-10px; left:-10px; z-index:4; background:var(--ink); color:var(--acid);
+  font-family:var(--font-mono); font-size:10px; font-weight:700; padding:5px 10px; border-radius:20px;
+  transform:rotate(-8deg); box-shadow:2px 2px 0 var(--acid);
+}
+.scribble{ position:absolute; z-index:5; }
+
+/* ===== MARQUEE ===== */
+.marquee-wrap{ background:var(--ink); border-bottom:var(--border); overflow:hidden; padding:14px 0; }
+.marquee{ display:flex; width:max-content; animation:scrollM 26s linear infinite; }
+.marquee-wrap:hover .marquee{ animation-play-state:paused; }
+.marquee span{
+  font-family:var(--font-display); font-weight:700; font-size:19px; text-transform:uppercase;
+  color:var(--bg); padding:0 26px; white-space:nowrap; display:flex; align-items:center; gap:20px;
+}
+.marquee span:nth-child(4n+1){ color:var(--acid); }
+.marquee span:nth-child(4n+2){ color:var(--pink); }
+.marquee span:nth-child(4n+3){ color:var(--cyan); }
+@keyframes scrollM{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+
+/* ===== SECTIONS ===== */
+.section{ padding:90px 0; border-bottom:var(--border); }
+@media(max-width:768px){ .section{padding:56px 0;} }
+.sec-head{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:44px; gap:20px; flex-wrap:wrap; }
+.sec-head h2{ font-family:var(--font-display); font-weight:900; text-transform:uppercase; font-size:clamp(30px,4.6vw,48px); }
+.sec-tag{ font-family:var(--font-mono); font-size:12px; font-weight:700; text-transform:uppercase; background:var(--yellow); border:var(--border); padding:5px 12px; border-radius:20px; display:inline-block; margin-bottom:14px; transform:rotate(-2deg); }
+
+.reveal{ opacity:0; transform:translateY(30px); transition:opacity .6s var(--ease), transform .6s var(--ease); }
+.reveal.in{ opacity:1; transform:translateY(0); }
+
+/* ===== PRODUCT GRID (rotated sticker cards) ===== */
+.grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:30px 24px; }
+@media(max-width:1024px){ .grid{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:560px){ .grid{grid-template-columns:1fr;} }
+.card{ position:relative; transition:transform .3s var(--ease); }
+.card:nth-child(4n+1) .tile{ transform:rotate(-2deg); }
+.card:nth-child(4n+2) .tile{ transform:rotate(1.5deg); }
+.card:nth-child(4n+3) .tile{ transform:rotate(-1deg); }
+.card:nth-child(4n+4) .tile{ transform:rotate(2deg); }
+.tile{
+  position:relative; aspect-ratio:3/4; border:var(--border); border-radius:18px; overflow:hidden;
+  background:var(--white); box-shadow:var(--shadow); transition:transform .35s var(--ease), box-shadow .35s var(--ease);
+}
+.tile:hover{ transform:rotate(0deg) translate(-4px,-6px) !important; box-shadow:var(--shadow-lg); }
+.ink-pattern{
+  position:absolute; inset:-15%; border-radius:40%;
+  background:
+    radial-gradient(circle at 30% 30%, var(--p1) 0%, transparent 55%),
+    radial-gradient(circle at 70% 65%, var(--p2) 0%, transparent 50%),
+    var(--p3);
+  animation:drift 12s ease-in-out infinite;
+}
+@keyframes drift{ 0%,100%{transform:rotate(0) scale(1);} 50%{transform:rotate(6deg) scale(1.1);} }
+.tile-tag{
+  position:absolute; top:12px; left:12px; z-index:3; font-family:var(--font-mono); font-size:10px; font-weight:700;
+  text-transform:uppercase; padding:5px 10px; border:2px solid var(--ink); border-radius:20px; transform:rotate(-6deg);
+}
+.tag-new{ background:var(--acid); }
+.tag-sale{ background:var(--pink); color:var(--white); }
+.tag-best{ background:var(--yellow); }
+.wish{
+  position:absolute; top:10px; right:10px; z-index:3; width:32px; height:32px; border-radius:50%;
+  background:var(--white); border:2px solid var(--ink); display:flex; align-items:center; justify-content:center;
+  opacity:0; transform:scale(.7); transition:.25s var(--ease);
+}
+.tile:hover .wish{ opacity:1; transform:scale(1); }
+.wish svg{ width:15px; height:15px; stroke:var(--ink); fill:none; stroke-width:2; }
+.wish.active svg{ fill:var(--pink); stroke:var(--pink); }
+.quick-add{
+  position:absolute; left:10px; right:10px; bottom:10px; z-index:3; background:var(--ink); color:var(--acid);
+  border:2px solid var(--ink); border-radius:30px; padding:11px; font-family:var(--font-mono); font-size:11px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.04em; opacity:0; transform:translateY(10px); transition:.3s var(--ease);
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.tile:hover .quick-add{ opacity:1; transform:translateY(0); }
+.card-info{ display:flex; justify-content:space-between; margin-top:12px; gap:8px; padding:0 4px; }
+.card-info h3{ font-size:14px; font-weight:700; }
+.card-info .cat{ font-family:var(--font-mono); font-size:11px; margin-top:2px; opacity:.65; }
+.price{ font-family:var(--font-mono); font-weight:700; font-size:14px; text-align:right; white-space:nowrap; }
+.price .was{ text-decoration:line-through; opacity:.5; font-size:11px; display:block; font-weight:500; }
+
+/* ===== OFFERS BENTO ===== */
+.offers{ display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+@media(max-width:768px){ .offers{grid-template-columns:1fr;} }
+.offer-card{
+  border:var(--border); border-radius:22px; padding:32px; position:relative; overflow:hidden; box-shadow:var(--shadow-lg);
+  min-height:220px; display:flex; flex-direction:column; justify-content:space-between;
+}
+.offer-card.o1{ background:var(--acid); }
+.offer-card.o2{ background:var(--cyan); }
+.offer-card h3{ font-family:var(--font-display); font-weight:900; text-transform:uppercase; font-size:clamp(26px,3.4vw,36px); line-height:1; }
+.offer-pct{ font-family:var(--font-mono); font-weight:700; font-size:13px; background:var(--ink); color:var(--white); display:inline-block; padding:5px 12px; border-radius:20px; margin-top:12px; width:fit-content; }
+.countdown{ display:flex; gap:10px; margin-top:20px; }
+.countdown div{ background:var(--ink); color:var(--white); border-radius:10px; padding:10px 12px; text-align:center; min-width:56px; }
+.countdown div b{ display:block; font-family:var(--font-mono); font-size:20px; }
+.countdown div span{ font-family:var(--font-mono); font-size:9px; text-transform:uppercase; opacity:.7; }
+.offer-card .btn{ margin-top:20px; align-self:flex-start; }
+
+/* ===== CAROUSEL ===== */
+.carousel-outer{ position:relative; }
+.carousel{ display:flex; gap:24px; overflow-x:auto; scroll-snap-type:x mandatory; padding:10px 4px 16px; scrollbar-width:none; }
+.carousel::-webkit-scrollbar{ display:none; }
+.carousel .card{ min-width:250px; scroll-snap-align:start; }
+.carousel-nav{ display:flex; gap:10px; }
+.car-btn{ width:44px; height:44px; border:var(--border); border-radius:50%; background:var(--white); display:flex; align-items:center; justify-content:center; transition:.2s var(--ease); }
+.car-btn:hover{ background:var(--acid); transform:translate(-2px,-2px); box-shadow:3px 3px 0 var(--ink); }
+.car-btn svg{ width:17px; height:17px; stroke:var(--ink); fill:none; stroke-width:2.2; }
+
+/* ===== CATEGORIES (sticker circles) ===== */
+.cat-row{ display:flex; gap:34px; flex-wrap:wrap; justify-content:center; }
+.cat-item{ text-align:center; }
+.cat-circle{
+  width:130px; height:130px; border-radius:50%; border:var(--border); overflow:hidden; position:relative;
+  box-shadow:var(--shadow); margin:0 auto 14px; transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+}
+.cat-item:nth-child(odd) .cat-circle{ transform:rotate(-4deg); }
+.cat-item:nth-child(even) .cat-circle{ transform:rotate(4deg); }
+.cat-circle:hover{ transform:rotate(0) scale(1.06) !important; box-shadow:var(--shadow-lg); }
+.cat-item h4{ font-family:var(--font-mono); font-size:12px; font-weight:700; text-transform:uppercase; }
+
+/* ===== SHOP THE LOOK ===== */
+.look-card{
+  display:grid; grid-template-columns:1fr 1fr; gap:0; border:var(--border); border-radius:22px; overflow:hidden;
+  box-shadow:var(--shadow-lg); margin-bottom:30px;
+}
+@media(max-width:768px){ .look-card{grid-template-columns:1fr;} }
+.look-visual{ aspect-ratio:4/5; position:relative; border-right:var(--border); }
+@media(max-width:768px){ .look-visual{border-right:none; border-bottom:var(--border);} }
+.look-body{ padding:30px; display:flex; flex-direction:column; }
+.look-body h3{ font-family:var(--font-display); font-weight:900; text-transform:uppercase; font-size:24px; margin-bottom:16px; }
+.look-item{ display:flex; justify-content:space-between; padding:12px 0; border-bottom:2px dashed var(--ink); font-size:14px; }
+.look-item span:last-child{ font-family:var(--font-mono); font-weight:700; }
+.look-body .btn{ margin-top:22px; width:100%; justify-content:center; }
+
+/* ===== NEWSLETTER ===== */
+.newsletter{ background:var(--ink); color:var(--bg); text-align:center; padding:90px 0; }
+.newsletter h2{ font-family:var(--font-display); font-weight:900; text-transform:uppercase; font-size:clamp(30px,5vw,52px); }
+.newsletter p{ max-width:400px; margin:16px auto 30px; opacity:.75; }
+.nl-form{ display:flex; max-width:440px; margin:0 auto; gap:0; border:3px solid var(--acid); border-radius:40px; padding:5px; }
+.nl-form input{ flex:1; background:transparent; border:none; padding:14px 18px; color:var(--bg); font-family:var(--font-body); font-size:14px; }
+.nl-form input::placeholder{ color:#8b8a86; }
+.nl-form input:focus{ outline:none; }
+.nl-form button{ background:var(--acid); color:var(--ink); border:none; border-radius:34px; padding:14px 26px; font-family:var(--font-mono); font-weight:700; text-transform:uppercase; font-size:12px; }
+.nl-note{ margin-top:16px; font-family:var(--font-mono); font-size:12px; color:var(--acid); opacity:0; transition:opacity .3s; }
+.nl-note.show{ opacity:1; }
+
+/* ===== FOOTER ===== */
+footer{ padding:60px 0 24px; }
+.foot-grid{ display:grid; grid-template-columns:1.4fr repeat(3,1fr); gap:30px; margin-bottom:50px; }
+@media(max-width:768px){ .foot-grid{grid-template-columns:repeat(2,1fr);} }
+.foot-brand p{ font-size:13px; margin-top:12px; max-width:240px; opacity:.7; }
+.foot-col h5{ font-family:var(--font-mono); font-size:11px; text-transform:uppercase; font-weight:700; margin-bottom:14px; }
+.foot-col a{ display:block; font-size:14px; padding:5px 0; transition:transform .15s; width:fit-content; }
+.foot-col a:hover{ color:var(--pink); transform:translateX(4px); }
+.foot-bottom{ border-top:2px solid var(--ink); padding-top:20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-family:var(--font-mono); font-size:11px; }
+
+/* ===== CART DRAWER ===== */
+.overlay{ position:fixed; inset:0; background:rgba(11,11,13,.5); z-index:700; opacity:0; pointer-events:none; transition:opacity .3s; }
+.overlay.open{ opacity:1; pointer-events:auto; }
+.drawer{ position:fixed; top:0; right:0; height:100%; width:420px; max-width:92vw; background:var(--bg); border-left:var(--border); z-index:800; transform:translateX(100%); transition:transform .4s var(--ease); display:flex; flex-direction:column; }
+.drawer.open{ transform:translateX(0); }
+.drawer-head{ padding:22px 24px; border-bottom:var(--border); display:flex; justify-content:space-between; align-items:center; }
+.drawer-head h3{ font-family:var(--font-display); font-weight:900; text-transform:uppercase; font-size:19px; }
+.drawer-close{ background:var(--white); border:var(--border); border-radius:50%; width:34px; height:34px; }
+.drawer-close svg{ width:16px; height:16px; stroke:var(--ink); fill:none; stroke-width:2.2; }
+.drawer-items{ flex:1; overflow-y:auto; padding:8px 24px; }
+.d-item{ display:flex; gap:12px; padding:16px 0; border-bottom:2px dashed var(--ink); }
+.d-thumb{ width:66px; height:82px; border:2px solid var(--ink); border-radius:10px; overflow:hidden; position:relative; flex-shrink:0; }
+.d-info{ flex:1; display:flex; flex-direction:column; }
+.d-info h4{ font-size:13px; font-weight:700; }
+.d-row{ display:flex; justify-content:space-between; align-items:center; margin-top:auto; }
+.qty{ display:flex; align-items:center; border:2px solid var(--ink); border-radius:20px; }
+.qty button{ background:none; border:none; width:22px; height:22px; font-weight:700; }
+.qty span{ font-family:var(--font-mono); font-size:11px; min-width:14px; text-align:center; }
+.d-price{ font-family:var(--font-mono); font-size:12px; font-weight:700; }
+.d-remove{ background:none; border:none; font-size:10px; text-decoration:underline; margin-top:5px; opacity:.6; }
+.empty-cart{ text-align:center; padding:50px 16px; opacity:.6; font-size:13px; }
+.drawer-foot{ padding:20px 24px 26px; border-top:var(--border); }
+.subtotal-row{ display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }
+.subtotal-row.total{ font-weight:700; font-size:15px; margin:12px 0; }
+.subtotal-row span:last-child{ font-family:var(--font-mono); }
+.drawer-foot .btn{ width:100%; justify-content:center; }
+.ship-note{ font-size:11px; text-align:center; margin-top:10px; opacity:.6; }
+
+.toast{ position:fixed; bottom:24px; left:24px; z-index:1000; background:var(--ink); color:var(--acid); padding:14px 20px; border-radius:14px; font-family:var(--font-mono); font-size:12px; font-weight:700; text-transform:uppercase; display:flex; align-items:center; gap:10px; transform:translateY(120%); transition:transform .35s var(--ease); border:2px solid var(--acid); }
+.toast.show{ transform:translateY(0); }
+
+.confetti{ position:fixed; width:9px; height:9px; z-index:1100; pointer-events:none; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="wrap nav-row">
+    <a href="#" class="logo"><span class="dot"></span>INKWAVE</a>
+    <div class="nav-links">
+      <a href="#new">New Drops</a>
+      <a href="#offers">Offers</a>
+      <a href="#collection">Bestsellers</a>
+      <a href="#looks">Fits</a>
+    </div>
+    <div class="nav-icons">
+      <button class="icon-btn" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+      <button class="icon-btn" id="cartBtn" aria-label="Cart">
+        <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
+        <span class="bag-count" id="bagCount">0</span>
+      </button>
+      <button class="burger" id="burgerBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="tape">Vol. 04 &middot; Small Batch</span>
+      <h1 style="margin-top:22px;">Wear the<br><mark>current.</mark></h1>
+      <p class="lede">Ink-dyed fits cut for movement. Every piece gets its own vat — no two drops run identical, no restocks, ever.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary" onclick="document.getElementById('new').scrollIntoView({behavior:'smooth'})">Shop New Drops</button>
+        <a href="#looks" class="btn btn-ghost">See the Fits</a>
+      </div>
+    </div>
+    <div class="sticker-stack">
+      <div class="sticker s1"><div class="badge-pin">NEW</div><div class="ink-pattern" style="--p1:var(--blue); --p2:var(--pink); --p3:var(--white);"></div></div>
+      <div class="sticker s2"><div class="ink-pattern" style="--p1:var(--acid); --p2:var(--cyan); --p3:var(--white);"></div></div>
+      <div class="sticker s3"><div class="badge-pin" style="background:var(--pink); color:var(--white);">🔥 HOT</div><div class="ink-pattern" style="--p1:var(--yellow); --p2:var(--blue); --p3:var(--white);"></div></div>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE MENU (simple overlay) -->
+<div id="mobileMenu" style="position:fixed; inset:0; z-index:600; background:var(--bg); display:none; flex-direction:column; justify-content:center; padding:40px 30px;">
+  <button id="mmClose" style="position:absolute; top:22px; right:24px; background:var(--white); border:var(--border); border-radius:50%; width:38px; height:38px;">
+    <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2.2;margin:auto;"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="#new" style="font-family:var(--font-display);font-weight:900;font-size:32px;padding:14px 0;text-transform:uppercase;border-bottom:2px dashed var(--ink);">New Drops</a>
+  <a href="#offers" style="font-family:var(--font-display);font-weight:900;font-size:32px;padding:14px 0;text-transform:uppercase;border-bottom:2px dashed var(--ink);">Offers</a>
+  <a href="#collection" style="font-family:var(--font-display);font-weight:900;font-size:32px;padding:14px 0;text-transform:uppercase;border-bottom:2px dashed var(--ink);">Bestsellers</a>
+  <a href="#looks" style="font-family:var(--font-display);font-weight:900;font-size:32px;padding:14px 0;text-transform:uppercase;">Fits</a>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee" id="marquee">
+    <span>✦ Vol. 04 drop</span><span>✦ Free shipping ₹2000+</span><span>✦ Never restocked</span><span>✦ Small batch dyed</span>
+    <span>✦ Vol. 04 drop</span><span>✦ Free shipping ₹2000+</span><span>✦ Never restocked</span><span>✦ Small batch dyed</span>
+  </div>
+</div>
+
+<!-- NEW DROPS -->
+<section class="section" id="new">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div><span class="sec-tag">Fresh from the vat</span><h2>New Drops</h2></div>
+    </div>
+    <div class="grid" id="productGrid"></div>
+  </div>
+</section>
+
+<!-- OFFERS -->
+<section class="section" id="offers">
+  <div class="wrap">
+    <div class="sec-head reveal"><div><span class="sec-tag">Don't sleep on it</span><h2>Current Offers</h2></div></div>
+    <div class="offers reveal">
+      <div class="offer-card o1">
+        <div><h3>Monsoon Drop</h3><span class="offer-pct">20% OFF</span></div>
+        <div class="countdown"><div><b>24</b><span>hrs</span></div><div><b>56</b><span>min</span></div><div><b>09</b><span>sec</span></div></div>
+        <button class="btn btn-ghost">Grab Offer →</button>
+      </div>
+      <div class="offer-card o2">
+        <div><h3>Archive Sale</h3><span class="offer-pct">EXTRA 15%</span></div>
+        <div class="countdown"><div><b>24</b><span>hrs</span></div><div><b>08</b><span>min</span></div><div><b>55</b><span>sec</span></div></div>
+        <button class="btn btn-ghost">Grab Offer →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BESTSELLERS CAROUSEL -->
+<section class="section" id="collection">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div><span class="sec-tag">Held their shape</span><h2>Bestsellers</h2></div>
+      <div class="carousel-nav">
+        <button class="car-btn" id="carLeft" aria-label="Scroll left"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="car-btn" id="carRight" aria-label="Scroll right"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
+    </div>
+    <div class="carousel-outer reveal"><div class="carousel" id="carousel"></div></div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head reveal"><div><span class="sec-tag">Pick a lane</span><h2>Categories</h2></div></div>
+    <div class="cat-row reveal" id="catRow"></div>
+  </div>
+</section>
+
+<!-- SHOP THE LOOK -->
+<section class="section" id="looks">
+  <div class="wrap">
+    <div class="sec-head reveal"><div><span class="sec-tag">Curated fits</span><h2>Shop the Look</h2></div></div>
+    <div class="look-card reveal">
+      <div class="look-visual"><div class="ink-pattern" style="--p1:var(--blue); --p2:var(--ink); --p3:var(--white);"></div></div>
+      <div class="look-body">
+        <h3>Night Crawler</h3>
+        <div class="look-item"><span>Fathom Overshirt</span><span>₹9,900</span></div>
+        <div class="look-item"><span>Riptide Tee</span><span>₹2,400</span></div>
+        <div class="look-item"><span>Slate Selvedge Denim</span><span>₹6,500</span></div>
+        <button class="btn btn-primary">Add All to Cart</button>
+      </div>
+    </div>
+    <div class="look-card reveal">
+      <div class="look-visual"><div class="ink-pattern" style="--p1:var(--pink); --p2:var(--yellow); --p3:var(--white);"></div></div>
+      <div class="look-body">
+        <h3>Urban Nomad</h3>
+        <div class="look-item"><span>Monsoon Cargo Pant</span><span>₹7,200</span></div>
+        <div class="look-item"><span>Static Crew Tee</span><span>₹2,200</span></div>
+        <button class="btn btn-primary">Add All to Cart</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter">
+  <div class="wrap reveal">
+    <h2>Get the Drop First</h2>
+    <p>First access to restocks and runs that don't last. No spam, just ink.</p>
+    <form class="nl-form" id="nlForm">
+      <input type="email" placeholder="you@email.com" required>
+      <button type="submit">Join</button>
+    </form>
+    <p class="nl-note" id="nlNote">You're on the list. Watch your inbox.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a href="#" class="logo"><span class="dot"></span>INKWAVE</a>
+        <p>Small-batch, ink-dyed menswear. Built for the ones who move different.</p>
+      </div>
+      <div class="foot-col"><h5>Shop</h5><a href="#new">New Drops</a><a href="#collection">Bestsellers</a><a href="#offers">Offers</a></div>
+      <div class="foot-col"><h5>Help</h5><a href="#">Shipping</a><a href="#">Returns</a><a href="#">Track Order</a></div>
+      <div class="foot-col"><h5>Follow</h5><a href="#">Instagram</a><a href="#">TikTok</a></div>
+    </div>
+    <div class="foot-bottom"><span>&#169; 2026 Inkwave Studio.</span><span>Visa &middot; Mastercard &middot; UPI</span></div>
+  </div>
+</footer>
+
+<!-- CART DRAWER -->
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head"><h3>Your Bag</h3><button class="drawer-close" id="drawerClose" aria-label="Close cart"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="drawer-items" id="drawerItems"></div>
+  <div class="drawer-foot" id="drawerFoot"></div>
+</div>
+<div class="toast" id="toast">Added to bag</div>
+
+<script>
+const products = [
+  {id:1, name:"Undertow Bomber", cat:"Outerwear", price:9900, tag:"new", hue:["var(--blue)","var(--pink)","var(--white)"]},
+  {id:2, name:"Riptide Tee", cat:"Tees", price:2400, tag:null, hue:["var(--acid)","var(--cyan)","var(--white)"]},
+  {id:3, name:"Slate Selvedge Denim", cat:"Denim", price:6500, tag:"best", hue:["var(--yellow)","var(--blue)","var(--white)"]},
+  {id:4, name:"Brackish Hoodie", cat:"Knitwear", price:4900, was:6400, tag:"sale", hue:["var(--pink)","var(--acid)","var(--white)"]},
+  {id:5, name:"Monsoon Cargo Pant", cat:"Bottoms", price:7200, tag:"new", hue:["var(--cyan)","var(--pink)","var(--white)"]},
+  {id:6, name:"Static Crew Tee", cat:"Tees", price:2200, tag:null, hue:["var(--blue)","var(--yellow)","var(--white)"]},
+  {id:7, name:"Fathom Overshirt", cat:"Outerwear", price:9900, tag:"best", hue:["var(--acid)","var(--blue)","var(--white)"]},
+  {id:8, name:"Driftline Beanie", cat:"Accessories", price:1600, tag:null, hue:["var(--yellow)","var(--pink)","var(--white)"]},
+];
+const categories = [
+  {name:"Outerwear", hue:["var(--blue)","var(--pink)","var(--white)"]},
+  {name:"Denim", hue:["var(--yellow)","var(--blue)","var(--white)"]},
+  {name:"Tees", hue:["var(--acid)","var(--cyan)","var(--white)"]},
+  {name:"Knitwear", hue:["var(--pink)","var(--acid)","var(--white)"]},
+];
+
+function tileHTML(p){
+  const tagMap = {new:['New','tag-new'], sale:['Sale','tag-sale'], best:['Best','tag-best']};
+  const tag = p.tag ? `<span class="tile-tag ${tagMap[p.tag][1]}">${tagMap[p.tag][0]}</span>` : '';
+  return `
+  <div class="tile" data-id="${p.id}">
+    ${tag}
+    <button class="wish" aria-label="Save to wishlist"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.7-10-9.3C.4 8 2 4 6 4c2.2 0 3.7 1.2 6 4 2.3-2.8 3.8-4 6-4 4 0 5.6 4 4 7.7C19.5 16.3 12 21 12 21z"/></svg></button>
+    <div class="ink-pattern" style="--p1:${p.hue[0]}; --p2:${p.hue[1]}; --p3:${p.hue[2]}; animation-delay:-${p.id}s;"></div>
+    <button class="quick-add" data-id="${p.id}">+ Quick Add</button>
+  </div>
+  <div class="card-info">
+    <div><h3>${p.name}</h3><div class="cat">${p.cat}</div></div>
+    <div class="price">${p.was ? `<span class="was">₹${p.was}</span>`:''}₹${p.price}</div>
+  </div>`;
+}
+const grid = document.getElementById('productGrid');
+products.forEach(p=>{ const card=document.createElement('div'); card.className='card reveal'; card.innerHTML=tileHTML(p); grid.appendChild(card); });
+
+const carousel = document.getElementById('carousel');
+products.filter(p=>p.tag).forEach(p=>{ const card=document.createElement('div'); card.className='card'; card.innerHTML=tileHTML(p); carousel.appendChild(card); });
+
+const catRow = document.getElementById('catRow');
+categories.forEach(c=>{
+  const el = document.createElement('div'); el.className='cat-item';
+  el.innerHTML = `<div class="cat-circle"><div class="ink-pattern" style="--p1:${c.hue[0]};--p2:${c.hue[1]};--p3:${c.hue[2]};"></div></div><h4>${c.name}</h4>`;
+  catRow.appendChild(el);
+});
+
+let cart = [];
+const bagCount=document.getElementById('bagCount'), drawerItems=document.getElementById('drawerItems'),
+      drawerFoot=document.getElementById('drawerFoot'), overlay=document.getElementById('overlay'),
+      drawer=document.getElementById('drawer'), toast=document.getElementById('toast');
+function openCart(){ overlay.classList.add('open'); drawer.classList.add('open'); }
+function closeCart(){ overlay.classList.remove('open'); drawer.classList.remove('open'); }
+document.getElementById('cartBtn').addEventListener('click', openCart);
+document.getElementById('drawerClose').addEventListener('click', closeCart);
+overlay.addEventListener('click', closeCart);
+
+function burstConfetti(x,y){
+  const colors = ['#CCFF33','#FF3E9A','#4361FF','#FFD23F','#5FE3E3'];
+  for(let i=0;i<16;i++){
+    const c = document.createElement('div');
+    c.className='confetti';
+    c.style.left=x+'px'; c.style.top=y+'px';
+    c.style.background=colors[i%colors.length];
+    c.style.borderRadius = Math.random()>.5 ? '50%':'2px';
+    const angle = Math.random()*Math.PI*2, dist=60+Math.random()*90;
+    const dx = Math.cos(angle)*dist, dy = Math.sin(angle)*dist - 40;
+    c.animate([
+      {transform:'translate(0,0) rotate(0deg)', opacity:1},
+      {transform:`translate(${dx}px,${dy+140}px) rotate(${Math.random()*400}deg)`, opacity:0}
+    ], {duration:900+Math.random()*400, easing:'cubic-bezier(.2,.8,.3,1)'});
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(), 1400);
+  }
+}
+
+function addToCart(id, evt){
+  const p = products.find(x=>x.id===id);
+  const existing = cart.find(x=>x.id===id);
+  if(existing){ existing.qty++; } else { cart.push({...p, qty:1}); }
+  renderCart();
+  showToast(`${p.name} added ✦`);
+  if(evt){ burstConfetti(evt.clientX, evt.clientY); }
+}
+function showToast(msg){ toast.textContent=msg; toast.classList.add('show'); clearTimeout(window._t); window._t=setTimeout(()=>toast.classList.remove('show'),2000); }
+function changeQty(id,d){ const item=cart.find(x=>x.id===id); if(!item)return; item.qty+=d; if(item.qty<=0) cart=cart.filter(x=>x.id!==id); renderCart(); }
+function removeItem(id){ cart=cart.filter(x=>x.id!==id); renderCart(); }
+function renderCart(){
+  const total = cart.reduce((s,i)=>s+i.qty,0);
+  bagCount.textContent = total; bagCount.classList.toggle('show', total>0);
+  if(cart.length===0){ drawerItems.innerHTML=`<div class="empty-cart">Bag's empty. Let's fix that ✦</div>`; drawerFoot.innerHTML=''; return; }
+  drawerItems.innerHTML = cart.map(i=>`
+    <div class="d-item">
+      <div class="d-thumb"><div class="ink-pattern" style="--p1:${i.hue[0]};--p2:${i.hue[1]};--p3:${i.hue[2]};inset:-30%;"></div></div>
+      <div class="d-info"><h4>${i.name}</h4>
+        <div class="d-row"><div class="qty"><button onclick="changeQty(${i.id},-1)">-</button><span>${i.qty}</span><button onclick="changeQty(${i.id},1)">+</button></div><div class="d-price">₹${i.price*i.qty}</div></div>
+        <button class="d-remove" onclick="removeItem(${i.id})">Remove</button>
+      </div>
+    </div>`).join('');
+  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const shipFree = subtotal>=2000;
+  drawerFoot.innerHTML = `
+    <div class="subtotal-row"><span>Subtotal</span><span>₹${subtotal}</span></div>
+    <div class="subtotal-row total"><span>Total</span><span>₹${subtotal + (shipFree?0:100)}</span></div>
+    <button class="btn btn-primary">Checkout</button>
+    <p class="ship-note">${shipFree ? "Free shipping unlocked ✦" : `₹${2000-subtotal} more for free shipping`}</p>`;
+}
+renderCart();
+document.body.addEventListener('click',(e)=>{
+  const btn=e.target.closest('.quick-add');
+  if(btn){ addToCart(Number(btn.dataset.id), e); openCart(); return; }
+  const wish=e.target.closest('.wish');
+  if(wish){ wish.classList.toggle('active'); }
+});
+
+const mobileMenu=document.getElementById('mobileMenu');
+document.getElementById('burgerBtn').addEventListener('click',()=>mobileMenu.style.display='flex');
+document.getElementById('mmClose').addEventListener('click',()=>mobileMenu.style.display='none');
+mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mobileMenu.style.display='none'));
+
+const carEl=document.getElementById('carousel');
+document.getElementById('carLeft').addEventListener('click',()=>carEl.scrollBy({left:-280,behavior:'smooth'}));
+document.getElementById('carRight').addEventListener('click',()=>carEl.scrollBy({left:280,behavior:'smooth'}));
+
+document.getElementById('nlForm').addEventListener('submit',(e)=>{ e.preventDefault(); document.getElementById('nlNote').classList.add('show'); e.target.reset(); });
+
+const io = new IntersectionObserver((entries)=>{ entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } }); }, {threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+document.querySelectorAll('.card').forEach(el=>{ el.classList.add('reveal'); io.observe(el); });
+</script>
+</body>
+</html>

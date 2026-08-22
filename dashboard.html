@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>INKWAVE | Account Overview</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#000000",
+                    "on-primary-fixed": "#1b1b1b",
+                    "surface-tint": "#c6c6c6",
+                    "surface-variant": "#333535",
+                    "surface-container": "#1e2020",
+                    "surface-container-highest": "#333535",
+                    "primary-container": "#000000",
+                    "inverse-surface": "#e2e2e2",
+                    "secondary-fixed": "#e2e2e2",
+                    "surface-dim": "#121414",
+                    "on-primary-fixed-variant": "#474747",
+                    "surface-bright": "#38393a",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "tertiary-fixed": "#f1daff",
+                    "on-surface-variant": "#cfc4c5",
+                    "background": "#121414",
+                    "tertiary-fixed-dim": "#dfb7ff",
+                    "on-tertiary-fixed-variant": "#6b00b0",
+                    "surface": "#121414",
+                    "outline": "#988e90",
+                    "on-tertiary-fixed": "#2d004f",
+                    "on-secondary-container": "#b4b5b5",
+                    "on-primary": "#303030",
+                    "on-error-container": "#ffdad6",
+                    "error-container": "#93000a",
+                    "outline-variant": "#4c4546",
+                    "error": "#ffb4ab",
+                    "on-tertiary-container": "#a635ff",
+                    "on-secondary": "#2f3131",
+                    "primary-fixed": "#e2e2e2",
+                    "on-background": "#e2e2e2",
+                    "primary": "#c6c6c6",
+                    "surface-container-high": "#282a2b",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "secondary": "#c6c6c7",
+                    "on-tertiary": "#4b007e",
+                    "on-error": "#690005",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "inverse-primary": "#5e5e5e",
+                    "secondary-container": "#454747",
+                    "on-surface": "#e2e2e2",
+                    "surface-container-lowest": "#0c0f0f",
+                    "inverse-on-surface": "#2f3131",
+                    "on-primary-container": "#757575",
+                    "tertiary": "#dfb7ff",
+                    "surface-container-low": "#1a1c1c",
+                    "on-secondary-fixed-variant": "#454747"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "gutter": "24px",
+                    "margin-desktop": "64px",
+                    "unit": "8px",
+                    "container-max": "1440px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Syne"],
+                    "display-2xl": ["Syne"],
+                    "headline-lg-mobile": ["Syne"],
+                    "body-md": ["Inter"],
+                    "label-caps": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-2xl": ["80px", {"lineHeight": "1.0", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.15em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #121414;
+            color: #e2e2e2;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(198, 198, 198, 0.2);
+        }
+        .neon-glow-purple:hover {
+            box-shadow: 0 0 20px rgba(157, 0, 255, 0.3);
+            transform: scale(1.02);
+            transition: all 0.3s ease;
+        }
+        .silver-gradient-border {
+            border-image: linear-gradient(to bottom right, rgba(255,255,255,0.4), rgba(255,255,255,0.05)) 1;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(223, 183, 255, 0.2);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-x-hidden">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 w-full z-50 bg-background/70 backdrop-blur-xl border-b border-outline-variant/30 flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-20">
+<div class="font-headline-lg text-headline-lg-mobile text-on-background tracking-tighter uppercase">INKWAVE</div>
+<div class="hidden md:flex items-center gap-8">
+<nav class="flex gap-6">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">EXPLORE</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">NEW ARRIVALS</a>
+<a class="font-label-caps text-label-caps text-primary font-bold transition-colors duration-300" href="#">ACCOUNT</a>
+</nav>
+<div class="flex items-center gap-4 border-l border-outline-variant/30 pl-8">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-transform active:scale-95">shopping_bag</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-transform active:scale-95">notifications</button>
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden border border-outline-variant/30">
+<img class="w-full h-full object-cover" data-alt="A high-fashion close-up portrait of a trendsetting individual with neon-lit accessories, shot in a cinematic cyber-minimalist style with deep shadows and soft purple rim lighting, reflecting the InkWave luxury underground aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOv6AWWcbr2Y568xSba1HLIln2vjwvu3m3IDYQ8ubXpqIODfuy88XKcsj0g2A7kbbXnYlaZ7QBcDz6TQDn0cHPfYWDDJl4yrWklz2RG8ZZuD18x7MrYsNWLhiGMhHzqJhrKCgNUbVhZNTkO_uK_Iu3tfnR7GopH0UWXB7QwGkh8-xBy86MYqTuDwwURBwhle_E0cE8dWIl1XfKLdrFgLB0mTON3D7-a5XXsmTRnR_yG1aa9CAjYtgl"/>
+</div>
+</div>
+</div>
+<!-- Mobile Trigger -->
+<button class="md:hidden material-symbols-outlined">menu</button>
+</header>
+<div class="flex min-h-screen pt-20">
+<!-- SideNavBar Shell -->
+<aside class="hidden md:flex flex-col h-screen w-72 sticky top-20 left-0 border-r border-outline-variant/20 bg-surface-container-lowest py-8 overflow-y-auto custom-scrollbar">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-4 mb-2">
+<div class="w-10 h-10 rounded-full glass-panel flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface">Premium Member</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Verified Enthusiast</p>
+</div>
+</div>
+</div>
+<nav class="flex flex-col">
+<!-- Profile is Active -->
+<a class="bg-white/5 border-r-2 border-tertiary text-tertiary flex items-center gap-4 px-6 py-4 shadow-[0_0_15px_rgba(223,183,255,0.2)] font-label-caps text-label-caps translate-x-1 transition-all" href="#">
+<span class="material-symbols-outlined">person</span> Profile
+                </a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">package</span> Orders
+                </a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">favorite</span> Wishlist
+                </a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">location_on</span> Addresses
+                </a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">credit_card</span> Payments
+                </a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">keyboard_return</span> Returns
+                </a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">confirmation_number</span> Coupons
+                </a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">checkroom</span> Try On
+                </a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">history</span> Recent
+                </a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">stars</span> Rewards
+                </a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">group_add</span> Referral
+                </a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined">help_center</span> Support
+                </a>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-margin-mobile md:px-16 py-12">
+<!-- User Profile Header -->
+<section class="mb-16">
+<div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+<div class="relative group">
+<div class="w-40 h-40 md:w-56 md:h-56 rounded-full overflow-hidden border-2 border-tertiary shadow-[0_0_30px_rgba(223,183,255,0.4)]">
+<img class="w-full h-full object-cover" data-alt="A stylized portrait of a fashion-forward individual with striking features, posing against a dark obsidian-textured background. The lighting is harsh and monochromatic with a sharp purple laser light slicing through the frame, creating a high-fashion, avant-garde underground streetwear aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwGu4zGUC0cutSjWkjEblyaf_Ya-zmkW3RLY3Gc11eJaQF-Q91HAGkOnaP954_gNMSRVSRzlHxj2tHhTCqs_APvdu17V-p0hJl4HFGwTSe1_Jt-cBWbDB0NryGFCf42NzCo5UBgOuswFfXUQ_w1YWMJH93CyoWJo6DbeJmAle9XBWVfJrgQ5Vo648xft_O3cBQXIpn8xLF_Oibv2I8s5xg3Km2Y2NDOXF241KR1cKScsZz7JJmPxKv"/>
+</div>
+<button class="absolute bottom-2 right-2 bg-tertiary text-on-tertiary p-2 rounded-full material-symbols-outlined text-sm hover:scale-110 transition-transform">edit</button>
+</div>
+<div class="text-center md:text-left flex-1">
+<div class="flex flex-col md:flex-row md:items-end gap-4 mb-4">
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg tracking-tight">@VANGUARD_VANE</h1>
+<span class="bg-tertiary/10 border border-tertiary/30 px-4 py-1 rounded-full text-tertiary font-label-caps text-label-caps mb-2">ELITE VANGUARD</span>
+</div>
+<div class="flex flex-wrap justify-center md:justify-start gap-8">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">REWARD BALANCE</p>
+<p class="font-headline-lg text-[32px] text-on-surface">2,450 <span class="text-tertiary text-sm">PTS</span></p>
+</div>
+<div class="h-12 w-[1px] bg-outline-variant/30 hidden md:block"></div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">LAST ACTIVITY</p>
+<p class="font-headline-lg text-[32px] text-on-surface">2H AGO</p>
+</div>
+</div>
+</div>
+<div class="hidden xl:block">
+<button class="bg-white text-black px-8 py-4 font-label-caps text-label-caps neon-glow-purple flex items-center gap-2">
+                            BOOK VIP TRY-ON <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Overview Stats Bento Grid -->
+<section class="mb-20">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="glass-panel p-8 group hover:border-tertiary/50 transition-all duration-300 cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<span class="material-symbols-outlined text-tertiary text-3xl">shopping_cart</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">north_east</span>
+</div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">TOTAL ORDERS</h3>
+<p class="font-headline-lg text-4xl">42</p>
+</div>
+<div class="glass-panel p-8 group hover:border-tertiary/50 transition-all duration-300 cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<span class="material-symbols-outlined text-tertiary text-3xl">favorite</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">north_east</span>
+</div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">WISHLIST ITEMS</h3>
+<p class="font-headline-lg text-4xl">128</p>
+</div>
+<div class="glass-panel p-8 group hover:border-tertiary/50 transition-all duration-300 cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<span class="material-symbols-outlined text-tertiary text-3xl">redeem</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">north_east</span>
+</div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">ACTIVE REWARDS</h3>
+<p class="font-headline-lg text-4xl">03</p>
+</div>
+</div>
+</section>
+<!-- Main Split Content -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Left: Recent Orders & Try-On History -->
+<div class="lg:col-span-8 flex flex-col gap-16">
+<!-- Recent Orders -->
+<section>
+<div class="flex justify-between items-end mb-8 border-b border-outline-variant/20 pb-4">
+<h2 class="font-headline-lg text-2xl tracking-tight">RECENT ORDERS</h2>
+<a class="font-label-caps text-label-caps text-tertiary hover:underline" href="#">VIEW ALL</a>
+</div>
+<div class="space-y-4">
+<!-- Order 1 -->
+<div class="glass-panel p-6 flex flex-col md:flex-row items-center gap-6">
+<div class="w-24 h-32 bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A high-end luxury streetwear hoodie in deep charcoal with reflective ink-printing, displayed against a dark minimalist studio background. Professional fashion product photography featuring intricate texture and high-contrast lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5B06wyPM5JyiXs2c-ZdAZ9dVAVKLfoopoqAcEhWStgvKjD1CTNI96dYFo27u5L8AdybSWE7s2qWUP07LIayqPqeEMjOGinEmQRtHTyG7RdMJorBqpjuNeqZkfLLjBEkHyFPCkECyZEUs5atxdXJbCG-nPwHBdW5h5k1b5qw4Ll_GRqfxFHeG3-hcjPNVQPSsbybH17cA4REJqTPZoIkVKkwBlr5su6pWfRHCzAzEce2RZiQqHqVys"/>
+</div>
+<div class="flex-1 text-center md:text-left">
+<p class="font-label-caps text-label-caps text-tertiary mb-1">#IW-98421</p>
+<h4 class="font-headline-lg text-xl mb-1 uppercase">Obsidian Oversize V2</h4>
+<p class="text-on-surface-variant text-sm">Placed on Oct 14, 2023</p>
+</div>
+<div class="flex flex-col items-center md:items-end gap-3">
+<span class="bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">SHIPPED</span>
+<button class="border border-white/20 px-6 py-2 font-label-caps text-label-caps hover:bg-white hover:text-black transition-all">TRACK</button>
+</div>
+</div>
+<!-- Order 2 -->
+<div class="glass-panel p-6 flex flex-col md:flex-row items-center gap-6 opacity-80">
+<div class="w-24 h-32 bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Luxury techwear trousers with multi-pocket design and silver industrial accents, draped elegantly against a concrete-textured minimalist backdrop. Cyberpunk aesthetic with moody, directional studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3dC4QsVEQHBkSjt49nIXrUMddHy3X_BKLJCk6HY9OB1tKnY4exwg4m_kEQB4ug7rvbjuSsbbpLNOIftpbkoZeF1B8INLJrmJeD44KBqs-VKuUnfGUbQm4XPWNZTQZW7hcrB2s0kJkfAj3TwGCBtVTxgZiAUopi9RWBZhuAR7nfSwoxnWLVwHOXYPADg-z5F70dfFY6PmzCkT6lsBrHU1qU9JNw9TMBsBwmqp2-d6e1lQFT6zSjh6d"/>
+</div>
+<div class="flex-1 text-center md:text-left">
+<p class="font-label-caps text-label-caps text-tertiary mb-1">#IW-98204</p>
+<h4 class="font-headline-lg text-xl mb-1 uppercase">Vanguard Utility Cargo</h4>
+<p class="text-on-surface-variant text-sm">Placed on Oct 08, 2023</p>
+</div>
+<div class="flex flex-col items-center md:items-end gap-3">
+<span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">PROCESSING</span>
+<button class="border border-white/20 px-6 py-2 font-label-caps text-label-caps hover:bg-white hover:text-black transition-all">DETAILS</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Try On History Carousel -->
+<section>
+<div class="flex justify-between items-end mb-8 border-b border-outline-variant/20 pb-4">
+<h2 class="font-headline-lg text-2xl tracking-tight">AI TRY-ON HISTORY</h2>
+<div class="flex gap-2">
+<button class="material-symbols-outlined p-1 text-on-surface-variant hover:text-white">chevron_left</button>
+<button class="material-symbols-outlined p-1 text-on-surface-variant hover:text-white">chevron_right</button>
+</div>
+</div>
+<div class="flex gap-6 overflow-x-auto pb-4 custom-scrollbar">
+<!-- Try On 1 -->
+<div class="min-w-[280px] group cursor-pointer">
+<div class="h-[400px] bg-surface-container relative overflow-hidden mb-4">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A photo-realistic AI-generated fashion try-on result featuring a user's likeness wearing a structured silver metallic jacket from the InkWave collection. The background is a digital void with subtle violet light flares, representing a futuristic virtual fitting room." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcRnvHbGT8KvSIS4dlFU9tfHklbQx2SSHDnW6jDgsCAX9zaTFRaTfNG40RYgzdH7ARy-3-ojl2iyD0vog2sp87RsmZptQlL6fssh9KbIHb83qeZ72JsCvTjsjvAZ6Q9QXMh_GWYZ5-MTImdVmxEn4507XUJCfOlyYpg8Kby_tJThcWo_MCTowcw9e2rf1RPgQW-L2P2RARnLbdPFmktkix-H7JLBtgSxM9FJDbNWd0XMkOfeRyqdaY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+<button class="w-full bg-white text-black py-3 font-label-caps text-label-caps">ADD TO BAG</button>
+</div>
+<div class="absolute top-4 left-4 bg-tertiary text-on-tertiary px-3 py-1 rounded-full font-label-caps text-[10px]">AI GEN-3</div>
+</div>
+<h4 class="font-label-caps text-label-caps mb-1">CHROME NEXUS COAT</h4>
+<p class="text-on-surface-variant text-sm">$450.00</p>
+</div>
+<!-- Try On 2 -->
+<div class="min-w-[280px] group cursor-pointer">
+<div class="h-[400px] bg-surface-container relative overflow-hidden mb-4">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A futuristic AI-rendered virtual fashion model showcasing a sleek, asymmetrical black garment with purple glowing optical fibers integrated into the seams. Dark underground aesthetic with atmospheric smoke and cinematic high-key lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSf7MeOc7eKuDEh8b4GVratGtv9RTNV3Yzt3iFBmJf6EVqJyodx3DRl6AK2fKw1jmjuFyxGK9luLhUbOvFdSzCsCujmYxpmdH8JJd3f1s-mHR1r000ctimJZmjPm8L2G6jHwdArsCh5WOsl4lwlCT6x4u6HvFdoslMbCgCubOYeT-UQB-slJ_IK_cn61UH19cc2p-ODXVtZyUIol_fTUk3Bvjz7TZZhTfFTXytIDm0nij2KKdgZ21l"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+<button class="w-full bg-white text-black py-3 font-label-caps text-label-caps">ADD TO BAG</button>
+</div>
+<div class="absolute top-4 left-4 bg-tertiary text-on-tertiary px-3 py-1 rounded-full font-label-caps text-[10px]">AI GEN-3</div>
+</div>
+<h4 class="font-label-caps text-label-caps mb-1">OPTIC FIBRE TECH-TEE</h4>
+<p class="text-on-surface-variant text-sm">$180.00</p>
+</div>
+<!-- Try On 3 -->
+<div class="min-w-[280px] group cursor-pointer">
+<div class="h-[400px] bg-surface-container relative overflow-hidden mb-4">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A stylized virtual fitting visualization of a long-sleeve performance base layer with aggressive topographical print patterns in black and white. Cinematic lighting emphasizing the athletic fit and high-tech material quality in a luxury boutique environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6EHV0oP_xklBzZpeymsuHu0rbOPyOPvjZk7iA7X9_pjL_bVeXY8IztdXFPcEKft_1oOTyhr-AyuqbmmwBSRgTri_g1B1jAbo1e5cUcR71uqgrUkyfYwYk3TqgSrn9Vw6hUe3pbFQ2rbJq6W1j2vZGIW_Uhork-5yT08Ezl_VIPZHhukq99zylY1Aur0bWX0YGr4c69QSTvy8jQ0zFjSeGeI_ldN3ZN4z6_xq_xKcRzIeU0T-fdi0Y"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+<button class="w-full bg-white text-black py-3 font-label-caps text-label-caps">ADD TO BAG</button>
+</div>
+<div class="absolute top-4 left-4 bg-tertiary text-on-tertiary px-3 py-1 rounded-full font-label-caps text-[10px]">AI GEN-3</div>
+</div>
+<h4 class="font-label-caps text-label-caps mb-1">TOPOGRAPH SKINS</h4>
+<p class="text-on-surface-variant text-sm">$120.00</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Right: Rewards & Progress -->
+<div class="lg:col-span-4 space-y-8">
+<!-- Reward Progress Card -->
+<div class="glass-panel p-8 relative overflow-hidden">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-tertiary/20 blur-[60px] rounded-full"></div>
+<h3 class="font-headline-lg text-2xl mb-8 uppercase">TIER PROGRESS</h3>
+<div class="space-y-6">
+<div class="flex justify-between font-label-caps text-label-caps">
+<span>ELITE</span>
+<span class="text-tertiary">ZENITH (3,000 PTS)</span>
+</div>
+<div class="w-full h-1 bg-white/10 relative">
+<div class="absolute top-0 left-0 h-full bg-tertiary shadow-[0_0_10px_#dfb7ff]" style="width: 82%;"></div>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                                You are <span class="text-white font-bold">550 points</span> away from unlocking <span class="text-tertiary">ZENITH</span> status. Enjoy free worldwide shipping and 48hr early access to all drops.
+                            </p>
+<button class="w-full border border-tertiary text-tertiary py-4 font-label-caps text-label-caps hover:bg-tertiary hover:text-on-tertiary transition-all uppercase">REDEEM POINTS</button>
+</div>
+</div>
+<!-- Quick Refer -->
+<div class="glass-panel p-8">
+<h3 class="font-label-caps text-label-caps text-on-surface mb-6 uppercase tracking-widest">REFER A VANGUARD</h3>
+<p class="text-sm text-on-surface-variant mb-6">Give 20% off to a friend and get $50 in credits when they order.</p>
+<div class="flex gap-2">
+<input class="flex-1 bg-black/40 border border-outline-variant/30 text-xs font-mono p-3 text-on-surface focus:border-tertiary outline-none" readonly="" type="text" value="INKWAVE.COM/REF/VANE"/>
+<button class="bg-white text-black p-3 material-symbols-outlined">content_copy</button>
+</div>
+</div>
+<!-- Upcoming Drops Reminder -->
+<div class="glass-panel p-8 border-l-4 border-tertiary">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-tertiary">bolt</span>
+<h3 class="font-label-caps text-label-caps text-on-surface uppercase">NEXT DROP</h3>
+</div>
+<p class="font-headline-lg text-xl mb-1">CYBER WINTER V2</p>
+<p class="text-xs text-on-surface-variant uppercase tracking-[0.2em]">NOV 02 • 10:00 EST</p>
+<button class="mt-6 text-tertiary font-label-caps text-[10px] flex items-center gap-2 hover:translate-x-2 transition-transform">
+                            SET REMINDER <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer Shell -->
+<footer class="w-full mt-auto border-t border-outline-variant/20 bg-background flex flex-col md:flex-row justify-between items-center px-margin-desktop py-12 w-full">
+<div class="text-headline-lg font-headline-lg text-primary opacity-20 order-2 md:order-1">INKWAVE</div>
+<div class="flex flex-col items-center md:items-end gap-6 order-1 md:order-2 mb-12 md:mb-0">
+<nav class="flex gap-8">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-tertiary transition-colors" href="#">Privacy</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-tertiary transition-colors" href="#">Terms</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-tertiary transition-colors" href="#">Shipping</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-tertiary transition-colors" href="#">Sustainability</a>
+</nav>
+<p class="font-label-caps text-[10px] text-on-surface-variant">© 2024 INKWAVE LUXURY UNDERGROUND</p>
+</div>
+</footer>
+<script>
+        // Simple micro-interaction for cards
+        document.querySelectorAll('.glass-panel').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.borderColor = 'rgba(223, 183, 255, 0.4)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.borderColor = 'rgba(198, 198, 198, 0.2)';
+            });
+        });
+    </script>
+</body></html>

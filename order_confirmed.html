@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Order Confirmed | INKWAVE</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "secondary-container": "#454747",
+                  "inverse-on-surface": "#2f3131",
+                  "primary-fixed": "#e2e2e2",
+                  "on-tertiary-fixed-variant": "#6b00b0",
+                  "tertiary-fixed-dim": "#dfb7ff",
+                  "on-error-container": "#ffdad6",
+                  "error": "#ffb4ab",
+                  "surface": "#121414",
+                  "on-tertiary-fixed": "#2d004f",
+                  "inverse-surface": "#e2e2e2",
+                  "primary-container": "#000000",
+                  "on-surface-variant": "#cfc4c5",
+                  "secondary-fixed": "#e2e2e2",
+                  "on-secondary-fixed-variant": "#454747",
+                  "on-secondary": "#2f3131",
+                  "surface-container": "#1e2020",
+                  "surface-container-highest": "#333535",
+                  "on-primary-fixed": "#1b1b1b",
+                  "outline-variant": "#4c4546",
+                  "on-primary-container": "#757575",
+                  "on-tertiary": "#4b007e",
+                  "outline": "#988e90",
+                  "background": "#121414",
+                  "tertiary": "#dfb7ff",
+                  "surface-tint": "#c6c6c6",
+                  "on-secondary-container": "#b4b5b5",
+                  "tertiary-container": "#000000",
+                  "on-surface": "#e2e2e2",
+                  "inverse-primary": "#5e5e5e",
+                  "tertiary-fixed": "#f1daff",
+                  "surface-container-lowest": "#0c0f0f",
+                  "surface-container-high": "#282a2b",
+                  "primary": "#c6c6c6",
+                  "on-tertiary-container": "#a635ff",
+                  "on-error": "#690005",
+                  "surface-variant": "#333535",
+                  "surface-bright": "#38393a",
+                  "secondary": "#c6c6c7",
+                  "primary-fixed-dim": "#c6c6c6",
+                  "error-container": "#93000a",
+                  "on-secondary-fixed": "#1a1c1c",
+                  "on-background": "#e2e2e2",
+                  "on-primary-fixed-variant": "#474747",
+                  "surface-container-low": "#1a1c1c",
+                  "secondary-fixed-dim": "#c6c6c7",
+                  "on-primary": "#303030",
+                  "surface-dim": "#121414"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "0.75rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "margin-mobile": "16px",
+                  "gutter": "24px",
+                  "margin-desktop": "64px",
+                  "unit": "8px",
+                  "container-max": "1440px"
+          },
+          "fontFamily": {
+                  "headline-lg": ["Syne"],
+                  "body-md": ["Inter"],
+                  "headline-lg-mobile": ["Syne"],
+                  "label-caps": ["Inter"],
+                  "display-2xl": ["Syne"]
+          },
+          "fontSize": {
+                  "headline-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                  "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                  "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                  "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.15em", "fontWeight": "600"}],
+                  "display-2xl": ["80px", {"lineHeight": "1.0", "letterSpacing": "-0.04em", "fontWeight": "800"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(198, 198, 198, 0.2);
+    }
+    .neon-pulse {
+      box-shadow: 0 0 20px rgba(157, 0, 255, 0.2);
+    }
+    .track-active {
+      background: linear-gradient(90deg, #c6c6c6 0%, #dfb7ff 100%);
+    }
+    @keyframes subtle-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .animate-float {
+      animation: subtle-float 6s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-tertiary selection:text-on-tertiary overflow-x-hidden">
+<!-- BACKGROUND SHADER -->
+<div class="fixed inset-0 z-0">
+
+</div>
+<!-- NAVIGATION SHELL SUPPRESSED FOR TRANSACTIONAL SUCCESS PAGE -->
+<!-- Header with Brand Anchor only -->
+<header class="relative z-10 w-full h-20 flex items-center px-margin-mobile md:px-margin-desktop border-b border-white/5">
+<span class="font-display-2xl text-[24px] md:text-[32px] tracking-tighter text-on-surface uppercase font-extrabold">INKWAVE</span>
+</header>
+<main class="relative z-10 min-h-screen pt-12 pb-24 px-margin-mobile md:px-margin-desktop">
+<!-- SUCCESS HERO -->
+<section class="max-w-4xl mx-auto text-center flex flex-col items-center mb-24">
+<div class="w-20 h-20 bg-tertiary text-on-tertiary rounded-full flex items-center justify-center mb-8 neon-pulse animate-float">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg uppercase mb-4 leading-none">
+        ORDER CONFIRMED.<br/>WELCOME TO THE WAVE.
+      </h1>
+<div class="mt-8">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">IDENTIFICATION NUMBER</p>
+<p class="font-display-2xl text-[40px] md:text-[64px] text-primary tracking-widest">#IW-8829-01X</p>
+</div>
+<div class="mt-12 flex flex-wrap justify-center gap-4">
+<button class="bg-white text-black px-10 py-4 font-label-caps text-label-caps hover:scale-105 transition-transform duration-300 shadow-[0_0_20px_rgba(157,0,255,0.4)] border border-white/20">
+          DOWNLOAD INVOICE
+        </button>
+<button class="bg-transparent text-white border border-white/20 px-10 py-4 font-label-caps text-label-caps hover:bg-white/5 transition-colors duration-300">
+          VIEW ORDER DETAILS
+        </button>
+</div>
+</section>
+<!-- TRACKING TIMELINE -->
+<section class="max-w-5xl mx-auto mb-32">
+<div class="glass-card p-10 md:p-16 rounded-xl">
+<h2 class="font-label-caps text-label-caps text-primary mb-12 flex items-center gap-3">
+<span class="material-symbols-outlined text-sm">cloud_upload</span> 
+          LOGISTICS TRACKING
+        </h2>
+<div class="relative">
+<!-- Desktop Horizontal Timeline -->
+<div class="hidden md:flex justify-between items-start relative">
+<div class="absolute top-[11px] left-0 w-full h-[2px] bg-white/10 z-0"></div>
+<div class="absolute top-[11px] left-0 w-1/4 h-[2px] track-active z-10"></div>
+<div class="relative z-20 flex flex-col items-center group">
+<div class="w-6 h-6 rounded-full bg-primary border-4 border-background group-hover:scale-125 transition-transform"></div>
+<p class="mt-4 font-label-caps text-[10px] text-white">ORDER PLACED</p>
+<p class="mt-1 text-[10px] text-on-surface-variant">OCT 24, 14:02</p>
+</div>
+<div class="relative z-20 flex flex-col items-center group">
+<div class="w-6 h-6 rounded-full bg-white/20 border-4 border-background group-hover:scale-125 transition-transform"></div>
+<p class="mt-4 font-label-caps text-[10px] text-on-surface-variant">PROCESSING</p>
+<p class="mt-1 text-[10px] text-on-surface-variant">EST. OCT 25</p>
+</div>
+<div class="relative z-20 flex flex-col items-center group opacity-40">
+<div class="w-6 h-6 rounded-full bg-white/10 border-4 border-background"></div>
+<p class="mt-4 font-label-caps text-[10px] text-on-surface-variant">SHIPPED</p>
+</div>
+<div class="relative z-20 flex flex-col items-center group opacity-40">
+<div class="w-6 h-6 rounded-full bg-white/10 border-4 border-background"></div>
+<p class="mt-4 font-label-caps text-[10px] text-on-surface-variant">OUT FOR DELIVERY</p>
+</div>
+</div>
+<!-- Mobile Vertical Timeline -->
+<div class="flex md:hidden flex-col gap-12 relative pl-8">
+<div class="absolute left-[11px] top-0 h-full w-[2px] bg-white/10"></div>
+<div class="absolute left-[11px] top-0 h-1/4 w-[2px] track-active"></div>
+<div class="relative">
+<div class="absolute -left-8 top-0 w-6 h-6 rounded-full bg-primary border-4 border-background"></div>
+<p class="font-label-caps text-label-caps text-white">ORDER PLACED</p>
+<p class="text-xs text-on-surface-variant mt-1">OCT 24, 2024 — 14:02</p>
+</div>
+<div class="relative">
+<div class="absolute -left-8 top-0 w-6 h-6 rounded-full bg-white/20 border-4 border-background"></div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">PROCESSING</p>
+<p class="text-xs text-on-surface-variant mt-1">Estimated OCT 25</p>
+</div>
+<div class="relative opacity-40">
+<div class="absolute -left-8 top-0 w-6 h-6 rounded-full bg-white/10 border-4 border-background"></div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">SHIPPED</p>
+</div>
+<div class="relative opacity-40">
+<div class="absolute -left-8 top-0 w-6 h-6 rounded-full bg-white/10 border-4 border-background"></div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">OUT FOR DELIVERY</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- RECOMMENDED SECTION -->
+<section class="max-w-container-max mx-auto">
+<div class="flex items-end justify-between mb-12">
+<div>
+<p class="font-label-caps text-label-caps text-tertiary mb-2">COMPLETE THE LOOK</p>
+<h3 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg uppercase">YOU MIGHT ALSO NEED</h3>
+</div>
+<a class="hidden md:flex items-center gap-2 font-label-caps text-label-caps text-on-surface hover:text-tertiary transition-colors" href="#">
+          EXPLORE ALL <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<!-- Product 1 -->
+<div class="group relative">
+<div class="aspect-[3/4] w-full overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="A cinematic studio shot of a high-end black tactical streetwear hoodie with silver zipper details and reflective materials, captured against a dark obsidian background with purple neon light trails. The lighting is moody and directional, emphasizing the heavy fabric texture and oversized fit. Pure luxury underground aesthetic, high resolution fashion photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4z61SUvdXiuzfplyF2ljdKenPkdXwEVUoOAS9yByQ0fWtLqAOQFrLNHWrpDuR4dmx--DC0d7DCb__9MA50Kk3PX-riSGSKPCKM-Mnly-rf-Y4IaB1SkDU25GHa5yHWqkF-dlOGjljf2Pi24xsZlf_R90o0ndfzK9ar6EUik83iGSocGEFwlZfISdYyLECJz-O-pQA52PPlD7K_2fnFfNTWn3VTiKa2wiDwvPVMMm-edb_PHAWJHbz"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+<button class="w-full bg-white text-black py-3 font-label-caps text-label-caps translate-y-4 group-hover:translate-y-0 transition-transform">QUICK ADD</button>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-white group-hover:text-tertiary transition-colors">ONYX VANGUARD HOODIE</p>
+<p class="font-body-md text-on-surface-variant mt-1">$220.00</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-white" data-icon="favorite">favorite</span>
+</div>
+</div>
+<!-- Product 2 -->
+<div class="group relative">
+<div class="aspect-[3/4] w-full overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="A premium pair of futuristic black high-top sneakers with silver metallic accents and a thick architectural sole. The shot is low-angle to show the aggressive tread pattern, set in a minimalist white-lit concrete space with deep shadows. The visual style is cyber-minimalism, featuring high-contrast textures and sharp digital lighting effects." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDF5xZjfpe-MZqCnEBR9c-4zIiyis77pDX6Q4D1Ei8bckR7cvEtxAm3WIa7lLCs41Te3TKEF0BJQB4iK2HzBXkcQZbOvDaDk-o0csdyhqQyhMIArmD7Tl1ifmrg1sdMBTxh-P_KQGwhGWKy6n_aCtuy17EaISHoZ1qhlIcnq7rJk8v8uvmvekg3PTiPbYv_EPmY77xGhgoIBg7QDBOfTV_8AG8chB2JXn35vtw1qKZBwPYSU0Q_Db5G"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+<button class="w-full bg-white text-black py-3 font-label-caps text-label-caps translate-y-4 group-hover:translate-y-0 transition-transform">QUICK ADD</button>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-white group-hover:text-tertiary transition-colors">PULSE-01 STRIDER</p>
+<p class="font-body-md text-on-surface-variant mt-1">$450.00</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-white" data-icon="favorite">favorite</span>
+</div>
+</div>
+<!-- Product 3 -->
+<div class="group relative">
+<div class="aspect-[3/4] w-full overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="An artistic flat-lay of a silver industrial-style chain necklace with a geometric obsidian pendant. The jewelry is resting on a frosted glass surface with a vibrant purple glow emanating from beneath it. The aesthetic is tech-minimalist luxury, highlighting the precision-engineered metallic surfaces and nocturnal digital energy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDmHamGotPuv4Ib3FCLOTTjYOuZAa5GrENBEi5v3dZY3vQd9VGo__ml2durcUPYCmv9UYy3OlslsgIsJhie4003P2e0x6_5BelW0yUIn5ACsVcMbPEzyfLJQHI2rvBWVyEF7CMUBzJhLRLpYrCIGwrPH1fSk8q5sy2Ejbbg5L4i99QU4E-DpG4JnQ4xn7BywfGczFus7Ccm9J9lv9Hkg-UA52bn4h5oXI-INzg87JoCh0KMgUjKtxs"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+<button class="w-full bg-white text-black py-3 font-label-caps text-label-caps translate-y-4 group-hover:translate-y-0 transition-transform">QUICK ADD</button>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-white group-hover:text-tertiary transition-colors">OBSIDIAN FRAGMENT CHAIN</p>
+<p class="font-body-md text-on-surface-variant mt-1">$145.00</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-white" data-icon="favorite">favorite</span>
+</div>
+</div>
+<!-- Product 4 -->
+<div class="group relative">
+<div class="aspect-[3/4] w-full overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="Close up of a pair of wide-leg tech-cargo trousers in a matte silver-grey finish. The image focuses on the intricate strap details, large 3D pockets, and reinforced stitching. The background is a stark black void, with clinical cool-white lighting highlighting the textile's technical properties. Cyber-minimalist fashion editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwAJIXaqjSanOejOp6-ZpE44kx1pvfPJStsqjx17s_8NMuViwtnIjb0PQEZtGpZYe8G5QXGyn58E7fcFQCXhZcOlJsST0yExo1Kem3FVBLYizkODQXz9L84aLBoSPw6UOj2gVZ3nb5P_1owIBS6C2--K6Q6rie6yMK_9lp31WflSzS8v76RdmkxpnW8ByPVs899d5OWqnbqqVYm7XXDrad9q0gePLLRLo1L-KNDQm6XpWQBCDYYo9a"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+<button class="w-full bg-white text-black py-3 font-label-caps text-label-caps translate-y-4 group-hover:translate-y-0 transition-transform">QUICK ADD</button>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-white group-hover:text-tertiary transition-colors">CHROME SHIFT CARGO</p>
+<p class="font-body-md text-on-surface-variant mt-1">$280.00</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-white" data-icon="favorite">favorite</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- FOOTER -->
+<footer class="relative z-10 w-full py-20 bg-black border-t border-white/5 flex flex-col md:flex-row justify-between items-center px-margin-desktop gap-gutter">
+<div class="flex flex-col items-center md:items-start gap-4">
+<span class="font-headline-lg text-primary text-[32px] font-extrabold tracking-tighter">INKWAVE</span>
+<p class="font-body-md text-on-surface-variant text-sm">© 2024 INKWAVE STUDIOS. ALL RIGHTS RESERVED.</p>
+</div>
+<div class="flex gap-8">
+<a class="font-body-md text-on-surface-variant hover:text-tertiary transition-colors text-sm" href="#">PRIVACY</a>
+<a class="font-body-md text-on-surface-variant hover:text-tertiary transition-colors text-sm" href="#">TERMS</a>
+<a class="font-body-md text-on-surface-variant hover:text-tertiary transition-colors text-sm" href="#">SHIPPING</a>
+<a class="font-body-md text-on-surface-variant hover:text-tertiary transition-colors text-sm" href="#">RETURNS</a>
+</div>
+</footer>
+<script>
+    // Micro-interaction for tracking number copy
+    document.querySelector('.font-display-2xl').addEventListener('click', function() {
+      const text = this.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = this.innerText;
+        this.innerText = 'COPIED';
+        this.classList.add('text-tertiary');
+        setTimeout(() => {
+          this.innerText = originalText;
+          this.classList.remove('text-tertiary');
+        }, 1500);
+      });
+    });
+  </script>
+</body></html>

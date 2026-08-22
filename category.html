@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OVERSIZED | INKWAVE LUXURY UNDERGROUND</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Syne:wght@700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Syne:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#c6c6c6",
+                        "on-primary-container": "#757575",
+                        "tertiary-fixed": "#f1daff",
+                        "surface-container-lowest": "#0c0f0f",
+                        "on-tertiary-fixed-variant": "#6b00b0",
+                        "surface-container-high": "#282a2b",
+                        "inverse-on-surface": "#2f3131",
+                        "error": "#ffb4ab",
+                        "on-background": "#e2e2e2",
+                        "tertiary": "#dfb7ff",
+                        "surface-container-highest": "#333535",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "surface": "#121414",
+                        "error-container": "#93000a",
+                        "surface-tint": "#c6c6c6",
+                        "secondary-container": "#454747",
+                        "on-tertiary-container": "#a635ff",
+                        "surface-container": "#1e2020",
+                        "primary-fixed": "#e2e2e2",
+                        "on-primary-fixed": "#1b1b1b",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "inverse-surface": "#e2e2e2",
+                        "secondary": "#c6c6c7",
+                        "outline-variant": "#4c4546",
+                        "tertiary-container": "#000000",
+                        "secondary-fixed": "#e2e2e2",
+                        "surface-variant": "#333535",
+                        "on-surface-variant": "#cfc4c5",
+                        "surface-dim": "#121414",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "on-tertiary-fixed": "#2d004f",
+                        "tertiary-fixed-dim": "#dfb7ff",
+                        "background": "#121414",
+                        "surface-container-low": "#1a1c1c",
+                        "inverse-primary": "#5e5e5e",
+                        "surface-bright": "#38393a",
+                        "on-error-container": "#ffdad6",
+                        "on-error": "#690005",
+                        "on-surface": "#e2e2e2",
+                        "on-secondary": "#2f3131",
+                        "on-primary-fixed-variant": "#474747",
+                        "outline": "#988e90",
+                        "on-tertiary": "#4b007e",
+                        "primary-container": "#000000",
+                        "on-primary": "#303030",
+                        "on-secondary-container": "#b4b5b5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "unit": "8px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Syne"],
+                        "body-md": ["Inter"],
+                        "display-2xl": ["Syne"],
+                        "label-caps": ["Inter"],
+                        "headline-lg": ["Syne"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                        "display-2xl": ["80px", {"lineHeight": "1.0", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                        "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.15em", "fontWeight": "600"}],
+                        "headline-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #000000;
+            color: #e2e2e2;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(198, 198, 198, 0.15);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(166, 53, 255, 0.5);
+            box-shadow: 0 0 30px rgba(166, 53, 255, 0.15);
+        }
+
+        .neon-glow-hover:hover {
+            box-shadow: 0 0 20px rgba(166, 53, 255, 0.4);
+            transform: scale(1.02);
+        }
+
+        .product-image-container:hover .hover-image {
+            opacity: 1;
+        }
+        
+        .product-image-container:hover .default-image {
+            opacity: 0;
+        }
+
+        .quick-view-btn {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover .quick-view-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .infinite-pulse {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="font-body-md selection:bg-on-tertiary-container selection:text-white">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-black/70 backdrop-blur-xl border-b border-white/10 flex justify-between items-center px-margin-desktop py-4 w-full">
+<div class="font-display-2xl text-[24px] font-extrabold tracking-tighter text-on-surface">INKWAVE</div>
+<div class="hidden md:flex gap-gutter items-center">
+<a class="font-label-caps text-label-caps tracking-widest text-on-surface-variant hover:text-on-surface transition-colors" href="#">New Drops</a>
+<a class="font-label-caps text-label-caps tracking-widest text-on-surface border-b border-primary pb-1" href="#">Oversized</a>
+<a class="font-label-caps text-label-caps tracking-widest text-on-surface-variant hover:text-on-surface transition-colors" href="#">Anime</a>
+</div>
+<div class="flex items-center gap-6">
+<button class="hover:scale-105 transition-transform duration-300 active:scale-95 text-on-surface">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<button class="hover:scale-105 transition-transform duration-300 active:scale-95 text-on-surface">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<button class="hover:scale-105 transition-transform duration-300 active:scale-95 text-on-surface">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</nav>
+<div class="flex min-h-screen pt-24">
+<!-- SideNavBar / Filters -->
+<aside class="hidden md:flex flex-col gap-unit py-8 h-[calc(100vh-96px)] w-64 fixed left-0 overflow-y-auto bg-surface border-r border-white/5 custom-scrollbar">
+<div class="px-8 mb-8">
+<h2 class="font-headline-lg text-[20px] text-on-surface mb-1">FILTERS</h2>
+<p class="font-label-caps text-[10px] text-on-surface-variant tracking-wider">Refine your aesthetic</p>
+</div>
+<div class="flex flex-col">
+<!-- SideNav Tabs -->
+<div class="text-on-surface bg-white/5 font-bold border-l-2 border-primary pl-4 py-3 flex items-center gap-3 cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">category</span>
+<span class="font-label-caps text-label-caps">Category</span>
+</div>
+<div class="text-on-surface-variant hover:bg-white/5 pl-4 py-3 flex items-center gap-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+<span class="font-label-caps text-label-caps">Price</span>
+</div>
+<div class="text-on-surface-variant hover:bg-white/5 pl-4 py-3 flex items-center gap-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">straighten</span>
+<span class="font-label-caps text-label-caps">Size</span>
+</div>
+<div class="text-on-surface-variant hover:bg-white/5 pl-4 py-3 flex items-center gap-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">palette</span>
+<span class="font-label-caps text-label-caps">Color</span>
+</div>
+<div class="text-on-surface-variant hover:bg-white/5 pl-4 py-3 flex items-center gap-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">straighten</span>
+<span class="font-label-caps text-label-caps">Fit</span>
+</div>
+<div class="text-on-surface-variant hover:bg-white/5 pl-4 py-3 flex items-center gap-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">apparel</span>
+<span class="font-label-caps text-label-caps">Sleeve</span>
+</div>
+<div class="text-on-surface-variant hover:bg-white/5 pl-4 py-3 flex items-center gap-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">style</span>
+<span class="font-label-caps text-label-caps">Theme</span>
+</div>
+<div class="text-on-surface-variant hover:bg-white/5 pl-4 py-3 flex items-center gap-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">inventory_2</span>
+<span class="font-label-caps text-label-caps">Availability</span>
+</div>
+</div>
+<div class="px-8 mt-auto pt-8">
+<button class="w-full bg-on-surface text-black font-label-caps py-4 rounded-none transition-all hover:bg-white active:scale-95">Apply Filters</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 px-margin-mobile md:px-margin-desktop pb-20">
+<!-- Header Section -->
+<header class="pt-8 pb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<nav class="font-label-caps text-[10px] text-on-surface-variant tracking-[0.2em] mb-4">
+                        HOME / COLLECTIONS / <span class="text-on-surface">OVERSIZED</span>
+</nav>
+<h1 class="font-headline-lg text-headline-lg md:text-[64px] text-on-surface uppercase leading-none">OVERSIZED</h1>
+</div>
+<div class="relative inline-block text-left group">
+<button class="flex items-center gap-4 bg-white/5 border border-white/10 px-6 py-3 font-label-caps text-label-caps tracking-widest text-on-surface group-hover:border-primary/50 transition-all">
+                        SORT: NEWEST
+                        <span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<div class="absolute right-0 mt-2 w-56 bg-surface-container-high border border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
+<ul class="py-2">
+<li><a class="block px-6 py-3 font-label-caps text-label-caps hover:bg-white/5 text-on-surface" href="#">NEWEST</a></li>
+<li><a class="block px-6 py-3 font-label-caps text-label-caps hover:bg-white/5 text-on-surface-variant" href="#">TRENDING</a></li>
+<li><a class="block px-6 py-3 font-label-caps text-label-caps hover:bg-white/5 text-on-surface-variant" href="#">PRICE LOW TO HIGH</a></li>
+<li><a class="block px-6 py-3 font-label-caps text-label-caps hover:bg-white/5 text-on-surface-variant" href="#">PRICE HIGH TO LOW</a></li>
+<li><a class="block px-6 py-3 font-label-caps text-label-caps hover:bg-white/5 text-on-surface-variant" href="#">BEST RATED</a></li>
+</ul>
+</div>
+</div>
+</header>
+<!-- Product Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Product Card 1 -->
+<div class="product-card group relative">
+<div class="product-image-container relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
+<div class="absolute inset-0 bg-cover bg-center default-image transition-opacity duration-700" data-alt="A professional studio fashion photograph of a streetwear model wearing a heavy, oversized jet-black hoodie with intricate silver embroidery. The model has a neutral expression, standing against a dark, minimalist industrial background. The lighting is dramatic, high-contrast chiaroscuro, emphasizing the premium texture of the fabric. Luxury underground aesthetic with deep shadows and surgical white highlights." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDYrlINjLkCwMwZ1bIbdD-7cOXtV77GkE4vakyxiLK6HmGlQV9ZQKZ59H42rtsU2zTCfPBvduSbHW3WJx1ml5ZYRMLEm864J8mE-_0sKuPfem-LbnqEqRSflR6N6x54BYQrwtOocWCMrP9430m0WSkdUheVqY3pjCBN6SIqjXwN752sd68lW2k3fIchhsLzHywq5IKeQG0yc2A-fRRaEM-TUf1rmWIjXu2r882ss03BcrHDUpuZZ_kq')">
+</div>
+<div class="absolute inset-0 bg-cover bg-center hover-image opacity-0 transition-opacity duration-700" data-alt="A detailed close-up shot of the silver embroidery on the back of the black oversized hoodie. The intricate metallic threads catch the light, revealing a futuristic cyber-minimalist pattern. The depth of field is shallow, blurring the model in the background. The mood is exclusive and high-end, focusing on the craftsmanship of the luxury streetwear garment in a nocturnal setting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAmPl-kD7A9lPFT1zXVLANAqFK5aVRlgh_2mptGG7xI0s1oA6ICeuNRil2EI6jsJwqtZfB_frec1CDw1x2SuyYx4k19CvWMiHTmh3bWGtNELtyiK2O54GbZqR-Y1YlO27SL7kmpuGf0cin1T87Q8pSBDjXZ2fQ2-1OuyJrCqI-NLpK6HS5ft34_Mj-592mvLP9lz6UW_kCrhaCvIBEnBMcsaOs6o5S6vz_zFccPbO-YoiMSTebsi89x')">
+</div>
+<!-- Badges -->
+<div class="absolute top-4 left-4 flex flex-col gap-2">
+<span class="bg-white text-black font-label-caps text-[10px] px-3 py-1">NEW</span>
+<span class="bg-error-container text-white font-label-caps text-[10px] px-3 py-1">LIMITED STOCK</span>
+</div>
+<!-- Wishlist -->
+<button class="absolute top-4 right-4 text-on-surface hover:text-on-tertiary-container transition-colors">
+<span class="material-symbols-outlined text-[24px]">favorite</span>
+</button>
+<!-- Quick View -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<button class="quick-view-btn pointer-events-auto glass-card px-8 py-3 font-label-caps text-label-caps text-on-surface hover:bg-white/10 active:scale-95">
+                                QUICK VIEW
+                            </button>
+</div>
+<!-- Quick Add -->
+<button class="absolute bottom-0 w-full bg-white text-black py-4 font-label-caps text-[12px] translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                            ADD TO CART
+                        </button>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-label-caps text-body-md text-on-surface mb-1 tracking-wider">NEO-GOTH OVERSIZED HOODIE</h3>
+<div class="flex items-center gap-1 mb-2">
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">star_half</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant ml-1">4.5</span>
+</div>
+</div>
+<div class="text-right">
+<span class="block font-headline-lg text-[18px] text-on-surface">$240.00</span>
+</div>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="product-card group relative">
+<div class="product-image-container relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
+<div class="absolute inset-0 bg-cover bg-center default-image transition-opacity duration-700" data-alt="A male model wearing an oversized electric purple graphic t-shirt with a metallic silver reflective print. He is posing in a neon-lit urban alleyway at night. The lighting creates vibrant purple and blue highlights on the edges of the oversized silhouette. The t-shirt fabric looks thick and high-quality. Cyber-minimalist streetwear aesthetic, futuristic and energetic mood." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAHeg8BnydUz-9ANugx-aXNAVASK5ZiPsaSPvV8_O-K9OYSjRtNUss9sO7bVuS_sIk5QZoMhHUHGmuHGCdYxKqLKSr6AU_oYaQYnChBJxfYWgCQFsU4jc4Puj7MKobSM0Z-s6GE9pw7zE1pZlnbmDKOqE0G49mMv8afHMh5Zti541cy6IzTHkTnqa9KjC58AutKqoGiHdxdIpbOO686b4lRSBBFFQ687-4eOmcB6sl_KLdzqVBue0Nc')">
+</div>
+<div class="absolute inset-0 bg-cover bg-center hover-image opacity-0 transition-opacity duration-700" data-alt="A low-angle shot focusing on the fit of the oversized purple t-shirt, showing the dropped shoulders and extra-wide sleeves. The reflective silver print glows under a direct camera flash, creating a stark high-end fashion effect. The background is a dark, gritty concrete texture. The color palette is dominated by deep purples and obsidian blacks with metallic accents." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB_uxRE_CJom1173Z4a2CBmvlsyZzfgeTIOBIOtTFwEpU3rolboAOUwnwn9qncB-ck0iCSV5bw8DVQ-UbpgLP4Cs_jvxbLkiDJ-S8fvzBf3Y4ES1ehjnwQ3q9GYxVA2nna7BViMSfinzsx_tXzVzpePJH_asckDdG5RT0lAFmFDh6MLvpoLu29ncAV7HTn5BkY-13jJCNTdQ3AglagsP2KcsSvQ4o0-pICH6D_JISiCNIVqY1BnVEsD')">
+</div>
+<div class="absolute top-4 left-4">
+<span class="bg-on-tertiary-container text-white font-label-caps text-[10px] px-3 py-1">20% OFF</span>
+</div>
+<button class="absolute top-4 right-4 text-on-surface hover:text-on-tertiary-container transition-colors">
+<span class="material-symbols-outlined text-[24px]">favorite</span>
+</button>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<button class="quick-view-btn pointer-events-auto glass-card px-8 py-3 font-label-caps text-label-caps text-on-surface hover:bg-white/10 active:scale-95">
+                                QUICK VIEW
+                            </button>
+</div>
+<button class="absolute bottom-0 w-full bg-white text-black py-4 font-label-caps text-[12px] translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                            ADD TO CART
+                        </button>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-label-caps text-body-md text-on-surface mb-1 tracking-wider">PULSE REFLECTIVE TEE</h3>
+<div class="flex items-center gap-1 mb-2">
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant ml-1">5.0</span>
+</div>
+</div>
+<div class="text-right">
+<span class="block font-headline-lg text-[18px] text-on-tertiary-container">$88.00</span>
+<span class="block font-label-caps text-[10px] text-on-surface-variant line-through">$110.00</span>
+</div>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="product-card group relative">
+<div class="product-image-container relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
+<div class="absolute inset-0 bg-cover bg-center default-image transition-opacity duration-700" data-alt="A fashion model wearing wide-leg oversized black cargo pants with multiple silver buckles and nylon straps. The model is standing in a brightly lit white studio with soft shadows. The pants have a structural, architectural quality. The look is completed with bulky black futuristic sneakers. Luxury tactical streetwear aesthetic, high-key lighting, surgical precision." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDW-oKFfODkgeGXG0zxCq_vlw1x9xvpkKYgFfC22xIjH4T00E5ePxNa-w0z1Ev1T4SxiYTjH6owKdshvvYalAcJM1VxCOh0MvNuJ2EB-3zGp3fJ4zK3PMo4qNahwM0gdAb2D5-ZDe3LxX0jlK4XdK3NEsJS9a7vIoXt1fCL6OreyO_xG1ZY4l_5c_GgCd5nNEg8NyYxgfC8q1YLpexPqyetintyASoAdW29cWvGSu7HdLlZMU8d4xqb')">
+</div>
+<div class="absolute inset-0 bg-cover bg-center hover-image opacity-0 transition-opacity duration-700" data-alt="A macro detail shot of the silver buckles and heavy nylon straps on the oversized black cargo pants. The texture of the high-grade technical fabric is visible. The lighting is clean and professional, highlighting the functional yet luxurious details of the garment. Minimalist color palette of charcoal black and polished silver." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCy0l0JCnU_ZyYPwoy4M3zClY0TjMwX7fHG_NO89WemNSKuRcjFxyC8yFJk7-p2tM_GC4n3z4R3cb99RY3_WVURyP2N8ZxBs9O-BTlXXgMZas6IWwmvDQJPYZFTvMuVAq61hQB9WfnDfkahdablJX0tzWDUGomu4XLlTbGV72Rf7F8CD9liWtefF0LVdE3TJZTm5cCDRGIk1Ec_XaV7Bbh8nLGfbK4VMQk9uGkTLrYBgxM8ypSSlrHR')">
+</div>
+<button class="absolute top-4 right-4 text-on-surface hover:text-on-tertiary-container transition-colors">
+<span class="material-symbols-outlined text-[24px]">favorite</span>
+</button>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<button class="quick-view-btn pointer-events-auto glass-card px-8 py-3 font-label-caps text-label-caps text-on-surface hover:bg-white/10 active:scale-95">
+                                QUICK VIEW
+                            </button>
+</div>
+<button class="absolute bottom-0 w-full bg-white text-black py-4 font-label-caps text-[12px] translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                            ADD TO CART
+                        </button>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-label-caps text-body-md text-on-surface mb-1 tracking-wider">VOID TACTICAL CARGOS</h3>
+<div class="flex items-center gap-1 mb-2">
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">star</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant ml-1">4.0</span>
+</div>
+</div>
+<div class="text-right">
+<span class="block font-headline-lg text-[18px] text-on-surface">$310.00</span>
+</div>
+</div>
+</div>
+<!-- Repeat Product Grid (additional rows) -->
+<!-- Product Card 4 -->
+<div class="product-card group relative">
+<div class="product-image-container relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
+<div class="absolute inset-0 bg-cover bg-center default-image transition-opacity duration-700" data-alt="A full body shot of a model wearing an oversized white bomber jacket with black technical details and a large anime-inspired graphic on the back. The setting is a sterile, futuristic laboratory with white tiles and cool blue accent lighting. The jacket is voluminous and structured. The overall aesthetic is clean, digital, and premium." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCFs_HVYq-VkIEXS3E2yQSuFUMcBUI1dB_Oh-Y3YecRlMoY85LIvqK44Z5OxoSIUwnrXgmt86XyvWau9v72bynCYUWt3pgJIeWJATtwL_zxEYfdFQ3GarupLpNmiCDCN1xKMzf-KYbv_fXMRoFVISCI8wCSZSh6ixv_eOMMZ2XF0HWYbIbrYIUme9qTnNLT61Ova8kpmZdwitAUvlgs5cNGNp72V9xwVnLe7hJqTdz1UJxZoVj6_Fal')">
+</div>
+<div class="absolute inset-0 bg-cover bg-center hover-image opacity-0 transition-opacity duration-700" data-alt="A back view of the white oversized bomber jacket, showcasing the intricate high-definition anime graphic printed with a glossy finish. The graphic features sharp lines and electric purple accents. The model is standing in a dimly lit space where the purple accents of the jacket seem to glow slightly. High-contrast digital fashion photography." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBm8Uv9X2pHeYQz_huOgiZmrH-J2pyXTlhx3TgVpChS1cKdqsDzBDYvAVb5T67aK_H4j4um8zQCE_0feG_Fp70vXAoGfZu9Dl3wUJQZRaCbwA1v3lTV2htIgRQ9SKE4fNeK6014Nszc2jh4Tt6vw1q0hDXlUaIo5Qpe7kfX9AsGF6bOf86_J6Bh5uENxStT0INJe4rWegIvFSB4_3GpYt3DDlapGuLWblfdmMDSnaLsLk2WVcu8HOWM')">
+</div>
+<div class="absolute top-4 left-4">
+<span class="bg-white text-black font-label-caps text-[10px] px-3 py-1">NEW</span>
+</div>
+<button class="absolute top-4 right-4 text-on-surface hover:text-on-tertiary-container transition-colors">
+<span class="material-symbols-outlined text-[24px]">favorite</span>
+</button>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<button class="quick-view-btn pointer-events-auto glass-card px-8 py-3 font-label-caps text-label-caps text-on-surface hover:bg-white/10 active:scale-95">
+                                QUICK VIEW
+                            </button>
+</div>
+<button class="absolute bottom-0 w-full bg-white text-black py-4 font-label-caps text-[12px] translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                            ADD TO CART
+                        </button>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-label-caps text-body-md text-on-surface mb-1 tracking-wider">CYBER-SOUL BOMBER</h3>
+<div class="flex items-center gap-1 mb-2">
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">star_half</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant ml-1">4.5</span>
+</div>
+</div>
+<div class="text-right">
+<span class="block font-headline-lg text-[18px] text-on-surface">$420.00</span>
+</div>
+</div>
+</div>
+<!-- Product Card 5 -->
+<div class="product-card group relative">
+<div class="product-image-container relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
+<div class="absolute inset-0 bg-cover bg-center default-image transition-opacity duration-700" data-alt="A close-up of a model wearing an oversized charcoal grey distressed knit sweater. The texture is rough and avant-garde, with intentional frayed edges and loose threads. The lighting is moody and atmospheric, with a single light source creating deep shadows in the knit patterns. Nocturnal underground luxury fashion aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC97rywc3FQtrtR3LG7JVx4T4lv_TlwYVEzRxtDzwE1vRiFSFhHMfDE6bbvEQbflC_ZF9MtYXYchhgeE38A_tXIeewKAVvD5odei35w6eNbaUZluAfC_ZHWagX6eEbOnOEavllSZnvjd-lJNPo3jnIh5YvuUEDzglyqWFi66aZ1tCGZwDBk0IyQ3liFaYXTzLRdxB_lu7Jn27jEK4avieLP958GXk5p2RoWX6HfG8cqqmPNBLOKOCEE')">
+</div>
+<div class="absolute inset-0 bg-cover bg-center hover-image opacity-0 transition-opacity duration-700" data-alt="The model is seen from the side, sitting in a dark leather chair. The oversized fit of the distressed sweater creates a relaxed, effortless silhouette. The environment is a dimly lit high-end lounge. The color palette is composed of various shades of grey, black, and deep silver." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAiOp5oZruLjuxah3WA0anIvItYiWq3poLqcBe3ytQoktlyzDK_HiaJh2HH7bpwmhuZiM4juLdQyVY73m_04QaDmMixsmutoGdG3GVUiQ-QaG11CXQf81X5K3V2jyMR-4yKACK8nAAhB6sHaYBTb5LEX4khS4sLfkEtPTzQmg5u3QzS6j5AJHx3yAG2-OakGTlY-pfEmzgT3fqOe90NSC7hYPaOHwC-an5Pv4EUiu5uAp5JgWou912d')">
+</div>
+<button class="absolute top-4 right-4 text-on-surface hover:text-on-tertiary-container transition-colors">
+<span class="material-symbols-outlined text-[24px]">favorite</span>
+</button>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<button class="quick-view-btn pointer-events-auto glass-card px-8 py-3 font-label-caps text-label-caps text-on-surface hover:bg-white/10 active:scale-95">
+                                QUICK VIEW
+                            </button>
+</div>
+<button class="absolute bottom-0 w-full bg-white text-black py-4 font-label-caps text-[12px] translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                            ADD TO CART
+                        </button>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-label-caps text-body-md text-on-surface mb-1 tracking-wider">DISTRESSED VOID KNIT</h3>
+<div class="flex items-center gap-1 mb-2">
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant ml-1">5.0</span>
+</div>
+</div>
+<div class="text-right">
+<span class="block font-headline-lg text-[18px] text-on-surface">$195.00</span>
+</div>
+</div>
+</div>
+<!-- Product Card 6 -->
+<div class="product-card group relative">
+<div class="product-image-container relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
+<div class="absolute inset-0 bg-cover bg-center default-image transition-opacity duration-700" data-alt="A model wearing an oversized technical parka in a deep forest green, featuring multiple pockets and silver hardware. The scene is a misty, cold morning in a minimalist park. The parka's material is matte and water-resistant. The design is clean yet complex. Premium outdoor-inspired streetwear in a luxury context." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAarsyK7uk-bEljFfPTFPyfvRMhRp8YF1dBxE4-K6_uczJJ9UhrF9_HXVKMkRJK1rdwzM3d2jiBh0czxr2uevhD7mYpJGVYb4pLXL-RWtwlxRVXqIdpQjGjLiLAq2IBSHzRDEYvLZttq_oJJVGCOrmnIrHZptGIjnAH4UJbdW6UFsuUssRpN1nIA9Wm1VON-GYvyBWe71qRneSRUdXqbPw6KpRIaab2h7NKpkvz6dPi7KkS2_cogVgJ')">
+</div>
+<div class="absolute inset-0 bg-cover bg-center hover-image opacity-0 transition-opacity duration-700" data-alt="A detailed shot of the technical features of the forest green parka, showing the sealed zippers and the adjustable hood with silver toggles. The lighting is soft and diffused, highlighting the subtle color variations in the technical fabric. Professional studio lighting with a cold, atmospheric mood." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDmTDYrT2wlDxOlJ3uXWy7wh-p3R8JgFgiUwa3N50OX5Am7J2EZcNeAObYvcYnkCa892jJMZz_6fgTWAWe5O4m8ciBy1Bwa_8Hr8cVqSoxoFYVWyy2b3oiiN6fdRMvlMl29HW1fNmuI1R0TYc9amPz1tApIILd9w6XEiMARK2gzAWCJ0mQJc9z1p0RcOj9wp-Qa8rd4VHjwRK27ve23d4wuslu3ZQQZqITOnW7Q8JEg9Xp_fA-_xt9I')">
+</div>
+<div class="absolute top-4 left-4">
+<span class="bg-error-container text-white font-label-caps text-[10px] px-3 py-1">LIMITED STOCK</span>
+</div>
+<button class="absolute top-4 right-4 text-on-surface hover:text-on-tertiary-container transition-colors">
+<span class="material-symbols-outlined text-[24px]">favorite</span>
+</button>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<button class="quick-view-btn pointer-events-auto glass-card px-8 py-3 font-label-caps text-label-caps text-on-surface hover:bg-white/10 active:scale-95">
+                                QUICK VIEW
+                            </button>
+</div>
+<button class="absolute bottom-0 w-full bg-white text-black py-4 font-label-caps text-[12px] translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                            ADD TO CART
+                        </button>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-label-caps text-body-md text-on-surface mb-1 tracking-wider">MIST-TECH OVERSIZED PARKA</h3>
+<div class="flex items-center gap-1 mb-2">
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">star</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant ml-1">4.2</span>
+</div>
+</div>
+<div class="text-right">
+<span class="block font-headline-lg text-[18px] text-on-surface">$550.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Infinite Scroll Indicator -->
+<div class="mt-24 mb-12 flex flex-col items-center justify-center gap-4">
+<div class="w-1.5 h-1.5 bg-on-tertiary-container rounded-full infinite-pulse"></div>
+<p class="font-label-caps text-[10px] text-on-surface-variant tracking-[0.4em] uppercase">Loading more pieces</p>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="w-full py-20 px-margin-desktop bg-black border-t border-white/5 flex flex-col items-center justify-center gap-gutter">
+<div class="font-display-2xl text-display-2xl uppercase tracking-tighter opacity-10 select-none">INKWAVE</div>
+<div class="flex flex-wrap justify-center gap-12 mb-8">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface hover:tracking-widest transition-all duration-500" href="#">Shipping</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface hover:tracking-widest transition-all duration-500" href="#">Returns</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface hover:tracking-widest transition-all duration-500" href="#">Contact</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface hover:tracking-widest transition-all duration-500" href="#">Privacy</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface hover:tracking-widest transition-all duration-500" href="#">Terms</a>
+</div>
+<p class="font-label-caps text-[10px] text-on-secondary-fixed-variant tracking-widest text-center">
+            © 2024 INKWAVE LUXURY UNDERGROUND. ALL RIGHTS RESERVED.
+        </p>
+</footer>
+<script>
+        // Micro-interaction: Smooth entrance for products
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.product-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        });
+
+        // Toggle Active State for Sidebar (Visual only for this demo)
+        const filterItems = document.querySelectorAll('aside .flex.flex-col > div');
+        filterItems.forEach(item => {
+            item.addEventListener('click', () => {
+                filterItems.forEach(i => {
+                    i.classList.remove('text-on-surface', 'bg-white/5', 'font-bold', 'border-l-2', 'border-primary');
+                    i.classList.add('text-on-surface-variant');
+                });
+                item.classList.add('text-on-surface', 'bg-white/5', 'font-bold', 'border-l-2', 'border-primary');
+                item.classList.remove('text-on-surface-variant');
+            });
+        });
+    </script>
+</body></html>

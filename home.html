@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>INKWAVE | LUXURY UNDERGROUND</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Config Verbatim -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#4b007e",
+                    "on-error": "#690005",
+                    "on-background": "#e2e2e2",
+                    "on-primary-fixed-variant": "#474747",
+                    "tertiary": "#dfb7ff",
+                    "on-tertiary-container": "#a635ff",
+                    "secondary-container": "#454747",
+                    "surface-container-highest": "#333535",
+                    "surface-dim": "#121414",
+                    "on-primary-fixed": "#1b1b1b",
+                    "inverse-on-surface": "#2f3131",
+                    "on-surface": "#e2e2e2",
+                    "on-primary": "#303030",
+                    "on-tertiary-fixed": "#2d004f",
+                    "secondary": "#c6c6c6",
+                    "surface-container": "#1e2020",
+                    "surface-container-low": "#1a1c1c",
+                    "error-container": "#93000a",
+                    "surface-container-lowest": "#0c0f0f",
+                    "surface-container-high": "#282a2b",
+                    "surface-tint": "#c6c6c6",
+                    "on-tertiary-fixed-variant": "#6b00b0",
+                    "on-secondary-container": "#b4b5b5",
+                    "outline-variant": "#4c4546",
+                    "secondary-fixed": "#e2e2e2",
+                    "on-primary-container": "#757575",
+                    "surface": "#121414",
+                    "surface-variant": "#333535",
+                    "surface-bright": "#38393a",
+                    "inverse-primary": "#5e5e5e",
+                    "primary": "#c6c6c6",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "tertiary-fixed-dim": "#dfb7ff",
+                    "on-secondary": "#2f3131",
+                    "primary-container": "#000000",
+                    "on-surface-variant": "#cfc4c5",
+                    "outline": "#988e90",
+                    "tertiary-fixed": "#f1daff",
+                    "tertiary-container": "#000000",
+                    "on-secondary-fixed-variant": "#454747",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "primary-fixed": "#e2e2e2",
+                    "error": "#ffb4ab",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "background": "#121414",
+                    "inverse-surface": "#e2e2e2",
+                    "on-error-container": "#ffdad6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "margin-mobile": "16px",
+                    "unit": "8px",
+                    "margin-desktop": "64px",
+                    "container-max": "1440px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Syne"],
+                    "label-caps": ["Inter"],
+                    "headline-lg-mobile": ["Syne"],
+                    "display-2xl": ["Syne"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.15em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "display-2xl": ["80px", {"lineHeight": "1.0", "letterSpacing": "-0.04em", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #000000;
+            color: #e2e2e2;
+            overflow-x: hidden;
+        }
+        .silver-gradient-border {
+            border: 1px solid transparent;
+            background: linear-gradient(#000, #000) padding-box,
+                        linear-gradient(to bottom right, rgba(255,255,255,0.4), rgba(255,255,255,0.05)) border-box;
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+        .neon-glow-primary:hover {
+            box-shadow: 0 0 35px rgba(0, 240, 255, 0.6);
+        }
+        .neon-glow-purple:hover {
+            box-shadow: 0 0 25px rgba(157, 0, 255, 0.4);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        @keyframes revealText {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-reveal {
+            animation: revealText 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-background selection:bg-on-tertiary-container selection:text-white">
+<!-- TopNavBar -->
+<nav class="docked full-width top-0 sticky z-50 bg-black/70 backdrop-blur-xl border-b border-white/10 shadow-2xl flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-12">
+<span class="font-display-2xl text-display-2xl tracking-tighter text-on-surface uppercase leading-none">INKWAVE</span>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-on-surface/60 font-label-caps hover:text-primary hover:scale-105 transition-all duration-300" href="#">New Drops</a>
+<a class="text-on-surface/60 font-label-caps hover:text-primary hover:scale-105 transition-all duration-300" href="#">Oversized</a>
+<a class="text-on-surface/60 font-label-caps hover:text-primary hover:scale-105 transition-all duration-300" href="#">Anime</a>
+<a class="text-on-surface/60 font-label-caps hover:text-primary hover:scale-105 transition-all duration-300" href="#">Graphic Tees</a>
+<a class="text-on-surface/60 font-label-caps hover:text-primary hover:scale-105 transition-all duration-300" href="#">Hoodies</a>
+<a class="text-on-surface/60 font-label-caps hover:text-primary hover:scale-105 transition-all duration-300" href="#">Accessories</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-on-surface cursor-pointer hover:text-primary transition-colors">favorite</span>
+<span class="material-symbols-outlined text-on-surface cursor-pointer hover:text-primary transition-colors">shopping_cart</span>
+<span class="material-symbols-outlined text-on-surface cursor-pointer hover:text-primary transition-colors">person</span>
+</div>
+</nav>
+<main>
+<!-- Hero Section -->
+<section class="relative h-[1024px] flex items-center justify-center overflow-hidden">
+<!-- Background WebGL Shader -->
+<!-- STITCH_SHADER_START:ANIMATION_3 class="absolute inset-0 w-full h-full opacity-60" -->
+<div class="absolute inset-0 w-full h-full opacity-60" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_3" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_3');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+varying vec2 v_texCoord;
+
+float hash(vec2 p) {
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    vec2 mouse = u_mouse / u_resolution;
+    
+    // Background color (Jet Black)
+    vec3 color = vec3(0.01, 0.01, 0.01);
+    
+    // Animated particles
+    for (float i = 0.0; i < 60.0; i++) {
+        vec2 pos = vec2(hash(vec2(i, 1.0)), hash(vec2(i, 2.0)));
+        pos.y = fract(pos.y - u_time * (0.02 + hash(vec2(i, 3.0)) * 0.05));
+        
+        // Mouse influence
+        float d = distance(uv, pos + (mouse - 0.5) * 0.05);
+        float size = 0.001 + hash(vec2(i, 4.0)) * 0.002;
+        float brightness = smoothstep(size, 0.0, d);
+        
+        // Color variation (Silver, Blue, Purple)
+        vec3 pCol = vec3(0.8); // Silver
+        if (hash(vec2(i, 5.0)) > 0.7) pCol = vec3(0.6, 0.0, 1.0); // Electric Purple
+        if (hash(vec2(i, 6.0)) > 0.8) pCol = vec3(0.0, 0.9, 1.0); // Neon Blue
+        
+        color += pCol * brightness * (0.5 + 0.5 * sin(u_time + i));
+    }
+    
+    gl_FragColor = vec4(color, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_3 -->
+<!-- Floating 3D Scene -->
+<!-- STITCH_THREEJS_START:ANIMATION_4 class="absolute inset-0 w-full h-full pointer-events-none z-10" -->
+<div class="absolute inset-0 w-full h-full pointer-events-none z-10" style="display:block;">
+<script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+<div id="threejs-container-ANIMATION_4" style="width:100%;height:100%"></div>
+<script>
+(function() {
+  const container = document.getElementById('threejs-container-ANIMATION_4');
+  const devicePixelRatio = window.devicePixelRatio || 1;
+  const width = container.clientWidth || window.innerWidth;
+const height = container.clientHeight || window.innerHeight;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+renderer.setSize(width, height);
+renderer.setPixelRatio(window.devicePixelRatio);
+container.appendChild(renderer.domElement);
+
+// Lighting
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambientLight);
+const pointLight = new THREE.PointLight(0x9D00FF, 1);
+pointLight.position.set(5, 5, 5);
+scene.add(pointLight);
+const blueLight = new THREE.PointLight(0x00E5FF, 0.8);
+blueLight.position.set(-5, -5, 5);
+scene.add(blueLight);
+
+// Create Floating Cards (Representing Oversized Streetwear)
+const cards = [];
+const cardGeometry = new THREE.BoxGeometry(2, 3, 0.1);
+
+const createCard = (color, x, y, z) => {
+    const material = new THREE.MeshPhongMaterial({ 
+        color: color,
+        shininess: 100,
+        specular: 0x444444
+    });
+    const card = new THREE.Mesh(cardGeometry, material);
+    card.position.set(x, y, z);
+    scene.add(card);
+    return card;
+};
+
+// Add 3 cards
+cards.push(createCard(0x111111, -3, 1, -2)); // Jet Black
+cards.push(createCard(0xf5f5f5, 3, -1, -3));  // Off White
+cards.push(createCard(0x333333, 1, 2, -5));   // Silver-ish Grey
+
+camera.position.z = 8;
+
+// Mouse movement depth effect
+let mouseX = 0, mouseY = 0;
+window.addEventListener('mousemove', (event) => {
+    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+});
+
+function animate() {
+    requestAnimationFrame(animate);
+    
+    cards.forEach((card, i) => {
+        card.rotation.x += 0.005;
+        card.rotation.y += 0.005;
+        card.position.y += Math.sin(Date.now() * 0.001 + i) * 0.005;
+    });
+
+    // Camera depth response
+    camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
+    camera.position.y += (mouseY * 2 - camera.position.y) * 0.05;
+    camera.lookAt(scene.position);
+
+    renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+    const w = container.clientWidth || window.innerWidth;
+    const h = container.clientHeight || window.innerHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+});
+
+animate();
+})();
+</script>
+</div>
+<!-- STITCH_THREEJS_END:ANIMATION_4 -->
+<div class="relative z-20 text-center max-w-5xl px-margin-mobile md:px-margin-desktop">
+<h1 class="font-display-2xl text-display-2xl md:text-[120px] text-on-surface uppercase mb-8 animate-reveal leading-[0.9]">
+                    WE DON'T FOLLOW <span class="italic text-transparent bg-clip-text bg-gradient-to-r from-white to-white/20">TRENDS.</span><br/>
+                    WE CREATE THEM.
+                </h1>
+<div class="flex flex-col md:flex-row gap-6 justify-center items-center animate-reveal" style="animation-delay: 0.3s">
+<button class="bg-[#00f0ff] text-black px-12 py-5 rounded-full font-label-caps text-label-caps neon-glow-primary transition-all duration-300 hover:scale-105 uppercase tracking-widest">
+                        Explore Collection
+                    </button>
+<button class="silver-gradient-border text-white px-12 py-5 rounded-full font-label-caps text-label-caps transition-all duration-300 hover:bg-white/10 uppercase tracking-widest">
+                        Shop Oversized
+                    </button>
+</div>
+</div>
+<!-- Scroll Indicator -->
+<div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+<span class="font-label-caps text-[10px] text-white/40 tracking-[0.3em] uppercase">Scroll</span>
+<div class="w-[1px] h-12 bg-gradient-to-b from-white/60 to-transparent"></div>
+</div>
+</section>
+<!-- Product Discovery: New Drops -->
+<section class="py-40 bg-black">
+<div class="px-margin-desktop max-w-container-max mx-auto mb-16 flex justify-between items-end">
+<div>
+<span class="font-label-caps text-on-tertiary-container mb-4 block">SUMMER 2024</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface uppercase">New Drops</h2>
+</div>
+<div class="flex gap-4">
+<button class="silver-gradient-border p-4 rounded-full hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="silver-gradient-border p-4 rounded-full hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="flex overflow-x-auto gap-gutter px-margin-desktop no-scrollbar pb-12">
+<!-- Product Card 1 -->
+<div class="min-w-[380px] group relative flex-shrink-0 cursor-pointer overflow-hidden">
+<div class="aspect-[3/4] mb-6 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A cinematic, high-contrast studio photograph of a tall model wearing an oversized, jet-black streetwear hoodie with futuristic silver chrome accents. The background is a minimalist dark gray concrete wall with sharp purple neon lighting casting dramatic shadows. The clothing texture is premium heavy cotton, appearing tactile and expensive in the nocturnal lighting of a luxury underground fashion house." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWf1nr8NbHe2hFxpYoYxoVJHB02pD6mZta1dS9oly4SdyztbXgeYN1r9Z3YsNiwHf6KhAKNCme-Z2HNgA4lHtSIMYt29vQxkJRXgNhPfZTedNAm97v_8t7pwWUT4l1YOg8p-7Os6BA-69sliRfjEliF1-KwcwWxx0hIeGGoFr61i_f4a9UTtBegr55A6HA-GH40onpPRt4aTwmfGf4aaaVvwi3QouIXY4yeCc2oX9ZO_WZo-wZJ1j2"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-white mb-1">CYBERPUNK HOODIE 0.1</p>
+<p class="font-body-md text-body-md text-white/50">Luxury Underground</p>
+</div>
+<p class="font-body-md text-body-md text-on-surface">$240.00</p>
+</div>
+<div class="absolute inset-0 bg-on-tertiary-container/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+</div>
+<!-- Product Card 2 -->
+<div class="min-w-[380px] group relative flex-shrink-0 cursor-pointer overflow-hidden">
+<div class="aspect-[3/4] mb-6 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A sharp, detailed editorial fashion photo showcasing an oversized white graphic tee with a bold, minimalist anime-style illustration in high-contrast black ink. The model stands in a dynamic pose against a dark obsidian background with subtle silver mist effects. The lighting is cold and clinical, highlighting the oversized boxy fit and the premium streetwear aesthetic typical of a Gen-Z high-fashion boutique." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9oDjDR1_ILE1YRoJmWBoMD83kJ7qL88ZK_xwTe91EFtEwoKi_XDyrijrA8GRf7LJ79estHKmTrUCv8QOMiGk9IiCpV_dJxuQcAR1lIbnOh32hXobPZjmWUtr84kNMOjfUJG3DOelT_8SvYwJqwalfw51OmWrUOdBK4r8zz-IAP5vDHKkScTTWeuwGcvK9gSk8DmGz3Hp_w9lA6Rq_5ytuFvzqLfzgCpdK2B2bX6VtlAJfDChlE4yc"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-white mb-1">NOCTURNAL ANIME TEE</p>
+<p class="font-body-md text-body-md text-white/50">Graphic Series</p>
+</div>
+<p class="font-body-md text-body-md text-on-surface">$95.00</p>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="min-w-[380px] group relative flex-shrink-0 cursor-pointer overflow-hidden">
+<div class="aspect-[3/4] mb-6 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="High-end streetwear photography of a model wearing wide-leg distressed cargo pants in charcoal gray. The setting is a futuristic industrial hallway lit by electric purple light strips on the floor. The aesthetic is gritty yet polished, with the metal hardware on the clothing reflecting a silver chrome glow. The mood is nocturnal, exclusive, and high-energy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbYFC0aY0b0m0EQ3gMcCfJLIj3HRr8BAAW3IGVMmCIbR6rx3M334tFMeeoUx5HMOZ_aDsMGQjXxMSpMMA9NorIF838b0FuQTL79i5nnGHMNt1gXCUrLAgdvEXrU71t36dHBhgHupZC-3539IAIGz5n-RTt1o4K_od3kUaEw16IVeFK2F_SvqyzByTxZhFCnueCtpmTRBMZnkhjsC-wcSH-jF6evG4dV0amStEJil8yBTCmNRbWXUQA"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-white mb-1">CARGO PANTS V.2</p>
+<p class="font-body-md text-body-md text-white/50">Cyber Minimalism</p>
+</div>
+<p class="font-body-md text-body-md text-on-surface">$310.00</p>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="min-w-[380px] group relative flex-shrink-0 cursor-pointer overflow-hidden">
+<div class="aspect-[3/4] mb-6 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A close-up shot of a luxury streetwear accessory, a heavy silver chain necklace with a translucent purple geometric pendant. The pendant glows softly against a dark obsidian surface. The lighting is precision-focused, creating a glassmorphism effect with deep depth and refractive highlights. The aesthetic is tech-luxe and futuristic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXNL35aPX_aMExt7cO565xxTI44IA8TtE5y6xnp2h9wvILH1kC3DtvDPu1QuZc83xsNNFO61eBMLB71FiKOKzMNYTa121Ws-yLfdmaLxk1-gXBUUgRlApFKMt3QmSqHMrxbhaMipIz2yCeMsTRyppyKnGmsB4WQL3FHblogdogqlqMgXbNQ7Pg8Z9GSTqNqCkhzveN6bN6tpOSjLLQ9pkmBd4iHD-MgOr_28LtXML6wDHwwsnzEQOL"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-white mb-1">NEON CORE PENDANT</p>
+<p class="font-body-md text-body-md text-white/50">Accessories</p>
+</div>
+<p class="font-body-md text-body-md text-on-surface">$165.00</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Category Bento Grid -->
+<section class="py-20 px-margin-desktop max-w-container-max mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-12 grid-rows-2 gap-gutter h-[800px]">
+<!-- Anime Category -->
+<div class="md:col-span-8 group relative overflow-hidden glass-panel silver-gradient-border rounded-xl">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110 opacity-40" data-alt="A wide-angle cinematic shot of a futuristic Tokyo-inspired street at night, with neon purple signs reflecting off wet pavement. In the center, a digital anime character projection is integrated into the cityscape. The color palette is dominated by deep blacks and vibrant neon purple, creating a cyberpunk, nocturnal fashion lookbook vibe." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBiPMBPODpCvV7iJYuiavxF1Xer86CoKT05k7qZVUGE-EMLJE6Y1vRN7d-pENidKuJrtTEiSykwyIDoz1nfly4M1aHIbTGteJF9jvzkox6iVR4cp5c5oBoZlPvhf3rRiPFLkzpVwPQLLs_8s1OyAqh0ilBQ0SN7g8dv6L0fk4ra9m8FFxkPZbXNT6PpLwA6dWVmn5CKjqtevlnMrW-zzw8iiO9EHDDPNEkffvcryW7T1A3yPttxbuiE')"></div>
+<div class="absolute bottom-12 left-12">
+<h3 class="font-headline-lg text-headline-lg text-white mb-4 uppercase">Anime</h3>
+<p class="font-body-md text-body-md text-white/70 max-w-xs mb-8 uppercase tracking-widest">Techno-illustrated graphics for the digital generation.</p>
+<button class="font-label-caps text-label-caps border-b border-primary text-primary pb-1 hover:text-white hover:border-white transition-colors uppercase">Explore</button>
+</div>
+</div>
+<!-- Graphic Tees -->
+<div class="md:col-span-4 group relative overflow-hidden glass-panel silver-gradient-border rounded-xl">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110 opacity-30" data-alt="An abstract artistic composition featuring layers of white typography and graphic symbols on a dark obsidian background. The visual style is inspired by brutalist graphic design and high-end street culture, using silver gradients and sharp lines to create a sense of digital fluidity and underground luxury." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDJOmYuVAszSYHl-ChJ2lhwbdKY-QUi_ttrQ08o_UvAmdUB_oLYhOAARqduEx3K0gYGH3v7s5o1ch17nLvJ2qv17bdvo5PSB2FB68WT42M1DBBajJ3t0PeJUqjZKQhbFna9A8AjwvV34QpHXGj5QW8emEJzLqmMn9LIjOWEDEfz4GBT0m1U9gPVdLExp6018ta7jXnDJjKbGvCzTauZYMitIT6vAcdjiWJLY_TQRNWQk24Cl-D5oDkB')"></div>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+<h3 class="font-headline-lg text-[32px] text-white mb-2 uppercase">Graphic Tees</h3>
+<button class="material-symbols-outlined text-4xl text-on-tertiary-container mt-4 animate-pulse">north_east</button>
+</div>
+</div>
+<!-- Hoodies -->
+<div class="md:col-span-4 group relative overflow-hidden glass-panel silver-gradient-border rounded-xl">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110 opacity-40" data-alt="A macro studio shot of heavy cotton hoodie fabric in a deep obsidian black. Silver metallic eyelets and a chrome-tipped drawstring are visible, reflecting a sharp, clinical white light. The image emphasizes the premium material quality and heavy-duty minimalism of the streetwear brand." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDNtxPrYuzki6omgIkHsH8drBDBcUA5zYxsLnnkIjH5N-kShZP2rdckrE78w2WigOmhMKi17dzL3XJwfcBlKaMH4hnibsKb5zSjbIlzETXOBq2cnlP4mLUp9xhgkr3yaZ9cmlSRrVeHiyM7VxTKv27aYmhwwrg-_5lq2bI73Ncu5WsBoh2LWozyDUvdH7B8PDvJaCCKwkyG4YRQXGTaUo56sf-qiulR34W-VPjz-mk99jKeIC7BLRk0')"></div>
+<div class="absolute bottom-8 left-8">
+<h3 class="font-headline-lg text-[32px] text-white uppercase">Hoodies</h3>
+</div>
+</div>
+<!-- Accessories -->
+<div class="md:col-span-8 group relative overflow-hidden glass-panel silver-gradient-border rounded-xl">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110 opacity-30" data-alt="A minimalist display of high-end tech-inspired accessories including chrome sunglasses and silver utility belts laid out on a frosted glass surface. The lighting is dark with a purple neon glow emanating from beneath the glass, creating a sophisticated glassmorphism effect that aligns with futuristic streetwear culture." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDsObIlVbvLOjLHu-5KzG7aGRUIrNNG4Q64_g5imP1b-XQ7xizOVUBz_6Ku-1cO2WNvF29_8XaED7Hrj-CTUbnLUKm9szi5dPQyw1z2xdVZ3hE6xhyxP5Yhr7aeV0U2oICbyP8gwkomt5H_qFhJDIFaYJCYwT0DF1r2KUw8XnMGflzRzWKo52sz-O90dHQYSp7aiYIzpMubVpnsTCcYNV4wbzm971h80wzSWTzChw1Yp9tlVY9UJ9Hs')"></div>
+<div class="absolute top-12 right-12 text-right">
+<h3 class="font-headline-lg text-headline-lg text-white mb-4 uppercase">Accessories</h3>
+<p class="font-body-md text-body-md text-white/70 max-w-xs mb-8 uppercase tracking-widest ml-auto">The final layer of the underground uniform.</p>
+<button class="font-label-caps text-label-caps border-b border-primary text-primary pb-1 hover:text-white hover:border-white transition-colors uppercase">Shop Now</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter / CTA Section -->
+<section class="py-40 border-t border-white/5 relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-on-tertiary-container/10 to-transparent"></div>
+<div class="px-margin-desktop max-w-container-max mx-auto text-center relative z-10">
+<span class="font-label-caps text-label-caps text-primary tracking-[0.4em] mb-6 block uppercase">Join the Underground</span>
+<h2 class="font-headline-lg text-headline-lg md:text-[80px] text-on-surface uppercase mb-12">DON'T MISS THE WAVE.</h2>
+<div class="max-w-2xl mx-auto flex flex-col md:flex-row gap-4">
+<input class="flex-grow bg-white/5 border border-white/10 rounded-full px-8 py-5 text-white font-label-caps focus:outline-none focus:border-on-tertiary-container focus:ring-1 focus:ring-on-tertiary-container transition-all" placeholder="ENTER YOUR EMAIL" type="email"/>
+<button class="bg-white text-black px-12 py-5 rounded-full font-label-caps text-label-caps hover:bg-primary transition-all duration-300 uppercase font-bold">Subscribe</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest full-width relative border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center w-full px-margin-desktop py-20 gap-8">
+<div class="flex flex-col gap-4">
+<span class="font-display-2xl text-on-surface uppercase leading-none">INKWAVE</span>
+<p class="font-body-md text-body-md text-secondary opacity-60">© 2024 INKWAVE. LUXURY UNDERGROUND.</p>
+</div>
+<div class="flex gap-12">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-tertiary-container transition-colors uppercase" href="#">Returns</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-tertiary-container transition-colors uppercase" href="#">Size Guide</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-tertiary-container transition-colors uppercase" href="#">Shipping</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-tertiary-container transition-colors uppercase" href="#">Contact</a>
+</div>
+<div class="flex gap-6">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">language</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">share</span>
+</div>
+</footer>
+<script>
+        // Micro-interactions and Mouse Parallax for 3D Scene
+        document.addEventListener('mousemove', (e) => {
+            const threeScene = document.querySelector('threejs-scene');
+            if (threeScene) {
+                const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+                const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+                threeScene.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            }
+        });
+
+        // Smooth reveal on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-reveal');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section > div').forEach(el => {
+            el.style.opacity = '0';
+            observer.observe(el);
+        });
+    </script>
+</body></html>
