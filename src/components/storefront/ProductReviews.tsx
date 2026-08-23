@@ -17,7 +17,7 @@ interface Review {
 }
 
 export default function ProductReviews({ productId, initialReviews }: { productId: string, initialReviews: Review[] }) {
-  const { user } = useAuthStore();
+  const { user, setAuthModalOpen } = useAuthStore();
   const isSignedIn = !!user;
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [rating, setRating] = useState<number>(0);
@@ -63,9 +63,18 @@ export default function ProductReviews({ productId, initialReviews }: { productI
         <h3 className="font-display text-xl uppercase tracking-wider mb-6 text-[var(--text)]">Write a Review</h3>
         
         {!isSignedIn ? (
-          <p className="font-mono text-sm text-[var(--text)] opacity-60 uppercase tracking-widest">
-            You must be logged in to share your thoughts.
-          </p>
+          <div className="flex flex-col items-center justify-center py-4 text-center space-y-4 select-none">
+            <p className="font-mono text-sm text-[var(--text-dim)] uppercase tracking-widest">
+              You must be logged in to share your thoughts.
+            </p>
+            <button
+              type="button"
+              onClick={() => setAuthModalOpen(true)}
+              className="px-6 py-3 rounded-2xl bg-[var(--accent)] text-[var(--bg)] font-mono font-bold text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 active:scale-95 cursor-pointer shadow-md shadow-[var(--accent)]/10"
+            >
+              Sign In / Join Vanguard
+            </button>
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             <div>
