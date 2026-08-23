@@ -521,52 +521,6 @@ export default function ProductOverview({
           {/* Real Dynamic Pincode Delivery & Arrival Date Estimator */}
           <PincodeDeliveryChecker />
 
-          {/* Structured Product Specifications (Inspired by lecsudo.com) */}
-          <div className="border-t border-[var(--line)] pt-6 mt-6 space-y-4">
-            <h4 className="font-display text-sm font-bold uppercase tracking-wider text-white">
-              Product Specifications
-            </h4>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3.5 text-xs font-mono border border-[var(--line)] rounded-2xl p-5 bg-[var(--bg-card)]/50 backdrop-blur-md">
-              <div className="flex flex-col gap-1">
-                <span className="text-[var(--text-dim)] uppercase text-[10px] tracking-wider">Composition</span>
-                <span className="text-white font-semibold">
-                  {jeansMode ? '100% Rigid Cotton Denim' : '100% Super-combed Terry Cotton'}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-[var(--text-dim)] uppercase text-[10px] tracking-wider">Fabric Weight</span>
-                <span className="text-white font-semibold">
-                  {jeansMode ? '13.5 oz Premium Weight' : '220 GSM Heavyweight'}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-[var(--text-dim)] uppercase text-[10px] tracking-wider">Fit Profile</span>
-                <span className="text-white font-semibold">
-                  {jeansMode ? 'Relaxed Straight-Leg Fit' : 'Oversized Boxy / Drop Shoulder'}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-[var(--text-dim)] uppercase text-[10px] tracking-wider">Treatment</span>
-                <span className="text-white font-semibold">
-                  {jeansMode ? 'Stonewashed & Enzyme Treated' : 'Bio-washed for Ultra-soft Handfeel'}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1 col-span-2 border-t border-[var(--line)]/50 pt-3">
-                <span className="text-[var(--text-dim)] uppercase text-[10px] tracking-wider">Wash & Garment Care</span>
-                <span className="text-white font-semibold leading-relaxed">
-                  {jeansMode 
-                    ? 'Turn inside out, wash cold with similar colors. Wash sparingly to maintain denim character.' 
-                    : 'Machine wash cold inside out on gentle. Air dry flat in shade. Do not iron directly on print.'}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1 col-span-2 border-t border-[var(--line)]/50 pt-3">
-                <span className="text-[var(--text-dim)] uppercase text-[10px] tracking-wider">Delivery & Returns</span>
-                <span className="text-white font-semibold">
-                  Free Shipping on prepaid orders over ₹2000. 7-Day doorstep exchange guarantee.
-                </span>
-              </div>
-            </div>
-          </div>
 
           {/* Trust Badges */}
           <div className="pdp-badges mt-6">
