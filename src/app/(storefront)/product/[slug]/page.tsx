@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import ProductOverview from '@/components/storefront/ProductOverview';
-import ProductConstruction from '@/components/storefront/ProductConstruction';
+
 import { getProductReviewsAction } from '@/app/actions/reviews';
 import ProductReviews from '@/components/storefront/ProductReviews';
 import ProductCard from '@/components/storefront/ProductCard';
@@ -148,8 +148,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         reviewCount={reviews.length} 
       />
 
-      {/* ══ TECHNICAL SPECS ════════════════════════════════════════════ */}
-      <ProductConstruction />
+
 
       {/* ══ YOU MAY ALSO LIKE ═════════════════════════════════════════ */}
       {recommendedProducts.length > 0 && (
