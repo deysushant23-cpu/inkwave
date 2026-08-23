@@ -1,18 +1,16 @@
 'use client';
 
-import { Download } from 'lucide-react';
-import { toast } from 'sonner';
+import { FileText } from 'lucide-react';
 
-export default function DownloadInvoiceButton() {
+export default function DownloadInvoiceButton({ orderId }: { orderId: string }) {
   return (
     <button 
       onClick={() => {
-        toast.info('Preparing invoice for print/download...');
-        setTimeout(() => window.print(), 500);
+        window.open(`/bill/${orderId}`, '_blank');
       }}
-      className="print:hidden mt-4 md:mt-0 px-6 py-2.5 bg-[var(--accent)] text-[var(--bg)] hover:bg-[var(--text)] transition-colors font-bold text-xs uppercase tracking-wider flex items-center gap-2"
+      className="print:hidden mt-4 md:mt-0 px-6 py-2.5 bg-[var(--accent)] text-[var(--bg)] hover:bg-[var(--text)] transition-colors font-bold text-xs uppercase tracking-wider flex items-center gap-2 rounded-xl"
     >
-      <Download className="w-4 h-4" /> Download Invoice
+      <FileText className="w-4 h-4" /> Download Bill
     </button>
   );
 }

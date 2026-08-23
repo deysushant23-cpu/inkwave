@@ -51,7 +51,7 @@ export default async function TrackOrderPage({ params }: { params: Promise<{ id:
   const placedDate = new Date(order.created_at);
   const packedDate = new Date(placedDate.getTime() + 1 * 24 * 60 * 60 * 1000);
   const transitDate = new Date(placedDate.getTime() + 2 * 24 * 60 * 60 * 1000);
-  const deliveredDate = new Date(placedDate.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days delivery
+  const deliveredDate = new Date(placedDate.getTime() + 4 * 24 * 60 * 60 * 1000); // 4 days delivery to match admin deadline
 
   const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
   
@@ -94,7 +94,7 @@ export default async function TrackOrderPage({ params }: { params: Promise<{ id:
           <h2 className="font-headline-lg-mobile text-2xl uppercase print:text-black">Order Details</h2>
           <div className="flex items-center gap-4 flex-wrap">
             {canCancel && <CancelOrderButton orderId={order.id} />}
-            <DownloadInvoiceButton />
+            <DownloadInvoiceButton orderId={order.id} />
           </div>
         </div>
         

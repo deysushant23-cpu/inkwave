@@ -95,7 +95,7 @@ export default async function DashboardOrdersPage() {
                   </div>
                   <div className="w-full md:w-56 flex flex-col gap-3">
                     <Link href={`/dashboard/orders/${order.id}`} className="w-full py-3 bg-[var(--text)] text-[var(--bg)] font-bold text-xs tracking-widest hover:bg-[var(--accent)] transition-colors uppercase text-center block">Track Order</Link>
-                    <button className="w-full py-3 bg-transparent border border-[var(--line)] text-[var(--text)] font-bold text-xs tracking-widest hover:bg-white/5 transition-colors uppercase">View Details</button>
+                    <Link href={`/bill/${order.id}`} target="_blank" className="w-full py-3 bg-transparent border border-[var(--line)] text-[var(--text)] font-bold text-xs tracking-widest hover:bg-white/5 transition-colors uppercase text-center block">Download Bill</Link>
                     <button className="w-full py-3 bg-transparent border border-[var(--line)] text-[var(--text-dim)] font-bold text-xs tracking-widest hover:text-red-400 hover:border-red-500/30 transition-colors uppercase">Return Items</button>
                   </div>
                 </div>
