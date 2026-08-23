@@ -20,7 +20,8 @@ import {
   Compass, 
   Sparkles,
   Loader2,
-  Navigation
+  Navigation,
+  ShoppingBag
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -54,6 +55,7 @@ export default function CheckoutPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [utr, setUtr] = useState('');
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
 
   // 1. Fetch saved profile details & pre-fill from PDP pincode checker
   useEffect(() => {
@@ -353,11 +355,63 @@ export default function CheckoutPage() {
               Secure Checkout
             </span>
             <h1 className="font-display text-4xl sm:text-5xl uppercase text-[var(--text)] font-black tracking-tight mt-4">
-              Review & Pay
+              Checkout
             </h1>
             <p className="text-xs sm:text-sm text-[var(--text-dim)] font-mono mt-2">
               Complete your information to place your order.
             </p>
+          </div>
+
+          {/* Collapsible Order Summary for Mobile View (Shopify/Lecsudo Style) */}
+          <div className="block lg:hidden border border-[var(--line)] bg-[var(--bg-card)]/80 backdrop-blur-md rounded-2xl mb-6 overflow-hidden">
+            <button 
+              type="button"
+              onClick={() => setSummaryExpanded(!summaryExpanded)}
+              className="w-full px-5 py-4 flex items-center justify-between font-mono text-xs font-bold text-[var(--text)] transition-colors hover:bg-white/[0.02]"
+            >
+              <span className="flex items-center gap-2 text-[var(--accent)]">
+                <ShoppingBag className="w-4 h-4" />
+                <span>{summaryExpanded ? 'Hide order summary' : 'Show order summary'}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${summaryExpanded ? 'rotate-180' : ''}`} />
+              </span>
+              <span className="text-sm font-bold text-white">{formatPrice(total)}</span>
+            </button>
+            
+            {summaryExpanded && (
+              <div className="border-t border-[var(--line)]/50 bg-black/20 p-5 space-y-4">
+                <div className="divide-y divide-[var(--line)]/50 max-h-60 overflow-y-auto pr-1">
+                  {items.map((item) => (
+                    <div key={item.id} className="py-3 first:pt-0 last:pb-0 flex items-center gap-3">
+                      <div className="w-12 h-14 rounded-lg bg-[var(--bg)] border border-[var(--line)] overflow-hidden shrink-0">
+                        <img src={item.image_url || 'https://lh3.googleusercontent.com/aida-public/AB6AXuDnYTdoMDJP7N9ElHyVkd01fqa1Ih0IrDsBQEie4IcxABAxvP30z7Tra3_I0qX6E_nICHdevsFI9s0WL2kTovn9oU98mIf4XvZOHMEDQxNSXYa_AsHsP8_4-8PQ0a7ofbGUlmgG3Pduq_2dreLpHjy19V3b85Iyl6LmZIvBCn5YIpf4lG484UQFSTgyyFU76oFvnmqMe6hViOtrdYCxVZcFJutw9KqlPKJFhaRTPwSkGT44UqbQI9sg'} alt={item.title} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-mono text-xs font-bold text-[var(--text)] truncate">{item.title}</h4>
+                        <p className="text-[9px] font-mono text-[var(--text-dim)] mt-0.5">
+                          Size: {item.size} • Qty: {item.quantity}
+                        </p>
+                      </div>
+                      <span className="font-mono text-xs font-bold text-[var(--text)]">
+                        {formatPrice(item.price * item.quantity)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="space-y-2 pt-3 border-t border-[var(--line)]/50 font-mono text-xs">
+                  <div className="flex justify-between text-[var(--text-dim)]">
+                    <span>Subtotal</span>
+                    <span>{formatPrice(subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between text-[var(--text-dim)]">
+                    <span>Shipping</span>
+                    <span className="text-emerald-400 font-bold">
+                      {shipping === 0 ? 'FREE' : formatPrice(shipping)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
@@ -407,7 +461,7 @@ export default function CheckoutPage() {
                             value={nameInput}
                             onChange={(e) => setNameInput(e.target.value)}
                             placeholder="John Doe"
-                            className="w-full pl-10 pr-4 py-3 bg-black/40 border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/20 transition-all"
+                            className="w-full pl-10 pr-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-2xl text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10 transition-all duration-300"
                             required
                           />
                         </div>
@@ -427,7 +481,7 @@ export default function CheckoutPage() {
                             value={phoneInput}
                             onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, ''))}
                             placeholder="9876543210"
-                            className="w-full pl-12 pr-4 py-3 bg-black/40 border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/20 transition-all"
+                            className="w-full pl-12 pr-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-2xl text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10 transition-all duration-300"
                             required
                           />
                         </div>
@@ -477,7 +531,7 @@ export default function CheckoutPage() {
                             value={pincodeInput}
                             onChange={(e) => handlePincodeChange(e.target.value)}
                             placeholder="395007"
-                            className="w-full pl-10 pr-4 py-3 bg-black/40 border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/20 transition-all"
+                            className="w-full pl-10 pr-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-2xl text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10 transition-all duration-300"
                             required
                           />
                           {pincodeLoading && (
@@ -495,7 +549,7 @@ export default function CheckoutPage() {
                           value={cityInput}
                           onChange={(e) => setCityInput(e.target.value)}
                           placeholder="Surat"
-                          className="w-full px-4 py-3 bg-black/45 border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--text)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                          className="w-full px-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-2xl text-xs font-mono text-[var(--text)] focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10 transition-all duration-300"
                           required
                         />
                       </div>
@@ -509,7 +563,7 @@ export default function CheckoutPage() {
                           value={stateInput}
                           onChange={(e) => setStateInput(e.target.value)}
                           placeholder="Gujarat"
-                          className="w-full px-4 py-3 bg-black/45 border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--text)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                          className="w-full px-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-2xl text-xs font-mono text-[var(--text)] focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10 transition-all duration-300"
                           required
                         />
                       </div>
@@ -524,7 +578,7 @@ export default function CheckoutPage() {
                         value={addressLine1}
                         onChange={(e) => setAddressLine1(e.target.value)}
                         placeholder="e.g. Flat 402, Ink Horizon Towers, Umra"
-                        className="w-full bg-black/40 border border-[var(--line)] rounded-xl px-4 py-3 text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/20 transition-all resize-none"
+                        className="w-full bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-2xl px-4 py-3.5 text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10 transition-all duration-300 resize-none"
                         required
                       />
                     </div>
@@ -538,7 +592,7 @@ export default function CheckoutPage() {
                         value={landmarkInput}
                         onChange={(e) => setLandmarkInput(e.target.value)}
                         placeholder="e.g. Near Umra Police Station"
-                        className="w-full px-4 py-3 bg-black/40 border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                        className="w-full px-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-2xl text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10 transition-all duration-300"
                       />
                     </div>
                   </div>
@@ -622,7 +676,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Right Side: Summary Card */}
-            <div className="w-full lg:w-[380px] shrink-0">
+            <div className="w-full lg:w-[380px] shrink-0 hidden lg:block">
               <div className="border border-[var(--line)] bg-[var(--bg-card)]/50 backdrop-blur-md p-6 sm:p-8 rounded-3xl sticky top-28 space-y-6">
                 <h3 className="font-display text-xl font-bold uppercase tracking-tight text-[var(--text)] border-b border-[var(--line)]/50 pb-4">
                   Order Summary ({items.length})

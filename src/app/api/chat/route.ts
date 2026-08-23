@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMockProducts } from '@/lib/mockData';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,7 +9,16 @@ export async function POST(request: NextRequest) {
     // Simulate slight network delay for realism
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    const products = await getMockProducts();
+    const supabase = await createClient();
+    const { data: dbProducts, error: dbError } = await supabase
+      .from('products')
+      .select('id, title, slug, base_price, images, is_drop, created_at, category_id, categories(id, name, slug)');
+
+    if (dbError) {
+      console.error('Chatbot database error:', dbError);
+    }
+
+    const products = dbProducts || [];
     let reply = '';
 
     // Simple Intent Parsing
@@ -22,7 +31,7 @@ export async function POST(request: NextRequest) {
     if (priceMatch) {
       maxPrice = parseInt(priceMatch[1], 10);
     } else if (message.includes('cheap') || message.includes('affordable')) {
-      maxPrice = 100;
+      maxPrice = 800; // Adjusted based on dynamic price averages
     }
 
     // Category Extraction
@@ -33,7 +42,7 @@ export async function POST(request: NextRequest) {
     let filtered = products;
 
     if (maxPrice) {
-      filtered = filtered.filter((p: any) => (p.base_price || p.price || 0) <= maxPrice);
+      filtered = filtered.filter((p: any) => (p.base_price || 0) <= maxPrice);
     }
 
     if (requestedCategories.length > 0) {
@@ -60,7 +69,7 @@ export async function POST(request: NextRequest) {
 
       // Add product links
       filtered.slice(0, 4).forEach((p: any) => {
-        reply += `- [**${p.title}**](/product/${p.slug}) — ₹${p.base_price || p.price}\n`;
+        reply += `- [**${p.title}**](/product/${p.slug}) — ₹${p.base_price}\n`;
       });
 
       if (filtered.length > 4) {
@@ -70,7 +79,7 @@ export async function POST(request: NextRequest) {
       if (maxPrice) {
         reply = `Ah, sorry! I couldn't find anything that matches exactly under ₹${maxPrice} right now. We sell out fast. 😅 Anything else you're looking for?`;
       } else {
-        reply = "I'm not totally sure I caught that. I can help you find specific items like 'jeans', or look for things 'under 100'. What are you hunting for?";
+        reply = "I'm not totally sure I caught that. I can help you find specific items like 'jeans', or look for things 'under 1000'. What are you hunting for?";
       }
     }
 

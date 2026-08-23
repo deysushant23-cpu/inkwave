@@ -177,7 +177,7 @@ export default function SearchModal({
                         {product.title}
                       </h4>
                       <p className="text-xs font-mono text-[var(--text-dim)] mt-1">
-                        ₹{(product.price || 0).toLocaleString('en-IN')}
+                        ₹{(product.base_price || 0).toLocaleString('en-IN')}
                       </p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-[var(--text-dim)] group-hover:text-[var(--accent)] -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all" />
