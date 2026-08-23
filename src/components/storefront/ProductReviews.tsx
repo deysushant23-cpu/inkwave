@@ -55,7 +55,7 @@ export default function ProductReviews({ productId, initialReviews }: { productI
   };
 
   return (
-    <div className="mt-16 pt-16 border-t border-[var(--line)]">
+    <div id="product-reviews-section" className="mt-16 pt-16 border-t border-[var(--line)] scroll-mt-28">
       <h2 className="font-headline-lg-mobile md:font-headline-lg text-4xl uppercase mb-12 text-[var(--text)]">Reviews</h2>
 
       {/* Review Submission Form */}

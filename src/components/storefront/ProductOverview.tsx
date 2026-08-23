@@ -51,8 +51,8 @@ export default function ProductOverview({
   product,
   variants,
   categoryName = 'Product',
-  averageRating = '4.9',
-  reviewCount = 12,
+  averageRating = '0.0',
+  reviewCount = 0,
 }: {
   product: any;
   variants: any[];
@@ -350,16 +350,32 @@ export default function ProductOverview({
           <h1 className="pdp-h1">{product.title || product.name}</h1>
 
           {/* Rating & Reviews */}
-          <div className="pdp-rating">
+          <div className="pdp-rating flex items-center gap-3 select-none">
             <div className="pdp-stars">
-              {[1, 2, 3, 4, 5].map(s => (
-                <svg key={s} viewBox="0 0 24 24" className="pdp-star"
-                  fill="var(--accent)" stroke="var(--accent)" strokeWidth="1.5">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
-              ))}
+              {[1, 2, 3, 4, 5].map(s => {
+                const isActive = s <= Math.round(parseFloat(String(averageRating || '0')));
+                return (
+                  <svg key={s} viewBox="0 0 24 24" className="pdp-star"
+                    fill={isActive ? "var(--accent)" : "none"} 
+                    stroke={isActive ? "var(--accent)" : "var(--line)"} 
+                    strokeWidth="1.5">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                );
+              })}
             </div>
-            <span className="pdp-rating-text">{averageRating} ★ ({reviewCount || 18} verified reviews)</span>
+            <span className="pdp-rating-text">
+              {reviewCount > 0 ? `${averageRating} ★ (${reviewCount} verified reviews)` : 'No reviews yet'}
+            </span>
+            <button 
+              type="button"
+              onClick={() => {
+                document.getElementById('product-reviews-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="text-xs font-mono text-[var(--accent)] hover:underline ml-2 cursor-pointer uppercase tracking-wider bg-transparent border-0 outline-none p-0"
+            >
+              Write a Review
+            </button>
           </div>
 
           {/* Price row */}
