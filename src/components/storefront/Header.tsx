@@ -38,11 +38,13 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, x: -14 },
+  hidden: { opacity: 0, x: -30, rotate: -2, filter: 'blur(3px)' },
   show: { 
     opacity: 1, 
     x: 0,
-    transition: { type: 'spring' as const, stiffness: 350, damping: 25 }
+    rotate: 0,
+    filter: 'blur(0px)',
+    transition: { type: 'spring' as const, stiffness: 260, damping: 22 }
   }
 };
 
@@ -121,11 +123,11 @@ export default function Header({
             
             {/* Hamburger Menu Trigger */}
             <button 
-              className="p-1.5 sm:p-2 -ml-1 sm:-ml-2 rounded-xl text-[var(--text)] hover:text-[var(--accent)] hover:bg-[var(--line)]/50 transition-all flex items-center gap-1.5 cursor-pointer group active:scale-90"
+              className="p-2 sm:p-2.5 -ml-1 sm:-ml-2 rounded-xl text-[var(--text)] hover:text-[var(--accent)] hover:bg-[var(--line)]/50 transition-all flex items-center gap-1.5 cursor-pointer group active:scale-90"
               aria-label="Open Navigation Menu"
               onClick={() => setMenuOpen(true)}
             >
-              <Menu className="w-5 h-5 sm:w-6 sm:h-6 transition-transform group-hover:scale-110" />
+              <Menu className="w-7 h-7 sm:w-8 sm:h-8 transition-transform group-hover:scale-110" />
               <span className="hidden md:inline text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-dim)] group-hover:text-[var(--text)]">
                 Menu
               </span>
@@ -223,16 +225,20 @@ export default function Header({
               className="fixed inset-0 bg-black/80 backdrop-blur-md z-[600]"
             />
 
-            {/* Left Sliding Drawer Panel with Spring Physics */}
+            {/* Left Sliding Drawer Panel with 3D Spring Perspective Motion */}
             <motion.div 
-              initial={{ x: '-100%', opacity: 0.8 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: '-100%', opacity: 0.8 }}
-              transition={{ type: 'spring', damping: 26, stiffness: 260, mass: 0.85 }}
-              className="fixed top-0 left-0 h-[100dvh] w-[88vw] sm:w-[380px] max-w-[420px] bg-[var(--bg)]/98 backdrop-blur-2xl z-[601] shadow-2xl flex flex-col border-r border-[var(--line)] overflow-hidden"
+              initial={{ x: '-100%', rotateY: -10, skewX: -1, opacity: 0 }}
+              animate={{ x: 0, rotateY: 0, skewX: 0, opacity: 1 }}
+              exit={{ x: '-100%', rotateY: -10, skewX: -1, opacity: 0 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 230, mass: 0.85 }}
+              style={{ transformOrigin: 'left center', perspective: 1200 }}
+              className="fixed top-0 left-0 h-[100dvh] w-[85vw] sm:w-[380px] max-w-[420px] bg-black/85 backdrop-blur-3xl z-[601] shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col border-r border-white/5 overflow-hidden"
             >
+              {/* Glowing Neon Edge Trim */}
+              <div className="absolute right-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-transparent via-[var(--accent)] to-transparent opacity-70 shadow-[0_0_15px_var(--accent)] pointer-events-none" />
+
               {/* Drawer Top Brand Bar */}
-              <div className="p-4 sm:p-5 border-b border-[var(--line)] flex items-center justify-between bg-[var(--bg-card)]/50 shrink-0">
+              <div className="p-4 sm:p-5 border-b border-white/5 flex items-center justify-between bg-black/30 shrink-0">
                 <Link 
                   href="/" 
                   onClick={() => setMenuOpen(false)}
@@ -253,7 +259,7 @@ export default function Header({
                 </Link>
                 
                 <button 
-                  className="p-2 rounded-full bg-[var(--bg-card)] border border-[var(--line)] hover:bg-[var(--line)] hover:rotate-90 text-[var(--text)] transition-all duration-300 cursor-pointer active:scale-90"
+                  className="p-2 rounded-full bg-white/5 border border-white/5 hover:bg-white/10 hover:rotate-90 text-[var(--text)] transition-all duration-300 cursor-pointer active:scale-90"
                   onClick={() => setMenuOpen(false)}
                   aria-label="Close Menu"
                 >
@@ -276,7 +282,7 @@ export default function Header({
                       setMenuOpen(false);
                       setSearchOpen(true);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] text-xs text-[var(--text-dim)] hover:text-[var(--text)] hover:border-[var(--accent)] transition-all text-left shadow-xs cursor-pointer active:scale-98"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/5 border border-white/5 text-xs text-[var(--text-dim)] hover:text-[var(--text)] hover:border-[var(--accent)] transition-all text-left shadow-xs cursor-pointer active:scale-98"
                   >
                     <Search className="w-4 h-4 text-[var(--accent)]" />
                     <span>Search styles, fits, products...</span>
@@ -292,23 +298,25 @@ export default function Header({
                   <Link 
                     href="/" 
                     onClick={() => setMenuOpen(false)} 
-                    className="flex items-center justify-between p-3 rounded-2xl font-display text-lg uppercase font-bold text-[var(--text)] hover:text-[var(--accent)] hover:bg-[var(--bg-card)] transition-all active:translate-x-1"
+                    className="group relative flex items-center justify-between p-3 rounded-2xl font-display text-lg uppercase font-bold text-[var(--text)] hover:text-[var(--accent)] hover:bg-white/5 transition-all overflow-hidden active:translate-x-1"
                   >
-                    <span className="flex items-center gap-3">
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-0 bg-[var(--accent)] rounded-r-md group-hover:h-3/5 transition-all duration-300" />
+                    <span className="flex items-center gap-3 pl-1.5">
                       <Home className="w-4 h-4 text-[var(--accent)]" /> Home
                     </span>
-                    <ArrowRight className="w-4 h-4 text-[var(--text-dim)] opacity-40" />
+                    <ArrowRight className="w-4 h-4 text-[var(--text-dim)] opacity-40 group-hover:translate-x-1 transition-transform" />
                   </Link>
 
                   <Link 
                     href="/collections" 
                     onClick={() => setMenuOpen(false)} 
-                    className="flex items-center justify-between p-3 rounded-2xl font-display text-lg uppercase font-bold text-[var(--text)] hover:text-[var(--accent)] hover:bg-[var(--bg-card)] transition-all group active:translate-x-1"
+                    className="group relative flex items-center justify-between p-3 rounded-2xl font-display text-lg uppercase font-bold text-[var(--text)] hover:text-[var(--accent)] hover:bg-white/5 transition-all overflow-hidden active:translate-x-1"
                   >
-                    <span className="flex items-center gap-3">
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-0 bg-[var(--accent)] rounded-r-md group-hover:h-3/5 transition-all duration-300" />
+                    <span className="flex items-center gap-3 pl-1.5">
                       <Sparkles className="w-4 h-4 text-[var(--accent)] animate-pulse" /> Immersive Store
                     </span>
-                    <span className="text-[9px] font-mono font-bold uppercase bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/30 px-2 py-0.5 rounded-full">
+                    <span className="text-[9px] font-mono font-bold uppercase bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/30 px-2 py-0.5 rounded-full shrink-0">
                       REELS & SALES
                     </span>
                   </Link>
@@ -316,13 +324,14 @@ export default function Header({
                   <Link 
                     href="/showcase" 
                     onClick={() => setMenuOpen(false)} 
-                    className="flex items-center justify-between p-3 rounded-2xl font-display text-lg uppercase font-bold text-[var(--text)] hover:text-[var(--accent)] hover:bg-[var(--bg-card)] transition-all group active:translate-x-1"
+                    className="group relative flex items-center justify-between p-3 rounded-2xl font-display text-lg uppercase font-bold text-[var(--text)] hover:text-[var(--accent)] hover:bg-white/5 transition-all overflow-hidden active:translate-x-1"
                   >
-                    <span className="flex items-center gap-3">
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-0 bg-[var(--accent)] rounded-r-md group-hover:h-3/5 transition-all duration-300" />
+                    <span className="flex items-center gap-3 pl-1.5">
                       <Sparkles className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" /> 
                       Showcase & Drops
                     </span>
-                    <span className="text-[9px] font-mono font-bold uppercase bg-amber-400/15 text-amber-400 border border-amber-400/30 px-2 py-0.5 rounded-full animate-pulse">
+                    <span className="text-[9px] font-mono font-bold uppercase bg-amber-400/15 text-amber-400 border border-amber-400/30 px-2 py-0.5 rounded-full animate-pulse shrink-0">
                       HOT
                     </span>
                   </Link>
@@ -331,12 +340,13 @@ export default function Header({
                     <Link 
                       href="/custom-print" 
                       onClick={() => setMenuOpen(false)} 
-                      className="flex items-center justify-between p-3 rounded-2xl font-display text-lg uppercase font-bold text-[var(--text)] hover:text-[var(--accent)] hover:bg-[var(--bg-card)] transition-all active:translate-x-1"
+                      className="group relative flex items-center justify-between p-3 rounded-2xl font-display text-lg uppercase font-bold text-[var(--text)] hover:text-[var(--accent)] hover:bg-white/5 transition-all overflow-hidden active:translate-x-1"
                     >
-                      <span className="flex items-center gap-3">
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-0 bg-[var(--accent)] rounded-r-md group-hover:h-3/5 transition-all duration-300" />
+                      <span className="flex items-center gap-3 pl-1.5">
                         <Wand2 className="w-4 h-4 text-purple-400" /> 3D Print Lab
                       </span>
-                      <span className="text-[9px] font-mono font-bold uppercase bg-purple-400/15 text-purple-400 border border-purple-400/30 px-2 py-0.5 rounded-full">
+                      <span className="text-[9px] font-mono font-bold uppercase bg-purple-400/15 text-purple-400 border border-purple-400/30 px-2 py-0.5 rounded-full shrink-0">
                         CUSTOM
                       </span>
                     </Link>
