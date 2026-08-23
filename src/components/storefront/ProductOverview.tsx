@@ -521,155 +521,51 @@ export default function ProductOverview({
           {/* Real Dynamic Pincode Delivery & Arrival Date Estimator */}
           <PincodeDeliveryChecker />
 
-          {/* Collapsible Streetwear Accordions */}
-          <div className="border-t border-[var(--line)] pt-2 space-y-2">
-            
-            {/* 1. Fabric & GSM Specs */}
-            <div className="border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)]">
-              <button 
-                onClick={() => toggleAccordion('fabric')}
-                className="w-full p-4 flex items-center justify-between text-left text-xs font-bold uppercase tracking-wider text-[var(--text)] hover:text-[var(--accent)] transition-colors"
-              >
-                <span className="flex items-center gap-2.5">
-                  <Layers className="w-4 h-4 text-[var(--accent)]" /> Fabric Tech & GSM Specs
+          {/* Structured Product Specifications (Inspired by lecsudo.com) */}
+          <div className="border-t border-[var(--line)] pt-6 mt-6 space-y-4">
+            <h4 className="font-display text-sm font-bold uppercase tracking-wider text-white">
+              Product Specifications
+            </h4>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3.5 text-xs font-mono border border-[var(--line)] rounded-2xl p-5 bg-[var(--bg-card)]/50 backdrop-blur-md">
+              <div className="flex flex-col gap-1">
+                <span className="text-[var(--text-dim)] uppercase text-[10px] tracking-wider">Composition</span>
+                <span className="text-white font-semibold">
+                  {jeansMode ? '100% Rigid Cotton Denim' : '100% Super-combed Terry Cotton'}
                 </span>
-                {openAccordion === 'fabric' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              <AnimatePresence>
-                {openAccordion === 'fabric' && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-4 pt-0 text-xs text-[var(--text-dim)] leading-relaxed space-y-2 border-t border-[var(--line)]/50 mt-2">
-                      {jeansMode ? (
-                        <>
-                          <p>• <strong>Composition:</strong> 100% Rigid Heavyweight Cotton Denim (13.5 oz premium weight).</p>
-                          <p>• <strong>Wash Style:</strong> Stonewashed and enzyme treated for a vintage textured look.</p>
-                          <p>• <strong>Hardware:</strong> Custom brand-engraved metal buttons and reinforced rivets.</p>
-                        </>
-                      ) : (
-                        <>
-                          <p>• <strong>Composition:</strong> 100% Super-combed French Terry Cotton (220 GSM heavyweight).</p>
-                          <p>• <strong>Treatment:</strong> Bio-washed for ultra-soft handfeel and zero surface pilling.</p>
-                          <p>• <strong>Graphics:</strong> Screenprint designed to endure 50+ washes.</p>
-                        </>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* 2. Fit & Silhouette */}
-            <div className="border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)]">
-              <button 
-                onClick={() => toggleAccordion('fit')}
-                className="w-full p-4 flex items-center justify-between text-left text-xs font-bold uppercase tracking-wider text-[var(--text)] hover:text-[var(--accent)] transition-colors"
-              >
-                <span className="flex items-center gap-2.5">
-                  <Scissors className="w-4 h-4 text-[var(--accent)]" /> Fit & Silhouette Guide
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[var(--text-dim)] uppercase text-[10px] tracking-wider">Fabric Weight</span>
+                <span className="text-white font-semibold">
+                  {jeansMode ? '13.5 oz Premium Weight' : '220 GSM Heavyweight'}
                 </span>
-                {openAccordion === 'fit' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              <AnimatePresence>
-                {openAccordion === 'fit' && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-4 pt-0 text-xs text-[var(--text-dim)] leading-relaxed space-y-2 border-t border-[var(--line)]/50 mt-2">
-                      {jeansMode ? (
-                        <>
-                          <p>• <strong>Silhouette:</strong> Relaxed straight-leg streetwear fit with a slight pool at the ankle.</p>
-                          <p>• <strong>Rise:</strong> Mid-rise fit with a classic 5-pocket construction.</p>
-                          <p>• <strong>Sizing Tip:</strong> True to size. If you are between sizes, we recommend sizing up for a baggier look.</p>
-                        </>
-                      ) : (
-                        <>
-                          <p>• <strong>Silhouette:</strong> Authentic Japanese/Korean boxy drop-shoulder profile.</p>
-                          <p>• <strong>Collar:</strong> Heavy 1.2" ribbed seamless crewneck that retains shape.</p>
-                          <p>• <strong>Sizing Tip:</strong> True to oversized fit. For a regular fit, take one size smaller.</p>
-                        </>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* 3. Wash & Care */}
-            <div className="border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)]">
-              <button 
-                onClick={() => toggleAccordion('care')}
-                className="w-full p-4 flex items-center justify-between text-left text-xs font-bold uppercase tracking-wider text-[var(--text)] hover:text-[var(--accent)] transition-colors"
-              >
-                <span className="flex items-center gap-2.5">
-                  <RotateCcw className="w-4 h-4 text-[var(--accent)]" /> Wash & Garment Care
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[var(--text-dim)] uppercase text-[10px] tracking-wider">Fit Profile</span>
+                <span className="text-white font-semibold">
+                  {jeansMode ? 'Relaxed Straight-Leg Fit' : 'Oversized Boxy / Drop Shoulder'}
                 </span>
-                {openAccordion === 'care' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              <AnimatePresence>
-                {openAccordion === 'care' && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-4 pt-0 text-xs text-[var(--text-dim)] leading-relaxed space-y-2 border-t border-[var(--line)]/50 mt-2">
-                      {jeansMode ? (
-                        <>
-                          <p>• Turn jeans inside out and machine wash cold with similar colors. Wash sparingly to maintain wash character.</p>
-                          <p>• Air dry flat or hang. Avoid tumble drying to prevent shrinking or color fade.</p>
-                          <p>• Warm iron inside out if needed, or simply hang to smooth naturally.</p>
-                        </>
-                      ) : (
-                        <>
-                          <p>• Machine wash cold (inside-out) on gentle cycle with similar colors.</p>
-                          <p>• Do not iron directly on graphics (iron reverse on low heat).</p>
-                          <p>• Air dry flat in shade. Do not tumble dry or bleach.</p>
-                        </>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* 4. Shipping, COD & Returns */}
-            <div className="border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)]">
-              <button 
-                onClick={() => toggleAccordion('shipping')}
-                className="w-full p-4 flex items-center justify-between text-left text-xs font-bold uppercase tracking-wider text-[var(--text)] hover:text-[var(--accent)] transition-colors"
-              >
-                <span className="flex items-center gap-2.5">
-                  <ShieldCheck className="w-4 h-4 text-[var(--accent)]" /> Shipping, COD & 7-Day Exchange
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[var(--text-dim)] uppercase text-[10px] tracking-wider">Treatment</span>
+                <span className="text-white font-semibold">
+                  {jeansMode ? 'Stonewashed & Enzyme Treated' : 'Bio-washed for Ultra-soft Handfeel'}
                 </span>
-                {openAccordion === 'shipping' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              <AnimatePresence>
-                {openAccordion === 'shipping' && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-4 pt-0 text-xs text-[var(--text-dim)] leading-relaxed space-y-2 border-t border-[var(--line)]/50 mt-2">
-                      <p>• <strong>Free Shipping:</strong> Automatically applied on all prepaid orders over ₹2000.</p>
-                      <p>• <strong>Cash on Delivery (COD):</strong> Available at checkout across 20,000+ Indian pin codes.</p>
-                      <p>• <strong>Hassle-Free Exchange:</strong> 7-day doorstep size exchange guarantee.</p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              </div>
+              <div className="flex flex-col gap-1 col-span-2 border-t border-[var(--line)]/50 pt-3">
+                <span className="text-[var(--text-dim)] uppercase text-[10px] tracking-wider">Wash & Garment Care</span>
+                <span className="text-white font-semibold leading-relaxed">
+                  {jeansMode 
+                    ? 'Turn inside out, wash cold with similar colors. Wash sparingly to maintain denim character.' 
+                    : 'Machine wash cold inside out on gentle. Air dry flat in shade. Do not iron directly on print.'}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1 col-span-2 border-t border-[var(--line)]/50 pt-3">
+                <span className="text-[var(--text-dim)] uppercase text-[10px] tracking-wider">Delivery & Returns</span>
+                <span className="text-white font-semibold">
+                  Free Shipping on prepaid orders over ₹2000. 7-Day doorstep exchange guarantee.
+                </span>
+              </div>
             </div>
-
           </div>
 
           {/* Trust Badges */}
