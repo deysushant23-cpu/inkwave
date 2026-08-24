@@ -39,7 +39,7 @@ const defaultPages = [
     section_key: 'page_contact',
     json_content: {
       title: 'Contact Us',
-      content: '# Contact Us\n\nHave a question about our process, an upcoming drop, or an existing order? Get in touch with us.\n\n**Email**: inkwave1620@gmail.com\n**Phone**: +91 9624468344\n**Address**: B/12 Sharmjivi Soc, Umra, Surat - 395007, Gujarat, India\n\n**Hours**: Monday - Saturday, 10 AM - 6 PM IST\n\nWe aim to respond to all inquiries within 24 hours.'
+      content: '# Contact Us\n\nHave a question about our process, an upcoming drop, or an existing order? Get in touch with us.\n\n**Email**: inkwave1620@gmail.com\n**Phone**: +91 8160321453\n**Address**: B/12 Sharmjivi Soc, Umra, Surat - 395007, Gujarat, India\n\n**Hours**: Monday - Saturday, 10 AM - 6 PM IST\n\nWe aim to respond to all inquiries within 24 hours.'
     },
     is_published: true
   },

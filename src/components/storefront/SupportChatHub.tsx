@@ -81,7 +81,7 @@ export default function SupportChatHub() {
   };
 
   const triggerWhatsAppRedirect = () => {
-    const phoneNumber = '919624468344';
+    const phoneNumber = '918160321453';
     const messageText = encodeURIComponent('Hello Inkwave! I have a query about your collection.');
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${messageText}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');

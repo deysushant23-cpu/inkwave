@@ -14,7 +14,7 @@ export default function WhatsAppWidget() {
     return null;
   }
 
-  const phoneNumber = '919624468344';
+  const phoneNumber = '918160321453';
   const message = encodeURIComponent('Hello Inkwave! I have a query about your collection.');
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 

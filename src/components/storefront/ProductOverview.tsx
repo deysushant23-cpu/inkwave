@@ -394,7 +394,7 @@ export default function ProductOverview({
           {/* Streetwear Highlight Chips */}
           <div className="flex flex-wrap gap-2 my-4">
             <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded-lg bg-[var(--bg-alt)] border border-[var(--line)] text-[var(--text)] flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-[var(--accent)]" /> {jeansMode ? '14 OZ RIGID DENIM' : '240 GSM FRENCH TERRY'}
+              <Layers className="w-3.5 h-3.5 text-[var(--accent)]" /> {jeansMode ? '14 OZ RIGID DENIM' : '220 GSM FRENCH TERRY'}
             </span>
             <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded-lg bg-[var(--bg-alt)] border border-[var(--line)] text-[var(--text)] flex items-center gap-1.5">
               <Scissors className="w-3.5 h-3.5 text-[var(--accent)]" /> OVERSIZED BOXY FIT

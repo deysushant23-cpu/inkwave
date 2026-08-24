@@ -568,7 +568,7 @@ export default function CustomPrintStudio() {
             </div>
             <div className="p-3.5 rounded-2xl bg-[var(--bg)] border border-[var(--line)]">
               <span className="text-[var(--text-dim)] uppercase block text-[9px]">Dye Blank</span>
-              <span className="font-bold text-[var(--text)]">240 GSM Boxy Fit</span>
+              <span className="font-bold text-[var(--text)]">220 GSM Boxy Fit</span>
             </div>
             <div className="p-3.5 rounded-2xl bg-[var(--bg)] border border-[var(--line)]">
               <span className="text-[var(--text-dim)] uppercase block text-[9px]">Status</span>
@@ -723,7 +723,7 @@ export default function CustomPrintStudio() {
               <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)] bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20">
                 INKWAVE 3D LAB
               </span>
-              <span className="text-xs font-mono text-[var(--text-dim)]">• 240GSM BOXY FIT</span>
+              <span className="text-xs font-mono text-[var(--text-dim)]">• 220GSM BOXY FIT</span>
             </div>
             <h1 className="font-display text-3xl md:text-4xl uppercase font-bold tracking-tight mb-2">
               Bespoke Streetwear Studio
@@ -1218,11 +1218,11 @@ export default function CustomPrintStudio() {
             </button>
 
             <div className="flex gap-2.5 items-start bg-yellow-500/10 border border-yellow-500/20 p-3.5 rounded-2xl">
-              <AlertTriangle className="w-4 h-4 text-yellow-400 shrink-0 mt-0.5" />
-              <p className="text-[10px] font-mono text-[var(--text-dim)] leading-relaxed">
-                Vector artwork & print coordinates are atomically packaged into the dispatch payload. Hand-finished on 240GSM cotton in Surat.
-              </p>
-            </div>
+                <AlertTriangle className="w-4 h-4 text-yellow-400 shrink-0 mt-0.5" />
+                <p className="text-[10px] font-mono text-[var(--text-dim)] leading-relaxed">
+                  Vector artwork & print coordinates are atomically packaged into the dispatch payload. Hand-finished on 220GSM cotton in Surat.
+                </p>
+              </div>
           </div>
         </div>
 
