@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { HeartCrack } from 'lucide-react';
 import WishlistClientSync from './WishlistClientSync';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function WishlistPage() {
   const { wishlist, success } = await getWishlistAction();
   
