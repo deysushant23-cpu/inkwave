@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from 'sonner';
 import { createClient } from '@/lib/supabase/server';
 import ReferralTracker from '@/components/storefront/ReferralTracker';
+import Script from 'next/script';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -118,6 +119,18 @@ export default async function RootLayout({
     <html lang="en">
       <head>
         <style dangerouslySetInnerHTML={{ __html: themeVariables }} />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-6H284Z9JF7"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-6H284Z9JF7');
+          `}
+        </Script>
       </head>
       <body className={`${spaceGrotesk.variable} ${syne.variable} ${jetbrainsMono.variable} font-sans`}>
         <ReferralTracker />
