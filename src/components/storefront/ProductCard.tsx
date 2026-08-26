@@ -109,7 +109,8 @@ export default function ProductCard({ product, index, isBig = false }: ProductCa
     
     const res = await toggleWishlistAction(product.id);
     if (!res.success) {
-      toast.error(res.error || 'Please login to save items to your wishlist');
+      const errorMsg = res.error === 'Unauthorized' ? 'Please login first to save items to your wishlist' : (res.error || 'Please login first to save items to your wishlist');
+      toast.error(errorMsg);
       toggleWish(product.id);
     }
   };

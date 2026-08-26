@@ -13,7 +13,7 @@ export async function toggleWishlistAction(productId: string) {
     const validProductId = parseResult.data;
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { success: false, error: 'Unauthorized' };
+    if (!user) return { success: false, error: 'Please login first to save items to your wishlist' };
     
     const userId = user.id;
 
