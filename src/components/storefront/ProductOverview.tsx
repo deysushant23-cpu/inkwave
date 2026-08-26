@@ -8,6 +8,7 @@ import { useWishlistStore } from '@/store/useWishlistStore';
 import { toggleWishlistAction } from '@/app/actions/wishlist';
 import { subscribeToRestockAction } from '@/app/actions/notify';
 import { formatPrice } from '@/lib/utils';
+import AccordionSpecs from '@/components/storefront/AccordionSpecs';
 import { 
   ShoppingBag, 
   Zap, 
@@ -525,9 +526,9 @@ export default function ProductOverview({
                 {/* Instant Buy Now Button */}
                 <button
                   onClick={handleBuyNow}
-                  className="w-full h-[52px] rounded-xl bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 text-black font-extrabold text-xs uppercase tracking-widest hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-400/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-[52px] rounded-none bg-black text-white border border-white/20 font-extrabold text-xs uppercase tracking-widest hover:bg-neutral-900 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Zap className="w-4 h-4 fill-black" />
+                  <Zap className="w-4 h-4 fill-white" />
                   BUY IT NOW • FAST CHECKOUT
                 </button>
               </>
@@ -536,6 +537,11 @@ export default function ProductOverview({
 
           {/* Real Dynamic Pincode Delivery & Arrival Date Estimator */}
           <PincodeDeliveryChecker />
+
+          {/* Collapsible Specs Accordion */}
+          <div className="mt-8">
+            <AccordionSpecs />
+          </div>
 
 
           {/* Trust Badges */}
@@ -576,17 +582,17 @@ export default function ProductOverview({
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-[var(--bg-card)] border border-[var(--line)] rounded-3xl w-full max-w-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden"
+              className="bg-[var(--bg-card)] border border-[var(--line)] rounded-none w-full max-w-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden"
             >
               <button 
                 onClick={() => setIsSizeGuideOpen(false)}
-                className="absolute top-6 right-6 p-2 bg-[var(--bg-alt)] hover:bg-[var(--line)] text-[var(--text-dim)] hover:text-white rounded-full transition-colors"
+                className="absolute top-6 right-6 p-2 bg-[var(--bg-alt)] hover:bg-[var(--line)] text-[var(--text-dim)] hover:text-white rounded-none transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-2xl bg-[var(--accent)]/10 border border-[var(--accent)]/30 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-none bg-[var(--accent)]/10 border border-[var(--accent)]/30 flex items-center justify-center">
                   <Ruler className="w-5 h-5 text-[var(--accent)]" />
                 </div>
                 <div>
@@ -598,7 +604,7 @@ export default function ProductOverview({
               </div>
 
               {/* Sizing Table */}
-              <div className="border border-[var(--line)] rounded-2xl overflow-hidden mb-6">
+              <div className="border border-[var(--line)] rounded-none overflow-hidden mb-6">
                 <table className="w-full text-left text-xs font-mono">
                   <thead className="bg-[var(--bg-alt)] text-[var(--accent)] uppercase border-b border-[var(--line)] font-bold">
                     {jeansMode ? (
@@ -642,7 +648,7 @@ export default function ProductOverview({
               </div>
 
               {/* How to Measure */}
-              <div className="bg-[var(--bg-alt)] p-4 rounded-2xl border border-[var(--line)] text-xs text-[var(--text-dim)] space-y-1.5">
+              <div className="bg-[var(--bg-alt)] p-4 rounded-none border border-[var(--line)] text-xs text-[var(--text-dim)] space-y-1.5">
                 <p className="font-bold text-[var(--text)] uppercase tracking-wider">How to Measure:</p>
                 {jeansMode ? (
                   <>
@@ -663,7 +669,7 @@ export default function ProductOverview({
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={() => setIsSizeGuideOpen(false)}
-                  className="px-6 py-2.5 rounded-xl bg-[var(--accent)] text-[var(--bg)] font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity"
+                  className="px-6 py-2.5 rounded-none bg-[var(--accent)] text-[var(--bg)] font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity"
                 >
                   Got It
                 </button>
@@ -725,13 +731,13 @@ export default function ProductOverview({
                   value={notifyEmail}
                   onChange={(e) => setNotifyEmail(e.target.value)}
                   placeholder="Email" 
-                  className="w-24 flex-shrink-0 h-11 rounded-xl bg-[var(--bg)] border border-[var(--line)] px-3 text-[10px] font-mono focus:border-[var(--accent)] outline-none"
+                  className="w-24 flex-shrink-0 h-11 rounded-none bg-[var(--bg)] border border-[var(--line)] px-3 text-[10px] font-mono focus:border-white outline-none"
                   required
                 />
                 <button
                   type="submit"
                   disabled={isNotifying}
-                  className="flex-1 h-11 rounded-xl bg-[var(--text)] text-[var(--bg)] font-bold text-[10px] uppercase tracking-wider disabled:opacity-50 flex items-center justify-center"
+                  className="flex-1 h-11 rounded-none bg-white text-black font-bold text-[10px] uppercase tracking-wider disabled:opacity-50 flex items-center justify-center"
                 >
                   {isNotifying ? '...' : 'Submit'}
                 </button>
@@ -739,7 +745,7 @@ export default function ProductOverview({
             ) : (
               <button
                 onClick={() => setShowNotifyForm(true)}
-                className="flex-1 h-11 rounded-xl bg-[var(--bg-alt)] border border-[var(--line)] text-[var(--text)] font-bold text-[10px] uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-md"
+                className="flex-1 h-11 rounded-none bg-black text-white border border-white/25 font-bold text-[10px] uppercase tracking-wider hover:bg-neutral-900 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-md"
               >
                 <Bell className="w-3.5 h-3.5 text-[var(--accent)]" />
                 Notify Me
@@ -749,7 +755,7 @@ export default function ProductOverview({
             <>
               <button
                 onClick={handleAddToCart}
-                className="flex-1 h-11 rounded-xl bg-[var(--accent)] text-[var(--bg)] font-bold text-xs uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-[var(--accent)]/20"
+                className="flex-1 h-11 rounded-none bg-white text-black font-bold text-xs uppercase tracking-wider hover:bg-neutral-200 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-md"
               >
                 <ShoppingBag className="w-3.5 h-3.5" />
                 Add
@@ -757,9 +763,9 @@ export default function ProductOverview({
               
               <button
                 onClick={handleBuyNow}
-                className="flex-1 h-11 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-1 shadow-md shadow-amber-400/20"
+                className="flex-1 h-11 rounded-none bg-black text-white border border-white/20 font-extrabold text-xs uppercase tracking-wider hover:bg-neutral-900 active:scale-95 transition-all flex items-center justify-center gap-1 shadow-md"
               >
-                <Zap className="w-3.5 h-3.5 fill-black" />
+                <Zap className="w-3.5 h-3.5 fill-white" />
                 Buy
               </button>
             </>

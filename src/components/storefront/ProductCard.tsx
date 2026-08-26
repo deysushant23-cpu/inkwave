@@ -158,12 +158,12 @@ export default function ProductCard({ product, index, isBig = false }: ProductCa
       <Link href={`/product/${product.slug || product.id}`} className="block relative w-full">
         {/* Strictly Locked 3:4 Media Box */}
         <div 
-          className="relative w-full rounded-xl sm:rounded-2xl overflow-hidden bg-neutral-900 border border-white/10 transition-all duration-300 group-hover:border-white/25 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.5)]"
+          className="relative w-full rounded-none overflow-hidden bg-neutral-900 border border-white/10 transition-all duration-300 group-hover:border-white/25 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.5)]"
           style={{ aspectRatio: '3 / 4', width: '100%' }}
         >
           {/* Badge */}
           {activeBadge && (
-            <span className={`absolute top-2.5 left-2.5 sm:top-3.5 sm:left-3.5 z-20 text-[8px] sm:text-[10px] tracking-wider px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full uppercase leading-none ${activeBadge.className}`}>
+            <span className={`absolute top-2.5 left-2.5 sm:top-3.5 sm:left-3.5 z-20 text-[8px] sm:text-[10px] tracking-wider px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-none uppercase leading-none ${activeBadge.className}`}>
               {activeBadge.label}
             </span>
           )}
@@ -173,16 +173,16 @@ export default function ProductCard({ product, index, isBig = false }: ProductCa
             type="button"
             onClick={handleWishToggle}
             suppressHydrationWarning
-            className={`absolute top-2 right-2 sm:top-3 sm:right-3 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+            className={`absolute top-2.5 right-2.5 sm:top-3.5 sm:right-3.5 z-20 w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center transition-all duration-300 ${
               isWished 
-                ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/40 scale-110' 
-                : 'bg-black/50 text-white/80 hover:text-white hover:bg-black/80 hover:scale-105 backdrop-blur-md border border-white/10'
+                ? 'text-rose-500 scale-110 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]' 
+                : 'text-white/85 hover:text-white hover:scale-105 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]'
             }`}
             aria-label={isWished ? "Remove from wishlist" : "Add to wishlist"}
           >
             <svg 
               viewBox="0 0 24 24" 
-              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 ${isWished ? 'scale-110' : 'group-hover:scale-110'}`}
+              className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 ${isWished ? 'scale-110' : 'group-hover:scale-110'}`}
               fill={isWished ? "currentColor" : "none"} 
               stroke="currentColor" 
               strokeWidth={isWished ? "0" : "2"}
@@ -226,7 +226,7 @@ export default function ProductCard({ product, index, isBig = false }: ProductCa
             type="button"
             onClick={handleQuickAdd}
             aria-label="Quick Add"
-            className="sm:hidden absolute bottom-2 right-2 z-20 w-7 h-7 rounded-full bg-white text-black shadow-lg flex items-center justify-center active:scale-90 transition-transform"
+            className="sm:hidden absolute bottom-2.5 right-2.5 z-20 w-7 h-7 rounded-none bg-white text-black shadow-lg flex items-center justify-center active:scale-90 transition-transform"
           >
             <svg viewBox="0 0 24 24" width="13" height="13" style={{ stroke: 'currentColor', fill: 'none', strokeWidth: 3 }}>
               <path d="M12 5v14M5 12h14"/>
@@ -238,7 +238,7 @@ export default function ProductCard({ product, index, isBig = false }: ProductCa
             <button
               type="button"
               onClick={handleQuickAdd}
-              className="w-full py-2.5 px-4 bg-white text-black hover:bg-neutral-200 active:scale-98 font-bold text-xs uppercase tracking-wider rounded-xl shadow-xl flex items-center justify-center gap-2 transition-all"
+              className="w-full py-2.5 px-4 bg-white text-black hover:bg-neutral-200 active:scale-98 font-bold text-xs uppercase tracking-wider rounded-none shadow-xl flex items-center justify-center gap-2 transition-all"
             >
               <svg viewBox="0 0 24 24" width="14" height="14" style={{ stroke: 'currentColor', fill: 'none', strokeWidth: 2.5 }}>
                 <path d="M12 5v14M5 12h14"/>
@@ -250,18 +250,18 @@ export default function ProductCard({ product, index, isBig = false }: ProductCa
       </Link>
       
       {/* Product Details Area */}
-      <div className="mt-2 sm:mt-2.5 flex flex-col gap-0.5 sm:gap-1 px-0.5">
-        <p className="text-[9px] sm:text-[10px] font-mono font-medium text-neutral-400 uppercase tracking-wider truncate leading-tight">
-          {categoryLabel}
-        </p>
+      <div className="mt-2 sm:mt-2.5 flex flex-col gap-0.5 sm:gap-1 px-0.5 text-left">
         <Link href={`/product/${product.slug || product.id}`} className="group/title">
           <h3 
-            className="text-xs sm:text-sm font-semibold text-white truncate group-hover/title:text-amber-300 transition-colors leading-snug"
+            className="text-xs sm:text-sm font-bold text-white truncate group-hover/title:text-neutral-300 transition-colors leading-snug"
             title={name}
           >
             {name}
           </h3>
         </Link>
+        <p className="text-[9px] sm:text-[10px] font-mono font-medium text-neutral-400 uppercase tracking-wider truncate leading-tight">
+          {categoryLabel}
+        </p>
         <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 font-mono flex-wrap">
           <span className="text-xs sm:text-sm font-bold text-white">
             {formatPrice(price)}
@@ -272,7 +272,7 @@ export default function ProductCard({ product, index, isBig = false }: ProductCa
             </span>
           )}
           {discountPercent && discountPercent > 0 && (
-            <span className="text-[8px] sm:text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1 sm:px-1.5 py-0.5 rounded border border-emerald-500/20 leading-none">
+            <span className="text-[8px] sm:text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-none border border-emerald-500/20 leading-none">
               {discountPercent}% OFF
             </span>
           )}

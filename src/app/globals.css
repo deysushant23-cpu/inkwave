@@ -437,6 +437,11 @@ ul { list-style: none; }
   margin: 0 auto;
   padding: 0 32px;
 }
+@media (max-width: 768px) {
+  .pdp-wrap.pdp-hero {
+    padding: 0px !important;
+  }
+}
 @media (max-width: 640px) { .pdp-wrap { padding: 0 16px; } }
 
 /* ── HERO GRID ── */
@@ -459,7 +464,7 @@ ul { list-style: none; }
   top: 96px;          /* clears fixed nav */
 }
 @media (max-width: 768px) {
-  .pdp-left { grid-template-columns: 1fr; position: static; }
+  .pdp-left { grid-template-columns: 1fr; position: static; margin-left: 0; margin-right: 0; }
 }
 
 /* Thumbnail rail */
@@ -481,7 +486,7 @@ ul { list-style: none; }
   position: relative;
   width: 80px;
   height: 80px;
-  border-radius: 8px;
+  border-radius: 0px;
   overflow: hidden;
   flex-shrink: 0;
   background: var(--bg-card);
@@ -506,12 +511,18 @@ ul { list-style: none; }
 .pdp-main {
   position: relative;
   aspect-ratio: 3/4;
-  border-radius: 14px;
+  border-radius: 0px !important;
   overflow: hidden;
   background: var(--bg-card);
   border: 1px solid var(--line);
   isolation: isolate;
   cursor: zoom-in;
+}
+@media (max-width: 768px) {
+  .pdp-main {
+    border-left: none !important;
+    border-right: none !important;
+  }
 }
 .pdp-main-img {
   position: absolute;
@@ -533,7 +544,7 @@ ul { list-style: none; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 4px 11px;
-  border-radius: 20px;
+  border-radius: 0px;
   background: var(--accent);
   color: var(--accent-text);
   font-weight: 700;
@@ -546,7 +557,7 @@ ul { list-style: none; }
   right: 14px;
   z-index: 10;
   width: 36px; height: 36px;
-  border-radius: 50%;
+  border-radius: 0px;
   border: 1px solid var(--line);
   background: color-mix(in srgb, var(--bg) 75%, transparent);
   backdrop-filter: blur(8px);
@@ -568,7 +579,7 @@ ul { list-style: none; }
 }
 @media (max-width: 768px) { .pdp-dots-row { display: flex; } }
 .pdp-dot-btn {
-  width: 7px; height: 7px; border-radius: 50%;
+  width: 8px; height: 2px; border-radius: 0px;
   border: none; cursor: pointer;
   background: var(--text);
   transition: all 0.2s;
@@ -580,6 +591,11 @@ ul { list-style: none; }
   display: flex;
   flex-direction: column;
   padding-top: 4px;
+}
+@media (max-width: 768px) {
+  .pdp-right {
+    padding: 20px 16px !important;
+  }
 }
 
 .pdp-crumb {
@@ -639,7 +655,7 @@ ul { list-style: none; }
   font-size: 10px;
   font-weight: 700;
   padding: 3px 9px;
-  border-radius: 20px;
+  border-radius: 0px;
   background: rgba(201,162,39,0.15);
   color: var(--accent);
   border: 1px solid rgba(201,162,39,0.3);
@@ -697,7 +713,7 @@ ul { list-style: none; }
   min-width: 52px;
   height: 44px;
   padding: 0 14px;
-  border-radius: 8px;
+  border-radius: 0px;
   border: 1.5px solid var(--line);
   background: var(--bg-card);
   color: var(--text);
@@ -739,7 +755,7 @@ ul { list-style: none; }
 .pdp-add-btn {
   flex: 1;
   height: 52px;
-  border-radius: 10px;
+  border-radius: 0px;
   border: none;
   display: flex;
   align-items: center;
@@ -764,7 +780,7 @@ ul { list-style: none; }
 .pdp-wish-btn {
   width: 52px;
   height: 52px;
-  border-radius: 10px;
+  border-radius: 0px;
   border: 1.5px solid var(--line);
   background: var(--bg-card);
   color: var(--text-dim);

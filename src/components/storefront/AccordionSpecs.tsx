@@ -66,28 +66,24 @@ export default function AccordionSpecs() {
 
       <div>
         <button 
-          onClick={() => toggle('reviews')}
+          onClick={() => toggle('returns')}
           className="w-full py-5 flex items-center justify-between text-left font-syne font-bold hover:text-gray-300 transition-colors"
         >
-          Customer Reviews
-          <ChevronDown className={`w-5 h-5 transition-transform ${openSection === 'reviews' ? 'rotate-180' : ''}`} />
+          Exchanges & Shipping
+          <ChevronDown className={`w-5 h-5 transition-transform ${openSection === 'returns' ? 'rotate-180' : ''}`} />
         </button>
         <AnimatePresence>
-          {openSection === 'reviews' && (
+          {openSection === 'returns' && (
             <motion.div 
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              <div className="pb-5 text-sm text-gray-400 leading-relaxed flex flex-col gap-4">
-                <div className="bg-white/5 p-4 rounded-lg">
-                   <div className="flex items-center gap-1 text-accent mb-2">
-                     ★★★★★
-                   </div>
-                   <p>&quot;The fit is insane. And being able to try it on using the AI engine before buying completely eliminated my hesitation. 10/10.&quot;</p>
-                   <span className="text-xs mt-2 block font-medium">— Alex R.</span>
-                </div>
+              <div className="pb-5 text-sm text-gray-400 leading-relaxed flex flex-col gap-2">
+                <p>• <strong>Free Shipping:</strong> Automatically applied to all orders above ₹2000. Under ₹2000 is flat ₹99.</p>
+                <p>• <strong>Delivery Timeline:</strong> Direct dispatch from Surat Studio. Standard B2C delivery takes exactly 3 to 4 days.</p>
+                <p>• <strong>7-Day Exchanges:</strong> We support free doorstep size exchanges. Raise a request from your orders profile tab within 7 days of delivery.</p>
               </div>
             </motion.div>
           )}
