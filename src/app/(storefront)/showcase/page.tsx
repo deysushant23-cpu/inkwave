@@ -109,7 +109,7 @@ export default async function ShowcasePage() {
              
              return (
               <AnimatedItem delay={0.1} key={product.id} className="product-card group relative">
-                <div className="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6 rounded-lg border border-white/5">
+                <div className="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6 rounded-none border border-white/5">
                   <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-700 group-hover:opacity-0" style={{backgroundImage: `url('${defaultImage}')`}}></div>
                   <div className="absolute inset-0 bg-cover bg-center opacity-0 transition-opacity duration-700 group-hover:opacity-100 scale-105 group-hover:scale-100" style={{backgroundImage: `url('${hoverImage}')`}}></div>
                   
@@ -131,7 +131,7 @@ export default async function ShowcasePage() {
                   {/* Quick View */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <Link href={`/product/${product.slug}`}>
-                      <Button variant="secondary" className="pointer-events-auto opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 font-label-caps rounded-full px-8 bg-black/60 hover:bg-black backdrop-blur-md text-white border border-white/10">
+                      <Button variant="secondary" className="pointer-events-auto opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 font-label-caps rounded-none px-8 bg-black/60 hover:bg-black backdrop-blur-md text-white border border-white/10">
                           QUICK VIEW
                       </Button>
                     </Link>

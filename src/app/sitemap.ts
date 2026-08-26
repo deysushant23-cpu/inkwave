@@ -1,70 +1,60 @@
 import { MetadataRoute } from 'next';
 import { createClient } from '@/lib/supabase/server';
 
-export const revalidate = 3600; // Cache sitemap for 1 hour
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://inkwave.com';
-  const supabase = await createClient();
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://inkwavefashion.com';
 
-  // Fetch all products
-  const { data: products } = await supabase
-    .from('products')
-    .select('slug, updated_at')
-    .order('created_at', { ascending: false });
-
-  // Fetch all categories
-  const { data: categories } = await supabase
-    .from('categories')
-    .select('slug, updated_at')
-    .eq('is_active', true);
-
-  const productUrls = (products || []).map((prod: any) => ({
-    url: `${baseUrl}/product/${prod.slug}`,
-    lastModified: prod.updated_at ? new Date(prod.updated_at) : new Date(),
-    changeFrequency: 'daily' as const,
-    priority: 0.8,
-  }));
-
-  const categoryUrls = (categories || []).map((cat: any) => ({
-    url: `${baseUrl}/category/${cat.slug}`,
+  // Static site pages
+  const staticRoutes = [
+    '',
+    '/wishlist',
+    '/cart',
+    '/showcase',
+    '/custom-print',
+    '/pages/about',
+    '/pages/contact',
+    '/pages/size-guide',
+    '/pages/track-order',
+    '/pages/privacy-policy',
+    '/pages/terms-conditions',
+  ].map((route) => ({
+    url: `${baseUrl}${route}`,
     lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
+    changeFrequency: 'daily' as const,
+    priority: route === '' ? 1.0 : 0.8,
   }));
 
-  const staticUrls = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/collections`,
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/showcase`,
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/custom-print`,
+  try {
+    const supabase = await createClient();
+
+    // Fetch all database products dynamically
+    const { data: products } = await supabase
+      .from('products')
+      .select('slug, created_at')
+      .order('created_at', { ascending: false });
+
+    // Fetch all database categories dynamically
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('slug');
+
+    const productRoutes = (products || []).map((p) => ({
+      url: `${baseUrl}/product/${p.slug}`,
+      lastModified: p.created_at ? new Date(p.created_at) : new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
+
+    const categoryRoutes = (categories || []).map((c) => ({
+      url: `${baseUrl}/category/${c.slug}`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/size-guide`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
-  ];
+      priority: 0.7,
+    }));
 
-  return [...staticUrls, ...productUrls, ...categoryUrls];
+    return [...staticRoutes, ...productRoutes, ...categoryRoutes];
+  } catch (error) {
+    console.error('Error generating dynamic sitemap:', error);
+    return staticRoutes;
+  }
 }
