@@ -129,7 +129,7 @@ export default async function CustomerBillPage({ params }: { params: { orderId: 
           <div className="mt-16 text-center border-t border-[var(--line)] pt-8">
             <p className="font-mono text-[10px] text-[var(--text-dim)] uppercase tracking-widest">
               Thank you for supporting Inkwave. <br/>
-              Questions? Contact support@inkwave.com
+              Questions? Contact support@inkwavefashion.com
             </p>
           </div>
 

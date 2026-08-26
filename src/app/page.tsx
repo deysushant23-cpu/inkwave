@@ -54,8 +54,34 @@ export default async function Home() {
     })
     .filter((cat: any) => cat.products.length > 0);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "name": "Inkwave",
+    "url": "https://inkwavefashion.com",
+    "logo": "https://inkwavefashion.com/logo.png",
+    "image": "https://inkwavefashion.com/logo.png",
+    "description": "Premium Gen-Z Streetwear & Custom Prints. Luxury underground limited-edition drops.",
+    "telephone": "+91-8160321453",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "B/12 Sharmjivi Soc, Umra",
+      "addressLocality": "Surat",
+      "addressRegion": "Gujarat",
+      "postalCode": "395007",
+      "addressCountry": "IN"
+    },
+    "sameAs": [
+      "https://www.instagram.com/inkwavefashion"
+    ]
+  };
+
   return (
     <StorefrontShell>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Local high-contrast black & white theme override */}
       <style dangerouslySetInnerHTML={{ __html: `
         :root, html, body {

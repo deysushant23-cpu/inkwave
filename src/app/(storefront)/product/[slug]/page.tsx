@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const p = product as any;
-  const imageUrl = Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : 'https://inkwave.com/logo.png';
+  const imageUrl = Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : 'https://inkwavefashion.com/logo.png';
 
   // 1. Fetch custom SEO metadata if configured by admin in cms_sections
   let seoTitle = `${p.title} | Inkwave Streetwear`;
@@ -120,7 +120,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     "sku": product.id,
     "offers": {
       "@type": "AggregateOffer",
-      "url": `${process.env.NEXT_PUBLIC_APP_URL || 'https://inkwave.com'}/product/${product.slug}`,
+      "url": `${process.env.NEXT_PUBLIC_APP_URL || 'https://inkwavefashion.com'}/product/${product.slug}`,
       "priceCurrency": "INR",
       "lowPrice": product.price,
       "highPrice": product.price,

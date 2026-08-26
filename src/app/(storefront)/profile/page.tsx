@@ -233,11 +233,11 @@ export default function ProfilePage() {
                 
                 <div className="bg-black/50 border border-white/10 rounded-lg p-4 flex flex-col md:flex-row items-center justify-between gap-4">
                   <div className="flex-1 font-mono text-sm md:text-base truncate w-full text-left md:text-center text-white/80">
-                    https://inkwave.com/?ref={user.id.substring(0, 8)}
+                    https://inkwavefashion.com/?ref={user.id.substring(0, 8)}
                   </div>
                   <button 
                     onClick={() => {
-                      navigator.clipboard.writeText(`https://inkwave.com/?ref=${user.id.substring(0, 8)}`);
+                      navigator.clipboard.writeText(`https://inkwavefashion.com/?ref=${user.id.substring(0, 8)}`);
                       toast.success('Referral link copied to clipboard!');
                     }}
                     className="flex-shrink-0 bg-accent text-black font-bold px-6 py-3 rounded-lg hover:bg-white transition-colors w-full md:w-auto flex justify-center items-center gap-2"

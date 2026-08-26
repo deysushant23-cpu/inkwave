@@ -85,7 +85,7 @@ export async function generateAndSendBill(orderId: string) {
     // 5. Simulate Twilio SMS Sending if phone exists
     if (customerPhone !== 'N/A') {
       console.log(`[TWILIO SIMULATION] Sending SMS to ${customerPhone}:`);
-      console.log(`"Your Inkwave order receipt is ready. View it here: https://inkwave.com${newBill.billUrl}"`);
+      console.log(`"Your Inkwave order receipt is ready. View it here: https://inkwavefashion.com${newBill.billUrl}"`);
     }
 
     revalidatePath('/admin/orders');

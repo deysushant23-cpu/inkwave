@@ -35,11 +35,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Inkwave | Premium Gen-Z Streetwear & Custom Prints",
     description: "Luxury underground streetwear. Shop limited oversized t-shirts, custom 3D printed tees, and small-batch ink-dyed clothing.",
-    url: 'https://inkwave.com',
+    url: 'https://inkwavefashion.com',
     siteName: 'Inkwave',
     images: [
       {
-        url: 'https://inkwave.com/logo.png', // Assuming a logo exists or will be replaced with actual OG image
+        url: 'https://inkwavefashion.com/logo.png', // Assuming a logo exists or will be replaced with actual OG image
         width: 1200,
         height: 630,
         alt: 'Inkwave Streetwear',
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Inkwave | Premium Gen-Z Streetwear & Custom Prints",
     description: "Luxury underground streetwear. Shop limited oversized t-shirts, custom 3D printed tees, and small-batch ink-dyed clothing.",
-    images: ['https://inkwave.com/logo.png'],
+    images: ['https://inkwavefashion.com/logo.png'],
   },
 };
 
