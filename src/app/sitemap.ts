@@ -38,14 +38,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from('categories')
       .select('slug');
 
-    const productRoutes = (products || []).map((p) => ({
+    const productRoutes = ((products || []) as any[]).map((p) => ({
       url: `${baseUrl}/product/${p.slug}`,
       lastModified: p.created_at ? new Date(p.created_at) : new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     }));
 
-    const categoryRoutes = (categories || []).map((c) => ({
+    const categoryRoutes = ((categories || []) as any[]).map((c) => ({
       url: `${baseUrl}/category/${c.slug}`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
