@@ -12,6 +12,8 @@ interface Slide {
   subtitle: string;
   btnText: string;
   btnLink: string;
+  hideText?: boolean;
+  hideButton?: boolean;
 }
 
 interface HeroCarouselProps {
@@ -80,8 +82,8 @@ export default function HeroCarousel({ slides = [], hideText = false, autoplaySp
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-[1]" />
       <div className="absolute inset-0 bg-black/35 z-[1]" />
 
-      {/* Slide Text Content overlay (rendered if hideText is false) */}
-      {!hideText && (currentSlide.title || currentSlide.subtitle || currentSlide.btnText) && (
+      {/* Slide Text Content overlay (rendered if hideText is false and slide.hideText is not true) */}
+      {!hideText && !currentSlide.hideText && (currentSlide.title || currentSlide.subtitle || (currentSlide.btnText && !currentSlide.hideButton)) && (
         <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-12 md:px-16 flex flex-col items-start text-left mt-16 sm:mt-24">
           {currentSlide.subtitle && currentSlide.subtitle.trim() && (
             <span className="font-mono text-[10px] sm:text-xs uppercase tracking-[0.25em] text-[var(--accent)] font-bold mb-3 bg-[var(--accent)]/10 px-3 py-1 rounded-full border border-[var(--accent)]/20">
@@ -93,7 +95,7 @@ export default function HeroCarousel({ slides = [], hideText = false, autoplaySp
               {currentSlide.title}
             </h1>
           )}
-          {currentSlide.btnText && currentSlide.btnText.trim() && (
+          {currentSlide.btnText && currentSlide.btnText.trim() && !currentSlide.hideButton && (
             <Link
               href={currentSlide.btnLink || '/catalog'}
               className="btn-immersive text-xs sm:text-sm px-8 py-3.5 bg-white text-black font-bold uppercase tracking-widest rounded-none transition-all hover:bg-black hover:text-white border border-white"
@@ -109,7 +111,7 @@ export default function HeroCarousel({ slides = [], hideText = false, autoplaySp
   return (
     <div className="relative w-full h-[60vh] sm:h-[80vh] md:h-[85vh] lg:h-[90vh] bg-black border-b border-[var(--line)] overflow-hidden group">
       {/* Clickable Area Wrapper */}
-      {hideText ? (
+      {(hideText || currentSlide.hideText) ? (
         <Link href={currentSlide.btnLink || '/catalog'} className="block w-full h-full">
           {SlideContent}
         </Link>

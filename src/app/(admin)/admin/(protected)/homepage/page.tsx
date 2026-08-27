@@ -11,6 +11,16 @@ import { toast } from 'sonner';
 import MediaUploader from '@/components/admin/MediaUploader';
 
 export default function AdminHomepageConfig() {
+  const predefinedLinks = [
+    { label: 'Home Page', value: '/' },
+    { label: 'Shop All (Collections)', value: '/collections' },
+    { label: 'Showcase Page', value: '/showcase' },
+    { label: 'Custom Print Lab', value: '/custom-print' },
+    { label: 'Wishlist (Saved)', value: '/wishlist' },
+    { label: 'Size Guide', value: '/pages/size-guide' },
+    { label: 'Track Order', value: '/pages/track-order' },
+  ];
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
@@ -42,7 +52,12 @@ export default function AdminHomepageConfig() {
     subtitle: string;
     btnText: string;
     btnLink: string;
+    hideText?: boolean;
+    hideButton?: boolean;
   }[]>([]);
+  
+  // Categories State
+  const [categories, setCategories] = useState<{ id: string; name: string; slug: string }[]>([]);
   
   // Cinematic Media & Atmosphere State
   const [heroMediaType, setHeroMediaType] = useState<'none' | 'image' | 'video'>('none');
@@ -72,10 +87,17 @@ export default function AdminHomepageConfig() {
 
   const fetchData = async () => {
     setLoading(true);
-    const { data, error } = await (supabase.from('cms_sections') as any)
-      .select('json_content')
-      .eq('section_key', 'homepage_config')
-      .single();
+    const [{ data, error }, { data: categoriesData }] = await Promise.all([
+      (supabase.from('cms_sections') as any)
+        .select('json_content')
+        .eq('section_key', 'homepage_config')
+        .single(),
+      (supabase.from('categories') as any).select('id, name, slug')
+    ]);
+
+    if (categoriesData) {
+      setCategories(categoriesData);
+    }
 
     if (data?.json_content) {
       const j = data.json_content;
@@ -301,7 +323,7 @@ export default function AdminHomepageConfig() {
               <div className="absolute inset-0 bg-black/45 z-[1]" />
 
               <div className="relative z-10 w-full text-left space-y-2">
-                {!carouselHideText && (carouselSlides[0].title || carouselSlides[0].subtitle || carouselSlides[0].btnText) ? (
+                {!carouselHideText && !carouselSlides[0].hideText && (carouselSlides[0].title || carouselSlides[0].subtitle || (carouselSlides[0].btnText && !carouselSlides[0].hideButton)) ? (
                   <>
                     {carouselSlides[0].subtitle && carouselSlides[0].subtitle.trim() && (
                       <span className="font-mono text-[8px] uppercase tracking-widest text-[var(--accent)] mb-1 bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20 inline-block font-bold">
@@ -313,7 +335,7 @@ export default function AdminHomepageConfig() {
                         {carouselSlides[0].title}
                       </h2>
                     )}
-                    {carouselSlides[0].btnText && carouselSlides[0].btnText.trim() && (
+                    {carouselSlides[0].btnText && carouselSlides[0].btnText.trim() && !carouselSlides[0].hideButton && (
                       <span className="bg-white text-black px-3 py-1.5 rounded text-[9px] font-bold uppercase tracking-wider inline-block">
                         {carouselSlides[0].btnText}
                       </span>
@@ -321,7 +343,7 @@ export default function AdminHomepageConfig() {
                   </>
                 ) : (
                   <span className="text-[10px] font-mono text-white/50 bg-black/40 px-3 py-1.5 rounded border border-white/10 uppercase tracking-widest inline-block font-bold">
-                    Text Overlays Hidden
+                    {carouselHideText ? 'Text Overlays Hidden (Global)' : carouselSlides[0].hideText ? 'Text Hidden (Slide)' : 'No Overlay Content'}
                   </span>
                 )}
               </div>
@@ -586,30 +608,108 @@ export default function AdminHomepageConfig() {
                             <input 
                               type="text" 
                               value={slide.btnText} 
-                              disabled={carouselHideText}
+                              disabled={carouselHideText || slide.hideText}
                               onChange={e => {
                                 const list = [...carouselSlides];
                                 list[idx].btnText = e.target.value;
                                 setCarouselSlides(list);
                               }} 
                               placeholder="e.g. Shop Now" 
-                              className="w-full bg-[var(--bg-alt)] border border-[var(--line)] rounded-lg p-2 text-xs text-[var(--text)] outline-none animate-fade-in" 
+                              className="w-full bg-[var(--bg-alt)] border border-[var(--line)] rounded-lg p-2 text-xs text-[var(--text)] outline-none animate-fade-in text-[var(--text)]" 
                             />
                           </div>
                           <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Redirect URL</label>
+                            <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Redirect Destination</label>
+                            <select
+                              value={(!slide.btnLink || predefinedLinks.some(opt => opt.value === slide.btnLink) || categories.some(cat => `/category/${cat.slug}` === slide.btnLink)) ? (slide.btnLink || '/') : 'custom'}
+                              onChange={e => {
+                                const val = e.target.value;
+                                const list = [...carouselSlides];
+                                if (val === 'custom') {
+                                  const wasCustom = slide.btnLink !== '' && !predefinedLinks.some(opt => opt.value === slide.btnLink) && !categories.some(cat => `/category/${cat.slug}` === slide.btnLink);
+                                  if (!wasCustom) {
+                                    list[idx].btnLink = '/product/';
+                                  }
+                                } else {
+                                  list[idx].btnLink = val;
+                                }
+                                setCarouselSlides(list);
+                              }}
+                              className="w-full bg-[var(--bg-alt)] border border-[var(--line)] rounded-lg p-2 text-xs font-bold text-[var(--text)] cursor-pointer outline-none"
+                            >
+                              {predefinedLinks.map(opt => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                              ))}
+                              <optgroup label="Shop Categories">
+                                {categories.map(cat => (
+                                  <option key={cat.id} value={`/category/${cat.slug}`}>
+                                    Category: {cat.name}
+                                  </option>
+                                ))}
+                              </optgroup>
+                              <option value="custom">Custom Link (Type manually...)</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Render manual path input if it is a custom link */}
+                        {(() => {
+                          const isCustom = slide.btnLink !== '' && !predefinedLinks.some(opt => opt.value === slide.btnLink) && !categories.some(cat => `/category/${cat.slug}` === slide.btnLink);
+                          return isCustom && (
+                            <div className="animate-fade-in mt-2">
+                              <label className="block text-[9px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Custom Redirect URL Path</label>
+                              <input 
+                                type="text" 
+                                value={slide.btnLink} 
+                                onChange={e => {
+                                  const list = [...carouselSlides];
+                                  list[idx].btnLink = e.target.value;
+                                  setCarouselSlides(list);
+                                }} 
+                                placeholder="e.g. /product/spider-surge" 
+                                className="w-full bg-[var(--bg-alt)] border border-[var(--line)] rounded-lg p-2 text-xs text-[var(--text)] outline-none" 
+                              />
+                            </div>
+                          );
+                        })()}
+
+                        {/* Visibility Checkboxes */}
+                        <div className="grid grid-cols-2 gap-3 mt-3">
+                          <label className="flex items-center gap-2 p-2.5 bg-[var(--bg-card)] border border-[var(--line)] rounded-lg cursor-pointer hover:border-white/10 transition-all select-none">
                             <input 
-                              type="text" 
-                              value={slide.btnLink} 
+                              type="checkbox" 
+                              checked={!!slide.hideText} 
+                              disabled={carouselHideText}
                               onChange={e => {
                                 const list = [...carouselSlides];
-                                list[idx].btnLink = e.target.value;
+                                list[idx].hideText = e.target.checked;
                                 setCarouselSlides(list);
                               }} 
-                              placeholder="e.g. /category/hoodies" 
-                              className="w-full bg-[var(--bg-alt)] border border-[var(--line)] rounded-lg p-2 text-xs text-[var(--text)] outline-none animate-fade-in" 
+                              className="accent-[var(--accent)] w-4 h-4 cursor-pointer" 
                             />
-                          </div>
+                            <div>
+                              <span className="block text-[9px] font-bold text-[var(--text)] uppercase tracking-wider">Hide Text Overlay</span>
+                              <span className="block text-[8px] text-[var(--text-dim)]">Removes titles and subheadings</span>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center gap-2 p-2.5 bg-[var(--bg-card)] border border-[var(--line)] rounded-lg cursor-pointer hover:border-white/10 transition-all select-none">
+                            <input 
+                              type="checkbox" 
+                              checked={!!slide.hideButton} 
+                              disabled={carouselHideText || slide.hideText}
+                              onChange={e => {
+                                const list = [...carouselSlides];
+                                list[idx].hideButton = e.target.checked;
+                                setCarouselSlides(list);
+                              }} 
+                              className="accent-[var(--accent)] w-4 h-4 cursor-pointer" 
+                            />
+                            <div>
+                              <span className="block text-[9px] font-bold text-[var(--text)] uppercase tracking-wider">Hide CTA Button</span>
+                              <span className="block text-[8px] text-[var(--text-dim)]">Removes button link overlay</span>
+                            </div>
+                          </label>
                         </div>
 
                         <div>
