@@ -305,9 +305,6 @@ export default function ProductOverview({
                   LIMITED DROP
                 </span>
               )}
-              <span className="px-3 py-1 bg-black/60 text-white text-[11px] font-mono uppercase tracking-wider rounded-md backdrop-blur-md border border-white/10">
-                {activeIdx + 1} / {total}
-              </span>
             </div>
 
             {/* Zoom icon */}

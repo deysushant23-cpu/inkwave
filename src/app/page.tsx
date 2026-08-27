@@ -193,28 +193,14 @@ export default async function Home() {
 
       <div className="flex flex-col w-full relative z-10 bg-black min-h-screen">
         
-        {/* Top Hero Carousel or Brutalist Collection Header */}
+        {/* Top Hero Carousel or Cinematic Static Hero Section */}
         {homepageConfig.carouselShow && homepageConfig.carouselSlides && homepageConfig.carouselSlides.length > 0 ? (
           <HeroCarousel 
             slides={homepageConfig.carouselSlides} 
             hideText={homepageConfig.carouselHideText} 
           />
         ) : (
-          <div className="pt-32 sm:pt-40 pb-16 md:pb-24 border-b border-[var(--line)]">
-            <div className="wrap">
-              <PageReveal delay={0.1}>
-                <span className="font-mono text-[10px] sm:text-xs uppercase tracking-[0.25em] text-[var(--text-dim)] font-bold">
-                  {homepageConfig.catalogEyebrow || "Catalog Directory"}
-                </span>
-                <h1 className="font-display text-3xl sm:text-5xl md:text-8xl font-black uppercase text-white mt-4 tracking-tight leading-none">
-                  {homepageConfig.catalogTitle || "All Garments"}
-                </h1>
-                <p className="text-[var(--text-dim)] text-xs sm:text-sm max-w-md mt-6 font-mono leading-relaxed uppercase tracking-wider">
-                  {homepageConfig.catalogLede || "Premium menswear silhouette database. Grouped by category, dyed in small vats. Built to hold shape."}
-                </p>
-              </PageReveal>
-            </div>
-          </div>
+          <HeroSection config={homepageConfig} />
         )}
 
 

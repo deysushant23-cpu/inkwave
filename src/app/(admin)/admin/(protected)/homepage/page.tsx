@@ -608,7 +608,7 @@ export default function AdminHomepageConfig() {
                             <input 
                               type="text" 
                               value={slide.btnText} 
-                              disabled={carouselHideText || slide.hideText}
+                              disabled={carouselHideText}
                               onChange={e => {
                                 const list = [...carouselSlides];
                                 list[idx].btnText = e.target.value;
@@ -697,7 +697,7 @@ export default function AdminHomepageConfig() {
                             <input 
                               type="checkbox" 
                               checked={!!slide.hideButton} 
-                              disabled={carouselHideText || slide.hideText}
+                              disabled={carouselHideText}
                               onChange={e => {
                                 const list = [...carouselSlides];
                                 list[idx].hideButton = e.target.checked;
