@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Save, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { saveCmsSectionAction } from '@/app/actions/cms';
 import { OfferProps } from '@/components/storefront/OffersSectionClient';
 import MediaUploader from '@/components/admin/MediaUploader';
 
@@ -49,33 +50,12 @@ export default function AdminOffers() {
   const handleSave = async () => {
     setSaving(true);
     
-    const { data: existing } = await (supabase.from('cms_sections') as any)
-      .select('id')
-      .eq('section_key', 'offers_config')
-      .single();
+    const res = await saveCmsSectionAction('offers_config', { offers });
 
-    const payload = { offers };
-
-    let error;
-    if (existing) {
-      const res = await (supabase.from('cms_sections') as any).update({
-        json_content: payload as any,
-        updated_at: new Date().toISOString()
-      }).eq('id', existing.id);
-      error = res.error;
-    } else {
-      const res = await (supabase.from('cms_sections') as any).insert([{
-        section_key: 'offers_config',
-        json_content: payload as any,
-        is_published: true
-      }]);
-      error = res.error;
-    }
-
-    if (!error) {
+    if (res.success) {
       toast.success('Offers section updated successfully');
     } else {
-      toast.error('Failed to update: ' + error.message);
+      toast.error('Failed to update: ' + res.error);
     }
     setSaving(false);
   };

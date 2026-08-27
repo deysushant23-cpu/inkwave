@@ -1,10 +1,12 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Category, CmsSection } from '@/types/database';
 import { Image as ImageIcon, Video, Check, Save } from 'lucide-react';
 import MediaUploader from '@/components/admin/MediaUploader';
+import { toast } from 'sonner';
+import { saveCmsSectionAction } from '@/app/actions/cms';
 
 type BannerConfig = {
   url: string;
@@ -67,42 +69,15 @@ export default function AdminBanners() {
     const sectionKey = `category_banner_${slug}`;
     const bannerData = banners[slug] || { type: 'image', url: '' };
 
-    // Check if exists
-    const { data: existing } = await (supabase.from('cms_sections') as any)
-      .select('id')
-      .eq('section_key', sectionKey)
-      .single();
-
-    let error;
-
-    if (existing) {
-      // Update
-      // @ts-ignore - Supabase inference bug
-      const res = await (supabase.from('cms_sections') as any).update({
-        json_content: bannerData,
-        updated_at: new Date().toISOString()
-      }).eq('id', (existing as any).id);
-      error = res.error;
-    } else {
-      // Insert
-      const res = await (supabase.from('cms_sections') as any).insert(
-        // @ts-ignore
-        [{
-          section_key: sectionKey,
-          json_content: bannerData,
-          is_published: true
-        }]
-      );
-      error = res.error;
-    }
-
+    const res = await saveCmsSectionAction(sectionKey, bannerData);
     setSaving(prev => ({ ...prev, [slug]: false }));
 
-    if (!error) {
+    if (res.success) {
       setSuccess(prev => ({ ...prev, [slug]: true }));
       setTimeout(() => setSuccess(prev => ({ ...prev, [slug]: false })), 3000);
+      toast.success("Banner saved successfully!");
     } else {
-      alert("Failed to save banner: " + error.message);
+      toast.error("Failed to save banner: " + res.error);
     }
   };
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Save, Loader2, Plus, Trash2, Link as LinkIcon, Image as ImageIcon, Search } from 'lucide-react';
 import { toast } from 'sonner';
+import { saveCmsSectionAction } from '@/app/actions/cms';
 
 interface FitItem {
   name: string;
@@ -92,23 +93,11 @@ export default function AdminCuratedFitsConfig() {
 
     const payload = { fits: sanitizedFits, show: showFits };
 
-    const { data: existing } = await (supabase.from('cms_sections') as any)
-      .select('id')
-      .eq('section_key', 'curated_fits_config')
-      .single();
-
-    let error;
-    if (existing) {
-      const res = await (supabase.from('cms_sections') as any).update({ json_content: payload }).eq('id', existing.id);
-      error = res.error;
-    } else {
-      const res = await (supabase.from('cms_sections') as any).insert([{ section_key: 'curated_fits_config', json_content: payload, is_published: true }]);
-      error = res.error;
-    }
+    const res = await saveCmsSectionAction('curated_fits_config', payload);
 
     setSaving(false);
-    if (error) {
-      toast.error('Failed to save Curated Fits');
+    if (!res.success) {
+      toast.error('Failed to save Curated Fits: ' + res.error);
     } else {
       toast.success('Curated Fits updated! Changes are live.');
     }

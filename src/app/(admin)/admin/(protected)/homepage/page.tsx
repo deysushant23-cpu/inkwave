@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import MediaUploader from '@/components/admin/MediaUploader';
+import { saveCmsSectionAction } from '@/app/actions/cms';
 
 export default function AdminHomepageConfig() {
   const predefinedLinks = [
@@ -224,23 +225,11 @@ export default function AdminHomepageConfig() {
       carouselSlides
     };
 
-    const { data: existing } = await (supabase.from('cms_sections') as any)
-      .select('id')
-      .eq('section_key', 'homepage_config')
-      .single();
-
-    let error;
-    if (existing) {
-      const res = await (supabase.from('cms_sections') as any).update({ json_content: payload }).eq('id', existing.id);
-      error = res.error;
-    } else {
-      const res = await (supabase.from('cms_sections') as any).insert([{ section_key: 'homepage_config', json_content: payload, is_published: true }]);
-      error = res.error;
-    }
+    const res = await saveCmsSectionAction('homepage_config', payload);
 
     setSaving(false);
-    if (error) {
-      toast.error('Failed to save homepage config: ' + error.message);
+    if (!res.success) {
+      toast.error('Failed to save homepage config: ' + res.error);
     } else {
       toast.success('Cinematic Hero & Homepage updated live!');
     }

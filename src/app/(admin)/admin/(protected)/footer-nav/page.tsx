@@ -1,9 +1,10 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Save, Loader2, Link as LinkIcon, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { saveCmsSectionAction } from '@/app/actions/cms';
 
 interface FooterLink {
   label: string;
@@ -70,23 +71,11 @@ export default function AdminFooterConfig() {
     
     const payload = { columns };
 
-    const { data: existing } = await (supabase.from('cms_sections') as any)
-      .select('id')
-      .eq('section_key', 'footer_config')
-      .single();
-
-    let error;
-    if (existing) {
-      const res = await (supabase.from('cms_sections') as any).update({ json_content: payload }).eq('id', existing.id);
-      error = res.error;
-    } else {
-      const res = await (supabase.from('cms_sections') as any).insert([{ section_key: 'footer_config', json_content: payload, is_published: true }]);
-      error = res.error;
-    }
+    const res = await saveCmsSectionAction('footer_config', payload);
 
     setSaving(false);
-    if (error) {
-      toast.error('Failed to save footer config');
+    if (!res.success) {
+      toast.error('Failed to save footer config: ' + res.error);
     } else {
       toast.success('Footer updated! Changes are live.');
     }

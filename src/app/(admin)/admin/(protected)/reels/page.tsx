@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/client';
 import { Plus, Trash2, Save, Video, Link as LinkIcon, Type } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MediaUploader from '@/components/admin/MediaUploader';
+import { toast } from 'sonner';
+import { saveCmsSectionAction } from '@/app/actions/cms';
 
 interface Reel {
   id: string;
@@ -38,22 +40,13 @@ export default function AdminReelsPage() {
 
   const saveReels = async () => {
     setSaving(true);
-    // Check if exists
-    const { data: existing } = await (supabase.from('cms_sections') as any)
-      .select('id')
-      .eq('section_key', 'reels_config')
-      .single();
-
-    if (existing) {
-      await (supabase.from('cms_sections') as any)
-        .update({ json_content: reels, updated_at: new Date().toISOString() })
-        .eq('id', existing.id);
-    } else {
-      await (supabase.from('cms_sections') as any)
-        .insert([{ section_key: 'reels_config', json_content: reels, is_published: true }]);
-    }
+    const res = await saveCmsSectionAction('reels_config', reels);
     setSaving(false);
-    alert('Reels updated successfully!');
+    if (res.success) {
+      toast.success('Reels updated successfully!');
+    } else {
+      toast.error('Failed to update Reels: ' + res.error);
+    }
   };
 
   const addReel = () => {

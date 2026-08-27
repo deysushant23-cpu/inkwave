@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Save, Loader2, Clock, Image as ImageIcon, Film } from 'lucide-react';
 import { toast } from 'sonner';
 import MediaUploader from '@/components/admin/MediaUploader';
+import { saveCmsSectionAction } from '@/app/actions/cms';
 
 export default function AdminUpcomingDropConfig() {
   const [loading, setLoading] = useState(true);
@@ -57,23 +58,11 @@ export default function AdminUpcomingDropConfig() {
       mediaUrl,
     };
 
-    const { data: existing } = await (supabase.from('cms_sections') as any)
-      .select('id')
-      .eq('section_key', 'upcoming_drop_config')
-      .single();
-
-    let error;
-    if (existing) {
-      const res = await (supabase.from('cms_sections') as any).update({ json_content: payload }).eq('id', existing.id);
-      error = res.error;
-    } else {
-      const res = await (supabase.from('cms_sections') as any).insert([{ section_key: 'upcoming_drop_config', json_content: payload, is_published: true }]);
-      error = res.error;
-    }
+    const res = await saveCmsSectionAction('upcoming_drop_config', payload);
 
     setSaving(false);
-    if (error) {
-      toast.error('Failed to save config: ' + error.message);
+    if (!res.success) {
+      toast.error('Failed to save config: ' + res.error);
     } else {
       toast.success('Upcoming Drop config updated!');
     }
