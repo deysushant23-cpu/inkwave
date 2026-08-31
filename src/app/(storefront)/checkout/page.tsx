@@ -489,7 +489,7 @@ export default function CheckoutPage() {
                           <input 
                             type="text"
                             name="name"
-                            autocomplete="name"
+                            autoComplete="name"
                             value={nameInput}
                             onChange={(e) => setNameInput(e.target.value)}
                             placeholder="John Doe"
@@ -510,7 +510,7 @@ export default function CheckoutPage() {
                           <input 
                             type="tel"
                             name="tel"
-                            autocomplete="tel"
+                            autoComplete="tel"
                             maxLength={10}
                             value={phoneInput}
                             onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, ''))}
@@ -562,7 +562,7 @@ export default function CheckoutPage() {
                           <input 
                             type="text"
                             name="postal-code"
-                            autocomplete="postal-code"
+                            autoComplete="postal-code"
                             maxLength={6}
                             value={pincodeInput}
                             onChange={(e) => handlePincodeChange(e.target.value)}
@@ -583,7 +583,7 @@ export default function CheckoutPage() {
                         <input 
                           type="text"
                           name="address-level2"
-                          autocomplete="address-level2"
+                          autoComplete="address-level2"
                           value={cityInput}
                           onChange={(e) => setCityInput(e.target.value)}
                           placeholder="Surat"
@@ -599,7 +599,7 @@ export default function CheckoutPage() {
                         <input 
                           type="text"
                           name="address-level1"
-                          autocomplete="address-level1"
+                          autoComplete="address-level1"
                           value={stateInput}
                           onChange={(e) => setStateInput(e.target.value)}
                           placeholder="Gujarat"
@@ -616,7 +616,7 @@ export default function CheckoutPage() {
                       <textarea 
                         rows={3}
                         name="street-address"
-                        autocomplete="street-address"
+                        autoComplete="street-address"
                         value={addressLine1}
                         onChange={(e) => setAddressLine1(e.target.value)}
                         placeholder="e.g. Flat 402, Ink Horizon Towers, Umra"
