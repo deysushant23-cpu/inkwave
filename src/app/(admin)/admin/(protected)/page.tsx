@@ -32,7 +32,7 @@ export default async function AdminDashboard() {
 
   const statCards = [
     {
-      label: 'Total Revenue', value: `$${stats.totalRevenue.toFixed(2)}`,
+      label: 'Total Revenue', value: `₹${stats.totalRevenue.toLocaleString('en-IN')}`,
       icon: TrendingUp, color: '#22c55e', bg: 'rgba(34,197,94,0.1)'
     },
     {
@@ -156,7 +156,7 @@ export default async function AdminDashboard() {
                     {order.id.slice(0, 8).toUpperCase()}
                   </td>
                   <td className="px-6 py-4 font-bold" style={{ color: 'var(--accent)' }}>
-                    ${(order.total_amount || 0).toFixed(2)}
+                    ₹{(order.total_amount || 0).toLocaleString('en-IN')}
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-bold ${statusColors[order.order_status] || 'bg-gray-100 text-gray-500'}`}>
