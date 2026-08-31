@@ -8,7 +8,6 @@ import { useWishlistStore } from '@/store/useWishlistStore';
 import { toggleWishlistAction } from '@/app/actions/wishlist';
 import { subscribeToRestockAction } from '@/app/actions/notify';
 import { formatPrice } from '@/lib/utils';
-import AccordionSpecs from '@/components/storefront/AccordionSpecs';
 import { 
   ShoppingBag, 
   Zap, 
@@ -536,10 +535,7 @@ export default function ProductOverview({
           {/* Real Dynamic Pincode Delivery & Arrival Date Estimator */}
           <PincodeDeliveryChecker />
 
-          {/* Collapsible Specs Accordion */}
-          <div className="mt-8">
-            <AccordionSpecs />
-          </div>
+
 
 
           {/* Trust Badges */}
