@@ -1,5 +1,6 @@
 'use client';
 
+// Force Vercel redeployment trigger with fixed camelCase JSX attributes
 import { useState, useEffect } from 'react';
 import { useCartStore } from '@/store/useCartStore';
 import { useRouter } from 'next/navigation';
