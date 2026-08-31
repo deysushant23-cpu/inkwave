@@ -438,6 +438,36 @@ export default function CheckoutPage() {
                 </div>
               ) : (
                 <div className="space-y-6">
+                  {/* Visual Checkout Progress Steps Tracker */}
+                  <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 border border-[var(--line)] bg-[var(--bg-card)]/30 p-3 sm:p-4 rounded-2xl font-mono text-[9px] sm:text-[10px] sm:text-xs uppercase font-bold tracking-wider">
+                    <div className={`flex items-center gap-1.5 sm:gap-2 justify-center py-2 border-b-2 transition-all ${
+                      (!nameInput || !phoneInput) 
+                        ? 'text-[var(--accent)] border-[var(--accent)]' 
+                        : 'text-emerald-400 border-emerald-500/50'
+                    }`}>
+                      <span className="shrink-0 flex items-center justify-center w-4 h-4 rounded-full border text-[8px] font-bold">1</span>
+                      <span>Customer</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 sm:gap-2 justify-center py-2 border-b-2 transition-all ${
+                      (nameInput && phoneInput && (!addressLine1 || !pincodeInput))
+                        ? 'text-[var(--accent)] border-[var(--accent)]'
+                        : (nameInput && phoneInput && addressLine1 && pincodeInput)
+                          ? 'text-emerald-400 border-emerald-500/50'
+                          : 'text-[var(--text-dim)] border-transparent'
+                    }`}>
+                      <span className="shrink-0 flex items-center justify-center w-4 h-4 rounded-full border text-[8px] font-bold">2</span>
+                      <span>Address</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 sm:gap-2 justify-center py-2 border-b-2 transition-all ${
+                      (nameInput && phoneInput && addressLine1 && pincodeInput)
+                        ? 'text-[var(--accent)] border-[var(--accent)]'
+                        : 'text-[var(--text-dim)] border-transparent'
+                    }`}>
+                      <span className="shrink-0 flex items-center justify-center w-4 h-4 rounded-full border text-[8px] font-bold">3</span>
+                      <span>Payment</span>
+                    </div>
+                  </div>
+
                   {/* Section 1: Customer Contact Info */}
                   <div className="border border-[var(--line)] bg-[var(--bg-card)]/50 backdrop-blur-md rounded-3xl p-6 sm:p-8 space-y-5">
                     <div className="flex items-center gap-3 border-b border-[var(--line)]/50 pb-4">
@@ -458,6 +488,8 @@ export default function CheckoutPage() {
                           <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-dim)]" />
                           <input 
                             type="text"
+                            name="name"
+                            autocomplete="name"
                             value={nameInput}
                             onChange={(e) => setNameInput(e.target.value)}
                             placeholder="John Doe"
@@ -477,6 +509,8 @@ export default function CheckoutPage() {
                           </span>
                           <input 
                             type="tel"
+                            name="tel"
+                            autocomplete="tel"
                             maxLength={10}
                             value={phoneInput}
                             onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, ''))}
@@ -527,6 +561,8 @@ export default function CheckoutPage() {
                           <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-dim)]" />
                           <input 
                             type="text"
+                            name="postal-code"
+                            autocomplete="postal-code"
                             maxLength={6}
                             value={pincodeInput}
                             onChange={(e) => handlePincodeChange(e.target.value)}
@@ -546,6 +582,8 @@ export default function CheckoutPage() {
                         </label>
                         <input 
                           type="text"
+                          name="address-level2"
+                          autocomplete="address-level2"
                           value={cityInput}
                           onChange={(e) => setCityInput(e.target.value)}
                           placeholder="Surat"
@@ -560,6 +598,8 @@ export default function CheckoutPage() {
                         </label>
                         <input 
                           type="text"
+                          name="address-level1"
+                          autocomplete="address-level1"
                           value={stateInput}
                           onChange={(e) => setStateInput(e.target.value)}
                           placeholder="Gujarat"
@@ -575,6 +615,8 @@ export default function CheckoutPage() {
                       </label>
                       <textarea 
                         rows={3}
+                        name="street-address"
+                        autocomplete="street-address"
                         value={addressLine1}
                         onChange={(e) => setAddressLine1(e.target.value)}
                         placeholder="e.g. Flat 402, Ink Horizon Towers, Umra"
