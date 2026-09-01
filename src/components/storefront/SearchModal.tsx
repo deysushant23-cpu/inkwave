@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
-
-import { X, Search, ArrowRight } from 'lucide-react';
+import { X, Search, ArrowRight, Mic, MicOff, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function SearchModal({
   isOpen,
@@ -17,8 +17,76 @@ export default function SearchModal({
   const [results, setResults] = useState<any[]>([]);
   const [suggested, setSuggested] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
   const supabase = createClient();
+
+  // Initialize Speech Recognition
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        setSpeechSupported(true);
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+          setIsListening(true);
+        };
+
+        recognition.onresult = (event: any) => {
+          const transcript = Array.from(event.results)
+            .map((result: any) => result[0].transcript)
+            .join('');
+          setQuery(transcript);
+        };
+
+        recognition.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+          if (event.error === 'not-allowed') {
+            toast.error('Microphone permission denied. Please allow microphone access in your browser.');
+          } else if (event.error !== 'no-speech') {
+            toast.error(`Voice search error: ${event.error}`);
+          }
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+
+        recognitionRef.current = recognition;
+      }
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      toast.error('Voice search is not supported by your browser. Please use Chrome, Edge, or Safari.');
+      return;
+    }
+
+    if (isListening) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        console.error('Recognition stop error', e);
+      }
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+        toast.info('🎙️ Listening... Speak to search');
+      } catch (e) {
+        console.error('Recognition start failed', e);
+      }
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -33,6 +101,10 @@ export default function SearchModal({
           .catch(err => console.error('Error fetching suggestions', err));
       }
     } else {
+      if (isListening && recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+      setIsListening(false);
       setQuery('');
       setResults([]);
       document.body.style.overflow = '';
@@ -85,26 +157,61 @@ export default function SearchModal({
         </div>
 
         <div className="p-6 border-b border-[var(--line)] sticky top-[72px] bg-[var(--bg)] z-10">
-          <div className="relative">
-            <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-dim)]" />
+          <div className="relative flex items-center">
+            <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-dim)]" />
             <input
               ref={inputRef}
               type="text"
-              placeholder="Search products…"
+              placeholder={isListening ? "Listening... Speak now" : "Search products, collections, hoodies..."}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-[var(--bg-alt)] border border-[var(--line)] rounded-full pl-10 pr-10 py-3 text-[var(--text)] outline-none focus:border-[var(--accent)] transition-colors font-mono"
+              className={`w-full bg-[var(--bg-alt)] border ${
+                isListening 
+                  ? 'border-red-500 ring-2 ring-red-500/30' 
+                  : 'border-[var(--line)] focus:border-[var(--accent)]'
+              } rounded-full pl-10 pr-20 py-3 text-[var(--text)] outline-none transition-all font-mono`}
             />
-            {query && (
+
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  className="p-1 rounded-full text-[var(--text-dim)] hover:text-[var(--text)] cursor-pointer"
+                  aria-label="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+
+              {/* Voice Microphone Search Button */}
               <button
-                onClick={() => setQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full text-[var(--text-dim)] hover:text-[var(--text)]"
-                aria-label="Clear search"
+                type="button"
+                onClick={toggleListening}
+                className={`p-2 rounded-full transition-all cursor-pointer ${
+                  isListening
+                    ? 'bg-red-500 text-white animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.6)]'
+                    : 'text-[var(--text-dim)] hover:text-white hover:bg-white/10'
+                }`}
+                title={isListening ? 'Stop listening' : 'Search by voice'}
+                aria-label={isListening ? 'Stop listening' : 'Search by voice'}
               >
-                <X className="w-4 h-4" />
+                {isListening ? (
+                  <Mic className="w-4 h-4 animate-bounce" />
+                ) : (
+                  <Mic className="w-4 h-4" />
+                )}
               </button>
-            )}
+            </div>
           </div>
+
+          {/* Active Voice Listening Live Feedback Banner */}
+          {isListening && (
+            <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono animate-in fade-in duration-200">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping shrink-0" />
+              <span className="truncate">Listening... Speak e.g. "Oversized T-Shirt", "Black Hoodie", "Jeans"</span>
+            </div>
+          )}
         </div>
 
         <div className="drawer-items" style={{ padding: '0 1.5rem 1.5rem 1.5rem' }}>
