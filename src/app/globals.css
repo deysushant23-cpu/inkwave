@@ -49,12 +49,19 @@
   --font-serif: Georgia, serif;
 
   /* ── Layout & Animation ── */
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius: 0.625rem;
+  --radius-sm: 0px !important;
+  --radius-md: 0px !important;
+  --radius-lg: 0px !important;
+  --radius-xl: 0px !important;
+  --radius: 0px !important;
   --ease: cubic-bezier(.2,.8,.2,1);
 
   /* Note: All color variables (--bg, --text, --primary, etc.) are dynamically injected by layout.tsx from the database */
+}
+
+/* ============ BRUTALIST ZERO-RADIUS STREETWEAR ENFORCEMENT ============ */
+*, ::before, ::after {
+  border-radius: 0 !important;
 }
 
 @keyframes shimmer {

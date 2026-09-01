@@ -448,7 +448,7 @@ export default function ProductOverview({
             </div>
 
             {lowStock && (
-              <div className="mt-3 flex items-center gap-2 text-xs font-mono font-semibold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20">
+              <div className="mt-3 flex items-center gap-2 text-xs font-mono font-semibold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-none border border-amber-500/20">
                 <Zap className="w-3.5 h-3.5 shrink-0" />
                 <span>Hurry! Only {stockQty} item{stockQty > 1 ? 's' : ''} left in size {selectedSize}</span>
               </div>
@@ -466,20 +466,20 @@ export default function ProductOverview({
                       value={notifyEmail}
                       onChange={(e) => setNotifyEmail(e.target.value)}
                       placeholder="Enter your email" 
-                      className="flex-1 h-[52px] w-full rounded-xl bg-[var(--bg-alt)] border border-[var(--line)] px-4 text-xs font-mono focus:border-[var(--accent)] outline-none transition-colors"
+                      className="flex-1 h-[52px] w-full rounded-none bg-[var(--bg-alt)] border border-[var(--line)] px-4 text-xs font-mono focus:border-[var(--accent)] outline-none transition-colors"
                       required
                     />
                     <button
                       type="submit"
                       disabled={isNotifying}
-                      className="h-[52px] px-6 rounded-xl bg-[var(--text)] text-[var(--bg)] font-bold text-xs uppercase tracking-widest hover:brightness-110 disabled:opacity-50 transition-all flex items-center justify-center"
+                      className="h-[52px] px-6 rounded-none bg-[var(--text)] text-[var(--bg)] font-bold text-xs uppercase tracking-widest hover:brightness-110 disabled:opacity-50 transition-all flex items-center justify-center"
                     >
                       {isNotifying ? '...' : 'Notify'}
                     </button>
                   </form>
                 ) : (
                   <button
-                    className="flex-1 h-[52px] rounded-xl bg-[var(--bg-alt)] border border-[var(--line)] text-white hover:bg-[var(--line)] hover:text-white font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-sm"
+                    className="flex-1 h-[52px] rounded-none bg-[var(--bg-alt)] border border-[var(--line)] text-white hover:bg-[var(--line)] hover:text-white font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-sm"
                     onClick={() => setShowNotifyForm(true)}
                   >
                     <Bell className="w-5 h-5 text-[var(--accent)]" />

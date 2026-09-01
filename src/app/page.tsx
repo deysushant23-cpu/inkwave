@@ -105,6 +105,7 @@ export default async function Home() {
           background: rgba(0, 0, 0, 0.8) !important;
           backdrop-filter: blur(12px) !important;
           border: 1px solid #222222 !important;
+          border-radius: 0px !important;
         }
 
         .product-card-wrap {
@@ -115,7 +116,7 @@ export default async function Home() {
         .btn-primary {
           background: #ffffff !important;
           color: #000000 !important;
-          border-radius: 8px !important;
+          border-radius: 0px !important;
         }
         
         .btn-primary:hover {
@@ -126,68 +127,27 @@ export default async function Home() {
           background: #0c0c0c !important;
           border-color: #222222 !important;
           color: #ffffff !important;
+          border-radius: 0px !important;
         }
 
-        /* Immersive Switcher Card Styles */
-        .switcher-card {
-          position: relative;
-          background: linear-gradient(135deg, #09090b 0%, #030303 100%) !important;
-          border: 1px solid #1f1f23 !important;
-          border-radius: 16px !important;
-          overflow: hidden;
-          isolation: isolate !important;
-          z-index: 10 !important;
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .switcher-card:hover {
-          border-color: #ffffff !important;
-          box-shadow: 0 10px 40px -10px rgba(255, 255, 255, 0.05) !important;
-        }
-        .glow-orb-1 {
-          position: absolute;
-          width: 300px;
-          height: 150px;
-          border-radius: 9999px;
-          background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
-          filter: blur(40px);
-          pointer-events: none;
-          transition: all 0.6s ease;
-        }
-        .glow-orb-2 {
-          position: absolute;
-          width: 300px;
-          height: 150px;
-          border-radius: 9999px;
-          background: radial-gradient(circle, rgba(168, 85, 247, 0.06) 0%, transparent 70%);
-          filter: blur(40px);
-          pointer-events: none;
-          transition: all 0.6s ease;
-        }
-        .switcher-card:hover .glow-orb-1 {
-          transform: scale(1.25) translate(20px, -15px);
-          background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
-        }
-        .switcher-card:hover .glow-orb-2 {
-          transform: scale(1.25) translate(-20px, 15px);
-          background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, transparent 70%);
-        }
+        /* Clean Brutalist Immersive Action */
         .btn-immersive {
           background: #ffffff !important;
           color: #000000 !important;
           border: 1px solid #ffffff !important;
+          border-radius: 0px !important;
           font-family: var(--font-mono) !important;
           font-weight: 700 !important;
           text-transform: uppercase !important;
           letter-spacing: 0.1em !important;
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-          box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1) !important;
+          transition: all 0.25s ease !important;
+          box-shadow: none !important;
         }
         .btn-immersive:hover {
-          transform: translateY(-3px) !important;
+          transform: translateY(-2px) !important;
           background: #000000 !important;
           color: #ffffff !important;
           border-color: #ffffff !important;
-          box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2) !important;
         }
       `}} />
 

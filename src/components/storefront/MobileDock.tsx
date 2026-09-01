@@ -34,7 +34,7 @@ export default function MobileDock({ showPrintLab = true }: { showPrintLab?: boo
         {/* Home */}
         <Link 
           href="/" 
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-none transition-all ${
             isHome ? 'text-[var(--accent)] font-bold' : 'text-[var(--text-dim)] hover:text-[var(--text)]'
           }`}
         >
@@ -45,7 +45,7 @@ export default function MobileDock({ showPrintLab = true }: { showPrintLab?: boo
         {/* Showcase */}
         <Link 
           href="/showcase" 
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-none transition-all ${
             isShowcase ? 'text-[var(--accent)] font-bold' : 'text-[var(--text-dim)] hover:text-[var(--text)]'
           }`}
         >
@@ -57,7 +57,7 @@ export default function MobileDock({ showPrintLab = true }: { showPrintLab?: boo
         {showPrintLab && (
           <Link 
             href="/custom-print" 
-            className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${
+            className={`flex flex-col items-center gap-1 p-1.5 rounded-none transition-all ${
               isCustomPrint ? 'text-[var(--accent)] font-bold' : 'text-[var(--text-dim)] hover:text-[var(--text)]'
             }`}
           >
@@ -69,13 +69,13 @@ export default function MobileDock({ showPrintLab = true }: { showPrintLab?: boo
         {/* Wishlist */}
         <Link 
           href="/wishlist" 
-          className={`relative flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${
+          className={`relative flex flex-col items-center gap-1 p-1.5 rounded-none transition-all ${
             isWishlist ? 'text-[var(--accent)] font-bold' : 'text-[var(--text-dim)] hover:text-[var(--text)]'
           }`}
         >
           <Heart className={`w-5 h-5 transition-transform ${isWishlist ? 'scale-110' : ''}`} />
           {wishlistCount > 0 && (
-            <span className="absolute 0 top-0.5 right-2 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] font-black flex items-center justify-center font-mono">
+            <span className="absolute 0 top-0.5 right-2 w-4 h-4 bg-rose-500 text-white rounded-none text-[9px] font-black flex items-center justify-center font-mono">
               {wishlistCount}
             </span>
           )}
@@ -85,12 +85,12 @@ export default function MobileDock({ showPrintLab = true }: { showPrintLab?: boo
         {/* Cart Trigger */}
         <button 
           onClick={() => setCartDrawerOpen(true)}
-          className="relative flex flex-col items-center gap-1 p-1.5 rounded-xl text-[var(--text-dim)] hover:text-[var(--accent)] transition-all cursor-pointer"
+          className="relative flex flex-col items-center gap-1 p-1.5 rounded-none text-[var(--text-dim)] hover:text-[var(--accent)] transition-all cursor-pointer"
           aria-label="Open Cart"
         >
           <ShoppingBag className="w-5 h-5" />
           {cartItemsCount > 0 && (
-            <span className="absolute 0 top-0.5 right-1.5 w-4 h-4 bg-[var(--accent)] text-[var(--bg)] rounded-full text-[9px] font-black flex items-center justify-center font-mono">
+            <span className="absolute 0 top-0.5 right-1.5 w-4 h-4 bg-[var(--accent)] text-[var(--bg)] rounded-none text-[9px] font-black flex items-center justify-center font-mono">
               {cartItemsCount}
             </span>
           )}

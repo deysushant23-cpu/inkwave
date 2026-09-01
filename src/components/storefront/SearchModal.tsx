@@ -93,12 +93,12 @@ export default function SearchModal({
               placeholder="Search products…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-[var(--bg-alt)] border border-[var(--line)] rounded-full pl-10 pr-10 py-3 text-[var(--text)] outline-none focus:border-[var(--accent)] transition-colors font-mono"
+              className="w-full bg-[var(--bg-alt)] border border-[var(--line)] rounded-none pl-10 pr-10 py-3 text-[var(--text)] outline-none focus:border-[var(--accent)] transition-colors font-mono"
             />
             {query && (
               <button
                 onClick={() => setQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full text-[var(--text-dim)] hover:text-[var(--text)]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-none text-[var(--text-dim)] hover:text-[var(--text)]"
                 aria-label="Clear search"
               >
                 <X className="w-4 h-4" />
@@ -119,12 +119,12 @@ export default function SearchModal({
                       key={product.id}
                       href={`/product/${product.slug}`}
                       onClick={onClose}
-                      className="flex items-center gap-4 group p-2 hover:bg-[var(--bg-alt)] rounded-xl transition-colors border border-transparent hover:border-[var(--line)]"
+                      className="flex items-center gap-4 group p-2 hover:bg-[var(--bg-alt)] rounded-none transition-colors border border-transparent hover:border-[var(--line)]"
                     >
                       {thumb ? (
-                        <img src={thumb} alt={product.title} className="w-16 h-16 object-cover rounded-lg bg-[var(--bg-card)]" />
+                        <img src={thumb} alt={product.title} className="w-16 h-16 object-cover rounded-none bg-[var(--bg-card)]" />
                       ) : (
-                        <div className="w-16 h-16 rounded-lg bg-[var(--bg-card)] flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-none bg-[var(--bg-card)] flex items-center justify-center">
                           <Search className="w-4 h-4 opacity-30" />
                         </div>
                       )}
@@ -146,7 +146,7 @@ export default function SearchModal({
           ) : loading ? (
 
             <div className="py-12 flex justify-center">
-              <div className="animate-spin w-8 h-8 rounded-full border-2 border-[var(--accent)] border-t-transparent"></div>
+              <div className="animate-spin w-8 h-8 rounded-none border-2 border-[var(--accent)] border-t-transparent"></div>
             </div>
           ) : results.length > 0 ? (
             <div className="flex flex-col gap-4 mt-6">
@@ -157,9 +157,9 @@ export default function SearchModal({
                     key={product.id}
                     href={`/product/${product.slug}`}
                     onClick={onClose}
-                    className="flex items-center gap-4 group p-2 hover:bg-[var(--bg-alt)] rounded-xl transition-colors border border-transparent hover:border-[var(--line)]"
+                    className="flex items-center gap-4 group p-2 hover:bg-[var(--bg-alt)] rounded-none transition-colors border border-transparent hover:border-[var(--line)]"
                   >
-                    <div className="w-16 h-16 shrink-0 bg-[var(--bg-alt)] rounded-lg overflow-hidden border border-[var(--line)] relative">
+                    <div className="w-16 h-16 shrink-0 bg-[var(--bg-alt)] rounded-none overflow-hidden border border-[var(--line)] relative">
                       {thumb ? (
                         <img
                           src={thumb}
