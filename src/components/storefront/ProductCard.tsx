@@ -9,14 +9,17 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/utils';
 
+import { Heart, ShoppingBag, ArrowRight } from 'lucide-react';
+
 interface ProductCardProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   product: any;
   index: number;
   isBig?: boolean;
+  viewMode?: 'grid' | 'list';
 }
 
-export default function ProductCard({ product, index, isBig = false }: ProductCardProps) {
+export default function ProductCard({ product, index, isBig = false, viewMode = 'grid' }: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem);
   const setCartDrawerOpen = useCartStore((state) => state.setCartDrawerOpen);
   const wishlistItems = useWishlistStore((state) => state.items);
@@ -144,6 +147,118 @@ export default function ProductCard({ product, index, isBig = false }: ProductCa
   const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
   const rawCat = product.categories?.name;
   const categoryLabel = rawCat || (!isUUID(product.category_id || '') ? product.category_id?.replace('cat_', '')?.replace(/-/g, ' ') : '') || 'STREETWEAR';
+
+  // List View Layout
+  if (viewMode === 'list') {
+    return (
+      <div 
+        className="group relative flex flex-row items-center sm:items-stretch gap-3 sm:gap-6 w-full bg-neutral-950/60 hover:bg-neutral-900/80 border border-white/10 hover:border-white/25 p-3 sm:p-5 rounded-2xl transition-all duration-300 shadow-md"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* 3:4 Left Thumbnail */}
+        <Link 
+          href={`/product/${product.slug || product.id}`} 
+          className="relative w-28 sm:w-40 md:w-48 aspect-[3/4] shrink-0 rounded-xl overflow-hidden bg-neutral-900 border border-white/10 group-hover:border-white/25"
+        >
+          {activeBadge && (
+            <span className={`absolute top-2 left-2 z-20 text-[8px] sm:text-[9px] tracking-wider px-2 py-0.5 rounded-full uppercase font-black ${activeBadge.className}`}>
+              {activeBadge.label}
+            </span>
+          )}
+          {primaryImg ? (
+            <Image
+              src={primaryImg}
+              alt={name || 'Product'}
+              fill
+              sizes="(max-width: 640px) 120px, 200px"
+              className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-neutral-600 font-mono text-[10px]">
+              No Image
+            </div>
+          )}
+        </Link>
+
+        {/* Right Info Section */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] sm:text-xs font-mono font-bold text-[var(--accent)] uppercase tracking-wider">
+                {categoryLabel}
+              </span>
+              <button 
+                type="button" 
+                onClick={handleWishToggle} 
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+                  isWished ? 'text-rose-500' : 'text-neutral-400 hover:text-white'
+                }`}
+                aria-label={isWished ? "Remove from wishlist" : "Add to wishlist"}
+              >
+                <Heart className="w-4 h-4" fill={isWished ? "currentColor" : "none"} />
+              </button>
+            </div>
+
+            <Link href={`/product/${product.slug || product.id}`} className="block group/title">
+              <h3 className="text-sm sm:text-lg md:text-xl font-bold text-white group-hover/title:text-neutral-300 transition-colors line-clamp-1 sm:line-clamp-2">
+                {name}
+              </h3>
+            </Link>
+
+            <div className="flex items-center gap-2 font-mono flex-wrap pt-0.5">
+              <span className="text-sm sm:text-base md:text-lg font-bold text-white">
+                {formatPrice(price)}
+              </span>
+              {wasPrice && (
+                <span className="text-xs sm:text-sm text-neutral-400 line-through">
+                  {formatPrice(wasPrice)}
+                </span>
+              )}
+              {discountPercent && discountPercent > 0 && (
+                <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                  {discountPercent}% OFF
+                </span>
+              )}
+            </div>
+
+            {/* Available Sizes preview if present */}
+            {variants.length > 0 && (
+              <div className="hidden sm:flex items-center gap-1.5 pt-1">
+                <span className="text-[10px] font-mono text-neutral-500 uppercase">Sizes:</span>
+                <div className="flex items-center gap-1">
+                  {variants.slice(0, 5).map((v: any) => (
+                    <span key={v.id} className="text-[9px] font-mono px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-neutral-300">
+                      {v.size || 'OS'}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="mt-3 sm:mt-4 flex items-center gap-2.5 sm:gap-3">
+            <button 
+              type="button"
+              onClick={handleQuickAdd} 
+              className="px-4 sm:px-6 py-2 sm:py-2.5 bg-white text-black hover:bg-neutral-200 font-bold font-mono text-xs uppercase tracking-wider rounded-xl flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>Add to Bag</span>
+            </button>
+            <Link 
+              href={`/product/${product.slug || product.id}`} 
+              className="px-4 sm:px-5 py-2 sm:py-2.5 border border-white/20 hover:border-white text-white font-mono text-xs uppercase tracking-wider rounded-xl transition-all inline-flex items-center gap-1.5"
+            >
+              <span>View Piece</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 

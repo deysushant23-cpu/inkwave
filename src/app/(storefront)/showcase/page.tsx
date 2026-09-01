@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
 import ScrollRevealGallery from '@/components/storefront/ScrollRevealGallery';
+import AnimatedProductGrid from '@/components/storefront/AnimatedProductGrid';
+import { enrichProductsWithComparePrices } from '@/lib/catalogPrices';
 import { Metadata } from 'next';
 import React from 'react';
 import Link from 'next/link';
-import { AnimatedItem } from '@/components/ui/animated-section';
 import { Button } from '@/components/ui/button';
 
 
@@ -77,6 +78,8 @@ export default async function ShowcasePage() {
     displayProducts = rawProducts;
   }
 
+  displayProducts = await enrichProductsWithComparePrices(displayProducts);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Scroll Reveal Hero */}
@@ -98,62 +101,9 @@ export default async function ShowcasePage() {
           </p>
         </header>
 
-        {/* Product Grid: Modern 2-column mobile, 4-column desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 max-w-[1600px] mx-auto">
-          {displayProducts.map((product) => {
-             const defaultImage = (product.images && product.images[0]) || product.overlay_mask_url || 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1000&auto=format&fit=crop';
-             const hoverImage = (product.images && product.images[1]) || product.hover_image || defaultImage;
-             const price = product.base_price ?? product.product_variants?.[0]?.price_override ?? product.price ?? 0;
-             const comparePrice = product.compare_at_price ?? product.compareAtPrice;
-             const badgeText = product.customBadge || (product.isNew || product.is_drop ? 'NEW' : product.isLimited ? 'LIMITED STOCK' : product.discount ? product.discount : null);
-             
-             return (
-              <AnimatedItem delay={0.1} key={product.id} className="product-card group relative">
-                <div className="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6 rounded-none border border-white/5">
-                  <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-700 group-hover:opacity-0" style={{backgroundImage: `url('${defaultImage}')`}}></div>
-                  <div className="absolute inset-0 bg-cover bg-center opacity-0 transition-opacity duration-700 group-hover:opacity-100 scale-105 group-hover:scale-100" style={{backgroundImage: `url('${hoverImage}')`}}></div>
-                  
-                  {/* Badges */}
-                  {badgeText && (
-                    <div className="absolute top-4 left-4 flex flex-col gap-2">
-                      <span className={`font-label-caps text-[10px] px-3 py-1 shadow-md font-bold tracking-wider ${
-                        badgeText === 'NEW' 
-                          ? 'bg-white text-black' 
-                          : badgeText === 'LIMITED STOCK' 
-                          ? 'bg-red-600 text-white' 
-                          : 'bg-[var(--accent)] text-[var(--bg)]'
-                      }`}>
-                        {badgeText}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {/* Quick View */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <Link href={`/product/${product.slug}`}>
-                      <Button variant="secondary" className="pointer-events-auto opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 font-label-caps rounded-none px-8 bg-black/60 hover:bg-black backdrop-blur-md text-white border border-white/10">
-                          QUICK VIEW
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col items-center text-center px-4">
-                  <h3 className="font-label-caps text-body-md text-on-surface mb-2 tracking-wider uppercase font-semibold">
-                    <Link href={`/product/${product.slug}`} className="hover:text-primary transition-colors line-clamp-2">
-                      {product.title || product.name}
-                    </Link>
-                  </h3>
-                  <div className="flex items-center gap-3">
-                    {comparePrice && (
-                      <span className="text-on-surface-variant line-through text-body-sm font-mono">₹{Number(comparePrice).toLocaleString('en-IN')}</span>
-                    )}
-                    <span className="text-on-surface font-mono font-bold">₹{Number(price).toLocaleString('en-IN')}</span>
-                  </div>
-                </div>
-              </AnimatedItem>
-             );
-          })}
+        {/* Product Grid with Layout Switcher & Sort By Controls */}
+        <div className="max-w-[1600px] mx-auto">
+          <AnimatedProductGrid products={displayProducts} />
         </div>
         
         {/* Bottom CTA Button */}

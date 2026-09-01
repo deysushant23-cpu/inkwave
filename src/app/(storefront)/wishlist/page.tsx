@@ -1,6 +1,6 @@
 import { getWishlistAction } from '@/app/actions/wishlist';
 import { createAdminClient } from '@/lib/supabase/server';
-import ProductCard from '@/components/storefront/ProductCard';
+import AnimatedProductGrid from '@/components/storefront/AnimatedProductGrid';
 import Link from 'next/link';
 import { HeartCrack } from 'lucide-react';
 import WishlistClientSync from './WishlistClientSync';
@@ -52,11 +52,7 @@ export default async function WishlistPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6 items-start">
-          {products.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
-          ))}
-        </div>
+        <AnimatedProductGrid products={products} />
       )}
     </div>
   );
