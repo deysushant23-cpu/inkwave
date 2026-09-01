@@ -105,7 +105,6 @@ export default async function Home() {
           background: rgba(0, 0, 0, 0.8) !important;
           backdrop-filter: blur(12px) !important;
           border: 1px solid #222222 !important;
-          border-radius: 0px !important;
         }
 
         .product-card-wrap {
@@ -116,7 +115,6 @@ export default async function Home() {
         .btn-primary {
           background: #ffffff !important;
           color: #000000 !important;
-          border-radius: 0px !important;
         }
         
         .btn-primary:hover {
@@ -127,7 +125,6 @@ export default async function Home() {
           background: #0c0c0c !important;
           border-color: #222222 !important;
           color: #ffffff !important;
-          border-radius: 0px !important;
         }
 
         /* Clean Brutalist Immersive Action */
@@ -135,7 +132,6 @@ export default async function Home() {
           background: #ffffff !important;
           color: #000000 !important;
           border: 1px solid #ffffff !important;
-          border-radius: 0px !important;
           font-family: var(--font-mono) !important;
           font-weight: 700 !important;
           text-transform: uppercase !important;

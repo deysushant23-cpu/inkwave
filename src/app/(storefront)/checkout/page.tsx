@@ -364,7 +364,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Collapsible Order Summary for Mobile View */}
-          <div className="block lg:hidden border border-[var(--line)] bg-[var(--bg-card)]/80 backdrop-blur-md rounded-none mb-6 overflow-hidden">
+          <div className="block lg:hidden border border-[var(--line)] bg-[var(--bg-card)]/80 backdrop-blur-md rounded-2xl mb-6 overflow-hidden">
             <button 
               type="button"
               onClick={() => setSummaryExpanded(!summaryExpanded)}
@@ -383,7 +383,7 @@ export default function CheckoutPage() {
                 <div className="divide-y divide-[var(--line)]/50 max-h-60 overflow-y-auto pr-1">
                   {items.map((item) => (
                     <div key={item.id} className="py-3 first:pt-0 last:pb-0 flex items-center gap-3">
-                      <div className="w-12 h-14 rounded-none bg-[var(--bg)] border border-[var(--line)] overflow-hidden shrink-0">
+                      <div className="w-12 h-14 rounded-lg bg-[var(--bg)] border border-[var(--line)] overflow-hidden shrink-0">
                         <img src={item.image_url || 'https://lh3.googleusercontent.com/aida-public/AB6AXuDnYTdoMDJP7N9ElHyVkd01fqa1Ih0IrDsBQEie4IcxABAxvP30z7Tra3_I0qX6E_nICHdevsFI9s0WL2kTovn9oU98mIf4XvZOHMEDQxNSXYa_AsHsP8_4-8PQ0a7ofbGUlmgG3Pduq_2dreLpHjy19V3b85Iyl6LmZIvBCn5YIpf4lG484UQFSTgyyFU76oFvnmqMe6hViOtrdYCxVZcFJutw9KqlPKJFhaRTPwSkGT44UqbQI9sg'} alt={item.title} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -420,18 +420,18 @@ export default function CheckoutPage() {
             <div className="flex-1 space-y-6">
               
               {!isLoaded ? (
-                <div className="flex items-center justify-center p-12 text-[var(--text-dim)] font-mono text-xs gap-2 border border-white/5 rounded-none bg-black/40 backdrop-blur-md">
+                <div className="flex items-center justify-center p-12 text-[var(--text-dim)] font-mono text-xs gap-2 border border-white/5 rounded-2xl bg-black/40 backdrop-blur-md">
                   <Loader2 className="w-4 h-4 animate-spin text-[var(--accent)]" /> Loading your profile...
                 </div>
               ) : !isSignedIn ? (
-                <div className="p-10 border border-white/5 rounded-none text-center space-y-4 bg-black/40 backdrop-blur-md">
+                <div className="p-10 border border-white/5 rounded-2xl text-center space-y-4 bg-black/40 backdrop-blur-md">
                   <Lock className="w-8 h-8 mx-auto text-[var(--accent)]" />
                   <h3 className="font-display text-lg uppercase text-[var(--text)]">Authentication Required</h3>
                   <p className="text-xs text-[var(--text-dim)] max-w-md mx-auto font-mono">
                     Please log in with your account to set your verified delivery location and place your order.
                   </p>
                   <Button 
-                    className="font-mono font-bold text-xs uppercase bg-[var(--text)] text-[var(--bg)] hover:bg-[var(--accent)] hover:text-black px-6 py-2.5 rounded-none transition-all"
+                    className="font-mono font-bold text-xs uppercase bg-[var(--text)] text-[var(--bg)] hover:bg-[var(--accent)] hover:text-black px-6 py-2.5 rounded-xl transition-all"
                     onClick={() => setAuthModalOpen(true)}
                   >
                     LOGIN OR REGISTER
@@ -440,13 +440,13 @@ export default function CheckoutPage() {
               ) : (
                 <div className="space-y-6">
                   {/* Visual Checkout Progress Steps Tracker */}
-                  <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 border border-[var(--line)] bg-[var(--bg-card)]/30 p-3 sm:p-4 rounded-none font-mono text-[9px] sm:text-[10px] sm:text-xs uppercase font-bold tracking-wider">
+                  <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 border border-[var(--line)] bg-[var(--bg-card)]/30 p-3 sm:p-4 rounded-2xl font-mono text-[9px] sm:text-[10px] sm:text-xs uppercase font-bold tracking-wider">
                     <div className={`flex items-center gap-1.5 sm:gap-2 justify-center py-2 border-b-2 transition-all ${
                       (!nameInput || !phoneInput) 
                         ? 'text-[var(--accent)] border-[var(--accent)]' 
                         : 'text-emerald-400 border-emerald-500/50'
                     }`}>
-                      <span className="shrink-0 flex items-center justify-center w-4 h-4 rounded-none border text-[8px] font-bold">1</span>
+                      <span className="shrink-0 flex items-center justify-center w-5 h-5 rounded-full border text-[9px] font-bold">1</span>
                       <span>Customer</span>
                     </div>
                     <div className={`flex items-center gap-1.5 sm:gap-2 justify-center py-2 border-b-2 transition-all ${
@@ -456,7 +456,7 @@ export default function CheckoutPage() {
                           ? 'text-emerald-400 border-emerald-500/50'
                           : 'text-[var(--text-dim)] border-transparent'
                     }`}>
-                      <span className="shrink-0 flex items-center justify-center w-4 h-4 rounded-none border text-[8px] font-bold">2</span>
+                      <span className="shrink-0 flex items-center justify-center w-5 h-5 rounded-full border text-[9px] font-bold">2</span>
                       <span>Address</span>
                     </div>
                     <div className={`flex items-center gap-1.5 sm:gap-2 justify-center py-2 border-b-2 transition-all ${
@@ -464,15 +464,15 @@ export default function CheckoutPage() {
                         ? 'text-[var(--accent)] border-[var(--accent)]'
                         : 'text-[var(--text-dim)] border-transparent'
                     }`}>
-                      <span className="shrink-0 flex items-center justify-center w-4 h-4 rounded-none border text-[8px] font-bold">3</span>
+                      <span className="shrink-0 flex items-center justify-center w-5 h-5 rounded-full border text-[9px] font-bold">3</span>
                       <span>Payment</span>
                     </div>
                   </div>
 
                   {/* Section 1: Customer Contact Info */}
-                  <div className="border border-[var(--line)] bg-[var(--bg-card)]/50 backdrop-blur-md rounded-none p-6 sm:p-8 space-y-5">
+                  <div className="border border-[var(--line)] bg-[var(--bg-card)]/50 backdrop-blur-md rounded-2xl p-6 sm:p-8 space-y-5">
                     <div className="flex items-center gap-3 border-b border-[var(--line)]/50 pb-4">
-                      <span className="w-6 h-6 rounded-none bg-[var(--accent)]/10 border border-[var(--accent)]/30 text-[var(--accent)] flex items-center justify-center font-mono text-xs font-bold">
+                      <span className="w-6 h-6 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/30 text-[var(--accent)] flex items-center justify-center font-mono text-xs font-bold">
                         01
                       </span>
                       <h2 className="font-display text-base font-bold uppercase tracking-wider text-white">
@@ -494,7 +494,7 @@ export default function CheckoutPage() {
                             value={nameInput}
                             onChange={(e) => setNameInput(e.target.value)}
                             placeholder="John Doe"
-                            className="w-full pl-10 pr-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-none text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all"
+                            className="w-full pl-10 pr-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-xl text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all"
                             required
                           />
                         </div>
@@ -516,7 +516,7 @@ export default function CheckoutPage() {
                             value={phoneInput}
                             onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, ''))}
                             placeholder="9876543210"
-                            className="w-full pl-12 pr-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-none text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all"
+                            className="w-full pl-12 pr-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-xl text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all"
                             required
                           />
                         </div>
@@ -525,10 +525,10 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* Section 2: Shipping Address */}
-                  <div className="border border-[var(--line)] bg-[var(--bg-card)]/50 backdrop-blur-md rounded-none p-6 sm:p-8 space-y-5">
+                  <div className="border border-[var(--line)] bg-[var(--bg-card)]/50 backdrop-blur-md rounded-2xl p-6 sm:p-8 space-y-5">
                     <div className="flex items-center justify-between border-b border-[var(--line)]/50 pb-4">
                       <div className="flex items-center gap-3">
-                        <span className="w-6 h-6 rounded-none bg-[var(--accent)]/10 border border-[var(--accent)]/30 text-[var(--accent)] flex items-center justify-center font-mono text-xs font-bold">
+                        <span className="w-6 h-6 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/30 text-[var(--accent)] flex items-center justify-center font-mono text-xs font-bold">
                           02
                         </span>
                         <h2 className="font-display text-base font-bold uppercase tracking-wider text-white">
@@ -568,7 +568,7 @@ export default function CheckoutPage() {
                             value={pincodeInput}
                             onChange={(e) => handlePincodeChange(e.target.value)}
                             placeholder="395007"
-                            className="w-full pl-10 pr-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-none text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all"
+                            className="w-full pl-10 pr-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-xl text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all"
                             required
                           />
                           {pincodeLoading && (
@@ -588,7 +588,7 @@ export default function CheckoutPage() {
                           value={cityInput}
                           onChange={(e) => setCityInput(e.target.value)}
                           placeholder="Surat"
-                          className="w-full px-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-none text-xs font-mono text-[var(--text)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all"
+                          className="w-full px-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-xl text-xs font-mono text-[var(--text)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all"
                           required
                         />
                       </div>
@@ -604,7 +604,7 @@ export default function CheckoutPage() {
                           value={stateInput}
                           onChange={(e) => setStateInput(e.target.value)}
                           placeholder="Gujarat"
-                          className="w-full px-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-none text-xs font-mono text-[var(--text)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all"
+                          className="w-full px-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-xl text-xs font-mono text-[var(--text)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all"
                           required
                         />
                       </div>
@@ -621,7 +621,7 @@ export default function CheckoutPage() {
                         value={addressLine1}
                         onChange={(e) => setAddressLine1(e.target.value)}
                         placeholder="e.g. Flat 402, Ink Horizon Towers, Umra"
-                        className="w-full bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-none px-4 py-3.5 text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all resize-none"
+                        className="w-full bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-xl px-4 py-3.5 text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all resize-none"
                         required
                       />
                     </div>
@@ -635,15 +635,15 @@ export default function CheckoutPage() {
                         value={landmarkInput}
                         onChange={(e) => setLandmarkInput(e.target.value)}
                         placeholder="e.g. Near Umra Police Station"
-                        className="w-full px-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-none text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all"
+                        className="w-full px-4 py-3.5 bg-black/50 border border-[var(--line)] hover:border-white/10 rounded-xl text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/30 transition-all"
                       />
                     </div>
                   </div>
 
                   {/* Section 3: Payment Method */}
-                  <div className="border border-[var(--line)] bg-[var(--bg-card)]/50 backdrop-blur-md rounded-none p-6 sm:p-8 space-y-5">
+                  <div className="border border-[var(--line)] bg-[var(--bg-card)]/50 backdrop-blur-md rounded-2xl p-6 sm:p-8 space-y-5">
                     <div className="flex items-center gap-3 border-b border-[var(--line)]/50 pb-4">
-                      <span className="w-6 h-6 rounded-none bg-[var(--accent)]/10 border border-[var(--accent)]/30 text-[var(--accent)] flex items-center justify-center font-mono text-xs font-bold">
+                      <span className="w-6 h-6 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/30 text-[var(--accent)] flex items-center justify-center font-mono text-xs font-bold">
                         03
                       </span>
                       <h2 className="font-display text-base font-bold uppercase tracking-wider text-white">
@@ -655,14 +655,14 @@ export default function CheckoutPage() {
                       {/* Razorpay Online */}
                       <div 
                         onClick={() => setPaymentMethod('razorpay')}
-                        className={`p-5 border rounded-none cursor-pointer transition-all duration-300 flex items-center justify-between group relative overflow-hidden ${
+                        className={`p-5 border rounded-2xl cursor-pointer transition-all duration-300 flex items-center justify-between group relative overflow-hidden ${
                           paymentMethod === 'razorpay' 
                             ? 'border-[var(--accent)] bg-[var(--accent)]/10 shadow-[0_0_20px_rgba(255,30,86,0.1)]' 
                             : 'border-white/5 bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.04]'
                         }`}
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-none bg-sky-500/10 flex items-center justify-center text-sky-400">
+                          <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-400">
                             <CreditCard className="w-5 h-5" />
                           </div>
                           <div>
@@ -678,14 +678,14 @@ export default function CheckoutPage() {
                       {/* COD */}
                       <div 
                         onClick={() => setPaymentMethod('cod')}
-                        className={`p-5 border rounded-none cursor-pointer transition-all duration-300 flex items-center justify-between group relative overflow-hidden ${
+                        className={`p-5 border rounded-2xl cursor-pointer transition-all duration-300 flex items-center justify-between group relative overflow-hidden ${
                           paymentMethod === 'cod' 
                             ? 'border-[var(--accent)] bg-[var(--accent)]/10 shadow-[0_0_20px_rgba(255,30,86,0.1)]' 
                             : 'border-white/5 bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.04]'
                         }`}
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-none bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
                             <Banknote className="w-5 h-5" />
                           </div>
                           <div>
@@ -704,7 +704,7 @@ export default function CheckoutPage() {
                   <Button 
                     onClick={handlePlaceOrder}
                     disabled={isPlacingOrder}
-                    className="w-full py-4 rounded-none bg-[var(--accent)] hover:bg-white text-black font-mono font-black text-xs uppercase tracking-widest transition-all duration-300 cursor-pointer shadow-lg hover:scale-[1.005] active:scale-[0.995] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-4 rounded-xl bg-[var(--accent)] hover:bg-white text-black font-mono font-black text-xs uppercase tracking-widest transition-all duration-300 cursor-pointer shadow-lg hover:scale-[1.005] active:scale-[0.995] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isPlacingOrder ? (
                       <span className="flex items-center gap-2 justify-center">
@@ -720,7 +720,7 @@ export default function CheckoutPage() {
 
             {/* Right Side: Summary Card */}
             <div className="w-full lg:w-[380px] shrink-0 hidden lg:block">
-              <div className="border border-[var(--line)] bg-[var(--bg-card)]/50 backdrop-blur-md p-6 sm:p-8 rounded-none sticky top-28 space-y-6">
+              <div className="border border-[var(--line)] bg-[var(--bg-card)]/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl sticky top-28 space-y-6">
                 <h3 className="font-display text-xl font-bold uppercase tracking-tight text-[var(--text)] border-b border-[var(--line)]/50 pb-4">
                   Order Summary ({items.length})
                 </h3>
@@ -728,7 +728,7 @@ export default function CheckoutPage() {
                 <div className="divide-y divide-[var(--line)]/50 max-h-72 overflow-y-auto pr-1">
                   {items.map((item) => (
                     <div key={item.id} className="py-3.5 first:pt-0 last:pb-0 flex items-center gap-3">
-                      <div className="w-14 h-16 rounded-none bg-[var(--bg)] border border-[var(--line)] overflow-hidden shrink-0">
+                      <div className="w-14 h-16 rounded-xl bg-[var(--bg)] border border-[var(--line)] overflow-hidden shrink-0">
                         <img src={item.image_url || 'https://lh3.googleusercontent.com/aida-public/AB6AXuDnYTdoMDJP7N9ElHyVkd01fqa1Ih0IrDsBQEie4IcxABAxvP30z7Tra3_I0qX6E_nICHdevsFI9s0WL2kTovn9oU98mIf4XvZOHMEDQxNSXYa_AsHsP8_4-8PQ0a7ofbGUlmgG3Pduq_2dreLpHjy19V3b85Iyl6LmZIvBCn5YIpf4lG484UQFSTgyyFU76oFvnmqMe6hViOtrdYCxVZcFJutw9KqlPKJFhaRTPwSkGT44UqbQI9sg'} alt={item.title} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -761,7 +761,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-none bg-black/40 border border-[var(--line)] flex items-center gap-2.5 text-[10px] font-mono text-[var(--text-dim)] leading-relaxed">
+                <div className="p-3.5 rounded-xl bg-black/40 border border-[var(--line)] flex items-center gap-2.5 text-[10px] font-mono text-[var(--text-dim)] leading-relaxed">
                   <Sparkles className="w-4 h-4 text-[var(--accent)] shrink-0 animate-pulse" />
                   <span>Free shipping above ₹2000 prepaid. 7-Day doorstep size exchange guarantee.</span>
                 </div>

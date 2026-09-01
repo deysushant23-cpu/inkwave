@@ -73,7 +73,7 @@ export default function StorefrontBot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-24 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[400px] h-[550px] max-h-[80vh] z-[99] rounded-none flex flex-col overflow-hidden shadow-2xl border border-[var(--line)]"
+            className="fixed bottom-24 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[400px] h-[550px] max-h-[80vh] z-[99] rounded-3xl flex flex-col overflow-hidden shadow-2xl border border-[var(--line)]"
             style={{ 
               background: 'var(--bg-card)',
               backdropFilter: 'blur(20px)',
@@ -83,20 +83,20 @@ export default function StorefrontBot() {
             {/* Header */}
             <div className="p-4 border-b border-[var(--line)] flex items-center justify-between" style={{ background: 'var(--bg)' }}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-none flex items-center justify-center bg-[var(--accent)] text-[var(--bg)] font-bold">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--accent)] text-[var(--bg)] font-bold">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm font-mono uppercase tracking-wider" style={{ color: 'var(--text)' }}>Inkwave Stylist</h3>
                   <p className="text-xs flex items-center gap-1 font-mono text-[10px]" style={{ color: 'var(--text-dim)' }}>
-                    <span className="w-2 h-2 rounded-none bg-green-500 inline-block animate-pulse"></span>
+                    <span className="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse"></span>
                     Online
                   </p>
                 </div>
               </div>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="p-2 rounded-none hover:bg-[var(--bg-alt)] transition-colors text-[var(--text-dim)] hover:text-[var(--text)]"
+                className="p-2 rounded-full hover:bg-[var(--bg-alt)] transition-colors text-[var(--text-dim)] hover:text-[var(--text)]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -111,17 +111,17 @@ export default function StorefrontBot() {
                   animate={{ opacity: 1, y: 0 }}
                   className={`flex gap-3 max-w-[85%] ${(msg as any).role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
                 >
-                  <div className={`w-8 h-8 rounded-none flex items-center justify-center shrink-0 shadow-md ${
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-md ${
                     (msg as any).role === 'user' 
                       ? 'bg-[var(--accent)] text-white' 
                       : 'bg-white text-[var(--accent)] border border-[var(--accent)]/20'
                   }`}>
                     {(msg as any).role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                   </div>
-                  <div className={`p-4 rounded-none text-sm ${
+                  <div className={`p-4 rounded-2xl text-sm ${
                     (msg as any).role === 'user'
-                      ? 'bg-[var(--bg-alt)] text-[var(--text)]'
-                      : 'bg-[var(--bg)] border border-[var(--line)] text-[var(--text)]'
+                      ? 'bg-[var(--bg-alt)] text-[var(--text)] rounded-tr-sm'
+                      : 'bg-[var(--bg)] border border-[var(--line)] text-[var(--text)] rounded-tl-sm'
                   }`}>
                     <ReactMarkdown 
                       components={{
@@ -141,13 +141,13 @@ export default function StorefrontBot() {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex gap-3 max-w-[85%]"
                 >
-                  <div className="w-8 h-8 rounded-none flex items-center justify-center shrink-0 bg-[var(--accent)] text-[var(--bg)]">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-[var(--accent)] text-[var(--bg)]">
                     <Bot className="w-4 h-4" />
                   </div>
-                  <div className="p-4 rounded-none bg-[var(--bg)] border border-[var(--line)] flex items-center gap-1">
-                    <motion.div className="w-1.5 h-1.5 rounded-none bg-[var(--text-dim)]" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} />
-                    <motion.div className="w-1.5 h-1.5 rounded-none bg-[var(--text-dim)]" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} />
-                    <motion.div className="w-1.5 h-1.5 rounded-none bg-[var(--text-dim)]" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} />
+                  <div className="p-4 rounded-2xl rounded-tl-sm bg-[var(--bg)] border border-[var(--line)] flex items-center gap-1">
+                    <motion.div className="w-1.5 h-1.5 rounded-full bg-[var(--text-dim)]" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} />
+                    <motion.div className="w-1.5 h-1.5 rounded-full bg-[var(--text-dim)]" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} />
+                    <motion.div className="w-1.5 h-1.5 rounded-full bg-[var(--text-dim)]" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} />
                   </div>
                 </motion.div>
               )}
@@ -162,12 +162,12 @@ export default function StorefrontBot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask me anything..."
-                  className="flex-1 bg-[var(--bg-alt)] border border-[var(--line)] rounded-none pl-4 pr-12 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition-colors placeholder-[var(--text-dim)] font-mono"
+                  className="flex-1 bg-[var(--bg-alt)] border border-[var(--line)] rounded-full pl-4 pr-12 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition-colors placeholder-[var(--text-dim)] font-mono"
                 />
                 <button 
                   type="submit"
                   disabled={!input.trim() || isTyping}
-                  className="absolute right-1 top-1 bottom-1 aspect-square rounded-none flex items-center justify-center bg-[var(--accent)] text-[var(--bg)] disabled:opacity-50 transition-opacity"
+                  className="absolute right-1 top-1 bottom-1 aspect-square rounded-full flex items-center justify-center bg-[var(--accent)] text-[var(--bg)] disabled:opacity-50 transition-opacity"
                 >
                   <Send className="w-4 h-4 -ml-0.5" />
                 </button>
@@ -182,7 +182,7 @@ export default function StorefrontBot() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-4 sm:right-6 w-14 h-14 rounded-none shadow-2xl flex items-center justify-center z-[98] transition-colors border border-[var(--line)]"
+        className="fixed bottom-6 right-4 sm:right-6 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center z-[98] transition-colors border border-[var(--line)]"
         style={{ background: 'var(--accent)', color: 'var(--bg)' }}
         aria-label="Toggle AI Assistant"
       >

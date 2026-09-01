@@ -122,14 +122,14 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
       {/* ════════════════════════════════════════════════════════════════
           1. SEARCH HERO & INPUT BOX
       ════════════════════════════════════════════════════════════════ */}
-      <div className="relative overflow-hidden rounded-none p-6 sm:p-10 border border-[var(--line)] bg-[var(--bg-card)]/70 backdrop-blur-xl shadow-2xl mb-10">
+      <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 border border-[var(--line)] bg-[var(--bg-card)]/70 backdrop-blur-xl shadow-2xl mb-10">
         
         {/* Glow ambient background */}
-        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-none bg-[var(--accent)]/15 blur-[80px] pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-none bg-blue-500/10 blur-[80px] pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[var(--accent)]/15 blur-[80px] pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-blue-500/10 blur-[80px] pointer-events-none" />
 
         <div className="relative z-10 text-center max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none border border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)] font-mono text-[11px] uppercase tracking-widest mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)] font-mono text-[11px] uppercase tracking-widest mb-4">
             <Sparkles className="w-3.5 h-3.5 animate-pulse" /> Live Order Tracking
           </div>
           
@@ -150,14 +150,14 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
                 placeholder="Order ID (e.g. 5C45B93E or UUID)"
-                className="w-full pl-9 pr-4 py-4 rounded-none bg-[var(--bg)] border border-[var(--line)] text-[var(--text)] placeholder-[var(--text-dim)] font-mono text-sm focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/20 transition-all uppercase tracking-wider"
+                className="w-full pl-9 pr-4 py-4 rounded-xl bg-[var(--bg)] border border-[var(--line)] text-[var(--text)] placeholder-[var(--text-dim)] font-mono text-sm focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/20 transition-all uppercase tracking-wider"
               />
             </div>
             
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full sm:w-auto shrink-0 px-8 py-4 rounded-none bg-[var(--text)] text-[var(--bg)] font-bold text-xs uppercase tracking-widest hover:bg-[var(--accent)] hover:text-black transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-lg font-mono"
+              className="w-full sm:w-auto shrink-0 px-8 py-4 rounded-xl bg-[var(--text)] text-[var(--bg)] font-bold text-xs uppercase tracking-widest hover:bg-[var(--accent)] hover:text-black transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-lg font-mono"
             >
               {loading ? (
                 <>
@@ -185,7 +185,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
                     setInputVal(uo.id);
                     performSearch(uo.id);
                   }}
-                  className="px-3 py-1 rounded-none bg-[var(--bg)] border border-[var(--line)] text-[11px] font-mono font-semibold text-[var(--text)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all cursor-pointer"
+                  className="px-3 py-1 rounded-full bg-[var(--bg)] border border-[var(--line)] text-[11px] font-mono font-semibold text-[var(--text)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all cursor-pointer"
                 >
                   #{uo.shortId}
                 </button>
@@ -200,7 +200,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
           2. ERROR / NOT FOUND MESSAGE
       ════════════════════════════════════════════════════════════════ */}
       {errorMessage && (
-        <div className="p-6 rounded-none border border-rose-500/30 bg-rose-500/10 text-rose-300 flex items-start gap-4 mb-8">
+        <div className="p-6 rounded-2xl border border-rose-500/30 bg-rose-500/10 text-rose-300 flex items-start gap-4 mb-8">
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
           <div>
             <h3 className="font-bold text-sm uppercase tracking-wide">Order Lookup Notice</h3>
@@ -216,7 +216,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           
           {/* Order Header Summary Bar */}
-          <div className="p-6 sm:p-8 rounded-none border border-[var(--line)] bg-[var(--bg-card)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+          <div className="p-6 sm:p-8 rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <span className="font-display text-2xl font-black text-[var(--text)] uppercase tracking-wider">
@@ -243,13 +243,13 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => window.print()}
-                className="px-4 py-2 rounded-none bg-[var(--bg)] border border-[var(--line)] text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[var(--bg)] border border-[var(--line)] text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all flex items-center gap-2 cursor-pointer"
               >
                 <Printer className="w-3.5 h-3.5" /> Print Receipt
               </button>
               <Link 
                 href="/showcase"
-                className="px-4 py-2 rounded-none bg-[var(--accent)] text-black text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity flex items-center gap-1.5 font-mono"
+                className="px-4 py-2 rounded-xl bg-[var(--accent)] text-black text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity flex items-center gap-1.5 font-mono"
               >
                 <ShoppingBag className="w-3.5 h-3.5" /> More Drops
               </Link>
@@ -260,7 +260,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
               4. LIVE PROGRESS STEPPER
           ════════════════════════════════════════════════════════════════ */}
           {currentStep >= 0 && (
-            <div className="p-6 sm:p-10 rounded-none border border-[var(--line)] bg-[var(--bg-card)] shadow-xl relative overflow-hidden">
+            <div className="p-6 sm:p-10 rounded-3xl border border-[var(--line)] bg-[var(--bg-card)] shadow-xl relative overflow-hidden">
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h3 className="font-display text-xl font-bold uppercase text-[var(--text)]">
@@ -270,7 +270,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
                     Estimated Delivery: <strong className="text-[var(--text)]">{dates?.deliveryDateFull}</strong>
                   </p>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono bg-emerald-500/10 px-3 py-1 rounded-none border border-emerald-500/20">
+                <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
                   <ShieldCheck className="w-4 h-4" /> Inkwave Verified Courier
                 </div>
               </div>
@@ -287,7 +287,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
 
                 {/* Step 1: Placed */}
                 <div className="relative z-10 flex md:flex-col items-center md:items-center gap-4 md:gap-3 text-left md:text-center">
-                  <div className={`w-12 h-12 rounded-none flex items-center justify-center border-2 transition-all ${
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
                     currentStep >= 0 
                       ? 'bg-[var(--accent)] border-[var(--accent)] text-black shadow-lg shadow-[var(--accent)]/30 font-bold' 
                       : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-dim)]'
@@ -302,7 +302,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
 
                 {/* Step 2: Inking / Studio Prep */}
                 <div className="relative z-10 flex md:flex-col items-center md:items-center gap-4 md:gap-3 text-left md:text-center">
-                  <div className={`w-12 h-12 rounded-none flex items-center justify-center border-2 transition-all ${
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
                     currentStep >= 1 
                       ? 'bg-[var(--accent)] border-[var(--accent)] text-black shadow-lg shadow-[var(--accent)]/30 font-bold' 
                       : currentStep === 0 
@@ -319,7 +319,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
 
                 {/* Step 3: In Transit */}
                 <div className="relative z-10 flex md:flex-col items-center md:items-center gap-4 md:gap-3 text-left md:text-center">
-                  <div className={`w-12 h-12 rounded-none flex items-center justify-center border-2 transition-all ${
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
                     currentStep >= 2 
                       ? 'bg-[var(--accent)] border-[var(--accent)] text-black shadow-lg shadow-[var(--accent)]/30 font-bold' 
                       : currentStep === 1 
@@ -340,7 +340,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
 
                 {/* Step 4: Delivered */}
                 <div className="relative z-10 flex md:flex-col items-center md:items-center gap-4 md:gap-3 text-left md:text-center">
-                  <div className={`w-12 h-12 rounded-none flex items-center justify-center border-2 transition-all ${
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
                     currentStep >= 4 
                       ? 'bg-emerald-500 border-emerald-500 text-black shadow-lg shadow-emerald-500/30 font-bold' 
                       : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-dim)]'
@@ -359,7 +359,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
 
           {/* Cancelled / Return Banner */}
           {currentStep < 0 && (
-            <div className="p-6 rounded-none border border-rose-500/30 bg-rose-500/10 text-rose-300">
+            <div className="p-6 rounded-2xl border border-rose-500/30 bg-rose-500/10 text-rose-300">
               <h3 className="font-display text-xl font-bold uppercase">
                 Order Status: {orderResult.order_status}
               </h3>
@@ -372,7 +372,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
           {/* ════════════════════════════════════════════════════════════════
               5. ORDERED ITEMS LIST
           ════════════════════════════════════════════════════════════════ */}
-          <div className="p-6 sm:p-8 rounded-none border border-[var(--line)] bg-[var(--bg-card)] shadow-xl">
+          <div className="p-6 sm:p-8 rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-xl">
             <h3 className="font-display text-xl font-bold uppercase text-[var(--text)] mb-6">
               Items in this Package ({orderResult.items.length})
             </h3>
@@ -380,7 +380,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
             <div className="divide-y divide-[var(--line)]">
               {orderResult.items.map((item) => (
                 <div key={item.id} className="py-4 first:pt-0 last:pb-0 flex items-center gap-4">
-                  <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-none bg-[var(--bg)] border border-[var(--line)] overflow-hidden shrink-0">
+                  <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-xl bg-[var(--bg)] border border-[var(--line)] overflow-hidden shrink-0">
                     <img 
                       src={item.image} 
                       alt={item.title} 
@@ -393,11 +393,11 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
                       {item.title}
                     </h4>
                     <div className="flex flex-wrap items-center gap-2 mt-1 font-mono text-xs text-[var(--text-dim)]">
-                      <span className="px-2 py-0.5 rounded-none bg-[var(--bg)] border border-[var(--line)]">
+                      <span className="px-2 py-0.5 rounded-full bg-[var(--bg)] border border-[var(--line)]">
                         Size: {item.size}
                       </span>
                       {item.color && (
-                        <span className="px-2 py-0.5 rounded-none bg-[var(--bg)] border border-[var(--line)]">
+                        <span className="px-2 py-0.5 rounded-full bg-[var(--bg)] border border-[var(--line)]">
                           Color: {item.color}
                         </span>
                       )}
@@ -419,7 +419,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Delivery Destination */}
-            <div className="p-6 sm:p-8 rounded-none border border-[var(--line)] bg-[var(--bg-card)] shadow-xl flex flex-col justify-between">
+            <div className="p-6 sm:p-8 rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-xl flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 text-[var(--accent)] font-mono text-xs uppercase tracking-widest mb-3">
                   <MapPin className="w-4 h-4" /> Shipping Destination
@@ -437,7 +437,7 @@ export default function OrderTracker({ initialIdentifier = '' }: { initialIdenti
             </div>
 
             {/* Payment & Invoice Summary */}
-            <div className="p-6 sm:p-8 rounded-none border border-[var(--line)] bg-[var(--bg-card)] shadow-xl flex flex-col justify-between">
+            <div className="p-6 sm:p-8 rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-xl flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 text-[var(--accent)] font-mono text-xs uppercase tracking-widest mb-3">
                   <Receipt className="w-4 h-4" /> Payment Summary
