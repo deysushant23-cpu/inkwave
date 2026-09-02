@@ -2,9 +2,19 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { X, Search, ArrowRight, Mic, MicOff, Sparkles } from 'lucide-react';
+import { X, Search, ArrowRight, Mic, MicOff, Sparkles, Volume2, Info } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+
+const TRENDING_VOICE_TAGS = [
+  'Oversized T-Shirt',
+  'Black Hoodie',
+  'Acid Wash',
+  'Denim Jeans',
+  'Graphic Tee',
+  'Cargo Pants',
+  'Under ₹999',
+];
 
 export default function SearchModal({
   isOpen,
@@ -18,73 +28,85 @@ export default function SearchModal({
   const [suggested, setSuggested] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [speechSupported, setSpeechSupported] = useState(false);
+  const [voiceNotice, setVoiceNotice] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
-  const supabase = createClient();
 
-  // Initialize Speech Recognition
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        setSpeechSupported(true);
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
+  // Initialize Speech Recognition Engine
+  const startSpeechRecognition = () => {
+    if (typeof window === 'undefined') return;
 
-        recognition.onstart = () => {
-          setIsListening(true);
-        };
-
-        recognition.onresult = (event: any) => {
-          const transcript = Array.from(event.results)
-            .map((result: any) => result[0].transcript)
-            .join('');
-          setQuery(transcript);
-        };
-
-        recognition.onerror = (event: any) => {
-          console.error('Speech recognition error:', event.error);
-          setIsListening(false);
-          if (event.error === 'not-allowed') {
-            toast.error('Microphone permission denied. Please allow microphone access in your browser.');
-          } else if (event.error !== 'no-speech') {
-            toast.error(`Voice search error: ${event.error}`);
-          }
-        };
-
-        recognition.onend = () => {
-          setIsListening(false);
-        };
-
-        recognitionRef.current = recognition;
-      }
-    }
-  }, []);
-
-  const toggleListening = () => {
-    if (!recognitionRef.current) {
-      toast.error('Voice search is not supported by your browser. Please use Chrome, Edge, or Safari.');
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      toast.error('Voice search is not supported in this browser. Try Chrome, Edge, or Safari.');
       return;
     }
 
+    try {
+      // Abort any existing instance
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch (e) {}
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+      recognition.lang = navigator.language || 'en-IN';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setVoiceNotice(null);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0].transcript)
+          .join('');
+        if (transcript) {
+          setQuery(transcript);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn('Speech recognition status:', event.error);
+        setIsListening(false);
+
+        if (event.error === 'not-allowed') {
+          toast.error('Microphone access was denied. Please allow microphone permission in your browser.');
+        } else if (event.error === 'network') {
+          // Brave browser or Chromium privacy shield blocks Google's speech cloud endpoints
+          setVoiceNotice('Brave/Browser privacy shield blocked speech recognition network. Tap a trending voice query below:');
+        } else if (event.error === 'no-speech') {
+          // User stayed silent
+          toast.info('No speech detected. Tap the mic and try again.');
+        } else {
+          toast.error(`Voice recognition notice: ${event.error}`);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err: any) {
+      console.error('Speech initialization error:', err);
+      setIsListening(false);
+      toast.error('Could not start microphone. Please check your browser permissions.');
+    }
+  };
+
+  const toggleListening = () => {
     if (isListening) {
-      try {
-        recognitionRef.current.stop();
-      } catch (e) {
-        console.error('Recognition stop error', e);
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
       }
       setIsListening(false);
     } else {
-      try {
-        recognitionRef.current.start();
-        setIsListening(true);
-        toast.info('🎙️ Listening... Speak to search');
-      } catch (e) {
-        console.error('Recognition start failed', e);
-      }
+      startSpeechRecognition();
     }
   };
 
@@ -92,6 +114,7 @@ export default function SearchModal({
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
       document.body.style.overflow = 'hidden';
+      setVoiceNotice(null);
       if (suggested.length === 0) {
         fetch('/api/search?limit=4')
           .then(res => res.json())
@@ -102,9 +125,10 @@ export default function SearchModal({
       }
     } else {
       if (isListening && recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch (e) {}
+        try { recognitionRef.current.abort(); } catch (e) {}
       }
       setIsListening(false);
+      setVoiceNotice(null);
       setQuery('');
       setResults([]);
       document.body.style.overflow = '';
@@ -156,20 +180,20 @@ export default function SearchModal({
           </button>
         </div>
 
-        <div className="p-6 border-b border-[var(--line)] sticky top-[72px] bg-[var(--bg)] z-10">
+        <div className="p-4 sm:p-6 border-b border-[var(--line)] sticky top-[72px] bg-[var(--bg)] z-10">
           <div className="relative flex items-center">
             <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-dim)]" />
             <input
               ref={inputRef}
               type="text"
-              placeholder={isListening ? "Listening... Speak now" : "Search products, collections, hoodies..."}
+              placeholder={isListening ? "Listening... Speak now" : "Search drops, oversized, hoodies..."}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className={`w-full bg-[var(--bg-alt)] border ${
                 isListening 
                   ? 'border-red-500 ring-2 ring-red-500/30' 
                   : 'border-[var(--line)] focus:border-[var(--accent)]'
-              } rounded-full pl-10 pr-20 py-3 text-[var(--text)] outline-none transition-all font-mono`}
+              } rounded-full pl-10 pr-20 py-3 text-[var(--text)] outline-none transition-all font-mono text-sm`}
             />
 
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
@@ -184,13 +208,13 @@ export default function SearchModal({
                 </button>
               )}
 
-              {/* Voice Microphone Search Button */}
+              {/* Voice Microphone Action Button */}
               <button
                 type="button"
                 onClick={toggleListening}
                 className={`p-2 rounded-full transition-all cursor-pointer ${
                   isListening
-                    ? 'bg-red-500 text-white animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.6)]'
+                    ? 'bg-red-500 text-white animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.7)]'
                     : 'text-[var(--text-dim)] hover:text-white hover:bg-white/10'
                 }`}
                 title={isListening ? 'Stop listening' : 'Search by voice'}
@@ -205,13 +229,48 @@ export default function SearchModal({
             </div>
           </div>
 
-          {/* Active Voice Listening Live Feedback Banner */}
+          {/* Active Voice Listening Live Visualizer Banner */}
           {isListening && (
-            <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono animate-in fade-in duration-200">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping shrink-0" />
-              <span className="truncate">Listening... Speak e.g. "Oversized T-Shirt", "Black Hoodie", "Jeans"</span>
+            <div className="mt-3 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-mono animate-in fade-in duration-200">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping shrink-0" />
+                <span className="font-bold">Listening... Speak now</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-1 h-3 bg-red-400 animate-pulse rounded-full" />
+                <span className="w-1 h-5 bg-red-400 animate-pulse delay-75 rounded-full" />
+                <span className="w-1 h-4 bg-red-400 animate-pulse delay-150 rounded-full" />
+                <span className="w-1 h-2 bg-red-400 animate-pulse delay-100 rounded-full" />
+              </div>
             </div>
           )}
+
+          {/* Voice Notice / Brave Privacy Shield Guidance */}
+          {voiceNotice && (
+            <div className="mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono animate-in fade-in duration-200 space-y-2">
+              <div className="flex items-start gap-2">
+                <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <p className="leading-relaxed">{voiceNotice}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Quick Voice / Trending Spoken Chips */}
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+            <span className="text-[10px] font-mono text-[var(--text-dim)] uppercase tracking-wider mr-1 flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-[var(--accent)]" /> Quick:
+            </span>
+            {TRENDING_VOICE_TAGS.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => setQuery(tag)}
+                className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-[var(--bg-alt)] hover:bg-white hover:text-black border border-[var(--line)] hover:border-white text-[var(--text-dim)] hover:font-bold transition-all cursor-pointer"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="drawer-items" style={{ padding: '0 1.5rem 1.5rem 1.5rem' }}>
