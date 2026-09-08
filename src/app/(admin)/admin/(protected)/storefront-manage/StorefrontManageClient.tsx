@@ -97,6 +97,20 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
   const [showcaseCategoryFilter, setShowcaseCategoryFilter] = useState('all');
   const [showcaseImages, setShowcaseImages] = useState<string[]>(['', '', '', '']);
 
+  // Predefined links for CTA dropdowns
+  const predefinedLinks = [
+    { label: 'Home Page', value: '/' },
+    { label: 'Immersive Drops', value: '/#immersive-store' },
+    { label: 'Shoppable Reels', value: '/#reels' },
+    { label: 'Special Offers', value: '/#offers' },
+    { label: 'Bestsellers', value: '/#bestsellers' },
+    { label: 'Showcase Page', value: '/showcase' },
+    { label: 'Custom Print Lab', value: '/custom-print' },
+    { label: 'Wishlist (Saved)', value: '/wishlist' },
+    { label: 'Size Guide', value: '/pages/size-guide' },
+    { label: 'Track Order', value: '/pages/track-order' },
+  ];
+
   // Database products & categories for helper dropdowns
   const [dbProducts, setDbProducts] = useState<any[]>(initialProducts);
   const [dbCategories, setDbCategories] = useState<DbCategory[]>(initialCategories);
@@ -117,7 +131,21 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
   const [marqueeDirection, setMarqueeDirection] = useState<'left' | 'right'>('left');
   const [marqueeBadgeStyle, setMarqueeBadgeStyle] = useState<'brackets' | 'minimal' | 'pills' | 'outline'>('brackets');
 
-  // ── Tab 1: Hero & Marquee State
+  // ── Tab 1: Hero Carousel & Marquee State
+  const [carouselShow, setCarouselShow] = useState<boolean>(true);
+  const [carouselHideText, setCarouselHideText] = useState<boolean>(false);
+  const [carouselSlides, setCarouselSlides] = useState<{
+    id: string;
+    mediaType: 'image' | 'video';
+    mediaUrl: string;
+    title: string;
+    subtitle: string;
+    btnText: string;
+    btnLink: string;
+    hideText?: boolean;
+    hideButton?: boolean;
+  }[]>([]);
+
   const [heroEyebrow, setHeroEyebrow] = useState('SS26 — Vol. 01 — Small Batch');
   const [heroTitle1, setHeroTitle1] = useState('Drip that');
   const [heroTitle2, setHeroTitle2] = useState('Matches You');
@@ -267,6 +295,15 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
 
   /* ── Load Data ────────────────────────────────────────────────────────── */
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const paramTab = new URLSearchParams(window.location.search).get('tab');
+      if (paramTab && [
+        'hero', 'fits', 'banners', 'grid', 'offers', 'footer', 'print', 
+        'theme', 'newdrops', 'bestsellers', 'reels', 'showcase', 'sliding-marquee'
+      ].includes(paramTab)) {
+        setActiveTab(paramTab as any);
+      }
+    }
     fetchAllData();
   }, []);
 
@@ -279,6 +316,28 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
       const homeData = sectionMap.get('homepage_config');
       if (homeData) {
         const j = homeData;
+        if (typeof j.carouselShow === 'boolean') setCarouselShow(j.carouselShow);
+        else setCarouselShow(true);
+
+        if (typeof j.carouselHideText === 'boolean') setCarouselHideText(j.carouselHideText);
+        else setCarouselHideText(false);
+
+        if (j.carouselSlides && Array.isArray(j.carouselSlides)) {
+          setCarouselSlides(j.carouselSlides);
+        } else {
+          setCarouselSlides([
+            {
+              id: 'slide-1',
+              mediaType: 'video',
+              mediaUrl: '/new.mp4',
+              title: 'ALL GARMENTS',
+              subtitle: 'Catalog Directory',
+              btnText: 'Shop Hoodies',
+              btnLink: '/category/hoodies'
+            }
+          ]);
+        }
+
         if (j.heroEyebrow) setHeroEyebrow(j.heroEyebrow);
         if (j.heroTitle1) setHeroTitle1(j.heroTitle1);
         if (j.heroTitle2) setHeroTitle2(j.heroTitle2);
@@ -301,6 +360,19 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
         if (j.catalogTitle) setCatalogTitle(j.catalogTitle);
         if (j.catalogLede) setCatalogLede(j.catalogLede);
       } else {
+        setCarouselShow(true);
+        setCarouselHideText(false);
+        setCarouselSlides([
+          {
+            id: 'slide-1',
+            mediaType: 'video',
+            mediaUrl: '/new.mp4',
+            title: 'ALL GARMENTS',
+            subtitle: 'Catalog Directory',
+            btnText: 'Shop Hoodies',
+            btnLink: '/category/hoodies'
+          }
+        ]);
         setHeroEyebrow('SS26 — Vol. 01 — Small Batch');
         setHeroTitle1('Drip that');
         setHeroTitle2('Matches You');
@@ -764,6 +836,9 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
   /* ── Tab 1: Hero & Marquee Actions ────────────────────────────────────── */
   const handleSaveHero = () => {
     saveSectionKey('homepage_config', { 
+      carouselShow,
+      carouselHideText,
+      carouselSlides,
       heroEyebrow, 
       heroTitle1, 
       heroTitle2, 
@@ -785,7 +860,7 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
       catalogEyebrow,
       catalogTitle,
       catalogLede
-    }, 'Cinematic Hero Media & Homepage live!');
+    }, 'Hero Carousel, Atmosphere & Storefront updated live!');
   };
 
   const addMarqueeItem = (e: React.FormEvent) => {
@@ -924,7 +999,7 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
       {/* ── Sub Navigation Tabs ───────────────────────────────────────── */}
       <div className="flex flex-wrap gap-2 mb-8 bg-[var(--bg-card)] p-1.5 border border-[var(--line)]">
         {[
-          { id: 'hero', label: 'Hero & Marquee', icon: LayoutTemplate },
+          { id: 'hero', label: 'Hero Carousel & Marquee', icon: LayoutTemplate },
           { id: 'sliding-marquee', label: 'Sliding Carousel (Tags)', icon: SlidersHorizontal },
           { id: 'showcase', label: 'Showcase Page & Products', icon: Sparkles },
           { id: 'newdrops', label: 'New Drops', icon: Sparkles },
@@ -953,22 +1028,19 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
         })}
       </div>
 
-
       {/* ── Tab Content Container ────────────────────────────────────── */}
       <div className="space-y-8">
         
-        {/* ══ Tab 1: Hero & Cinematic Media ════════════════════════════════ */}
+        {/* ══ Tab 1: Hero Carousel & Cinematic Media ════════════════════════════════ */}
         {activeTab === 'hero' && (
           <div className="space-y-6">
-            
-            {/* Top Bar with Save Action */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--bg-card)] border border-[var(--line)] p-6">
               <div>
                 <h3 className="font-display text-xl font-bold uppercase text-[var(--text)] flex items-center gap-2">
-                  <Film className="w-5 h-5 text-[var(--accent)]" /> Cinematic Hero Media & Layout
+                  <Film className="w-5 h-5 text-[var(--accent)]" /> Hero Carousel, Cinematic Media & Layout
                 </h3>
                 <p className="text-xs text-[var(--text-dim)] mt-0.5">
-                  Configure high-resolution background video/image, theatrical contrast overlays, and storefront headlines.
+                  Configure top sliding banners, background video/image atmosphere, contrast overlays, and storefront headlines.
                 </p>
               </div>
               <button 
@@ -985,72 +1057,452 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
             <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 rounded-2xl space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] uppercase font-bold text-[var(--accent)] tracking-widest flex items-center gap-1.5">
-                  <Eye className="w-3.5 h-3.5" /> Live Storefront Viewport Preview (21:9 Cinematic Aspect)
+                  <Eye className="w-3.5 h-3.5" /> Live Storefront Viewport Preview (21:9 Aspect)
                 </span>
                 <span className="text-[10px] font-mono text-[var(--text-dim)]">
-                  Mode: {heroMediaType.toUpperCase()} • Darkness: {heroMediaDarkness}%
+                  Mode: {carouselShow ? 'SLIDING CAROUSEL' : heroMediaType.toUpperCase()} • Slides: {carouselShow ? carouselSlides.length : (heroMediaType !== 'none' ? 1 : 0)}
                 </span>
               </div>
 
               <div className="relative w-full aspect-[21/9] min-h-[220px] max-h-[360px] rounded-xl overflow-hidden border border-[var(--line)] bg-[#0a0a0c] flex items-center p-6 md:p-10 select-none">
-                {/* Background Layer in Preview */}
-                {heroMediaType === 'video' && heroMediaUrl ? (
-                  <video 
-                    src={heroMediaUrl} 
-                    poster={heroMediaPoster || undefined} 
-                    autoPlay 
-                    loop 
-                    muted 
-                    playsInline 
-                    className="absolute inset-0 w-full h-full object-cover" 
-                    style={{ filter: heroMediaBlur > 0 ? `blur(${heroMediaBlur}px)` : 'none' }}
-                  />
-                ) : heroMediaType === 'image' && heroMediaUrl ? (
-                  <img 
-                    src={heroMediaUrl} 
-                    alt="Preview" 
-                    className={`absolute inset-0 w-full h-full object-cover ${heroMediaKenBurns ? 'animate-hero-ken-burns' : ''}`}
-                    style={{ filter: heroMediaBlur > 0 ? `blur(${heroMediaBlur}px)` : 'none' }}
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center opacity-40">
-                    <div className="w-48 h-48 rounded-full bg-[var(--accent)]/30 blur-2xl animate-pulse" />
-                    <div className="w-36 h-36 rounded-full bg-[var(--wave)]/30 blur-2xl ml-[-40px]" />
-                  </div>
-                )}
-
-                {/* Layered Gradient Overlays in Preview */}
-                {heroMediaType !== 'none' && heroMediaUrl && (
+                {carouselShow && carouselSlides && carouselSlides.length > 0 ? (
+                  // Carousel Active Slide Preview
                   <>
-                    <div className="absolute inset-0 z-[1]" style={{ background: 'linear-gradient(90deg, rgba(8,8,10,0.92) 0%, rgba(8,8,10,0.7) 50%, rgba(8,8,10,0.3) 100%)' }} />
-                    <div className="absolute inset-0 z-[1]" style={{ backgroundColor: `rgba(0, 0, 0, ${heroMediaDarkness / 100})` }} />
-                    {heroMediaVignette && (
-                      <div className="absolute inset-0 z-[1]" style={{ background: 'radial-gradient(circle at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.75) 100%)' }} />
+                    {carouselSlides[0].mediaType === 'video' && carouselSlides[0].mediaUrl ? (
+                      <video 
+                        src={carouselSlides[0].mediaUrl} 
+                        autoPlay 
+                        loop 
+                        muted 
+                        playsInline 
+                        className="absolute inset-0 w-full h-full object-cover" 
+                      />
+                    ) : carouselSlides[0].mediaUrl ? (
+                      <img 
+                        src={carouselSlides[0].mediaUrl} 
+                        alt="Slide Preview" 
+                        className="absolute inset-0 w-full h-full object-cover" 
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                        <div className="w-48 h-48 rounded-full bg-[var(--accent)]/30 blur-2xl animate-pulse" />
+                      </div>
                     )}
+                    
+                    <div className="absolute inset-0 bg-black/45 z-[1]" />
+
+                    <div className="relative z-10 w-full text-left space-y-2">
+                      {!carouselHideText && !carouselSlides[0].hideText && (carouselSlides[0].title || carouselSlides[0].subtitle || (carouselSlides[0].btnText && !carouselSlides[0].hideButton)) ? (
+                        <>
+                          {carouselSlides[0].subtitle && carouselSlides[0].subtitle.trim() && (
+                            <span className="font-mono text-[8px] uppercase tracking-widest text-[var(--accent)] mb-1 bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20 inline-block font-bold">
+                              {carouselSlides[0].subtitle}
+                            </span>
+                          )}
+                          {carouselSlides[0].title && carouselSlides[0].title.trim() && (
+                            <h2 className="font-display text-lg sm:text-2xl font-black uppercase text-white tracking-tight leading-none mb-3">
+                              {carouselSlides[0].title}
+                            </h2>
+                          )}
+                          {carouselSlides[0].btnText && carouselSlides[0].btnText.trim() && !carouselSlides[0].hideButton && (
+                            <span className="bg-white text-black px-3 py-1.5 rounded text-[9px] font-bold uppercase tracking-wider inline-block">
+                              {carouselSlides[0].btnText}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-[10px] font-mono text-white/50 bg-black/40 px-3 py-1.5 rounded border border-white/10 uppercase tracking-widest inline-block font-bold">
+                          {carouselHideText ? 'Text Overlays Hidden (Global)' : carouselSlides[0].hideText ? 'Text Hidden (Slide)' : 'No Overlay Content'}
+                        </span>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  // Cinematic Background Atmosphere Preview
+                  <>
+                    {heroMediaType === 'video' && heroMediaUrl ? (
+                      <video 
+                        src={heroMediaUrl} 
+                        poster={heroMediaPoster || undefined} 
+                        autoPlay 
+                        loop 
+                        muted 
+                        playsInline 
+                        className="absolute inset-0 w-full h-full object-cover" 
+                        style={{ filter: heroMediaBlur > 0 ? `blur(${heroMediaBlur}px)` : 'none' }}
+                      />
+                    ) : heroMediaType === 'image' && heroMediaUrl ? (
+                      <img 
+                        src={heroMediaUrl} 
+                        alt="Preview" 
+                        className={`absolute inset-0 w-full h-full object-cover ${heroMediaKenBurns ? 'animate-hero-ken-burns' : ''}`}
+                        style={{ filter: heroMediaBlur > 0 ? `blur(${heroMediaBlur}px)` : 'none' }}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                        <div className="w-48 h-48 rounded-full bg-[var(--accent)]/30 blur-2xl animate-pulse" />
+                        <div className="w-36 h-36 rounded-full bg-[var(--wave)]/30 blur-2xl ml-[-40px]" />
+                      </div>
+                    )}
+
+                    {heroMediaType !== 'none' && heroMediaUrl && (
+                      <>
+                        <div className="absolute inset-0 z-[1]" style={{ background: 'linear-gradient(90deg, rgba(8,8,10,0.92) 0%, rgba(8,8,10,0.7) 50%, rgba(8,8,10,0.3) 100%)' }} />
+                        <div className="absolute inset-0 z-[1]" style={{ backgroundColor: `rgba(0, 0, 0, ${heroMediaDarkness / 100})` }} />
+                        {heroMediaVignette && (
+                          <div className="absolute inset-0 z-[1]" style={{ background: 'radial-gradient(circle at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.75) 100%)' }} />
+                        )}
+                      </>
+                    )}
+
+                    <div className="relative z-10 max-w-xl space-y-2">
+                      <span className="text-[9px] md:text-[10px] font-mono tracking-widest uppercase text-[var(--accent)] font-bold">
+                        {heroEyebrow || 'SS26 — VOL. 01 — SMALL BATCH'}
+                      </span>
+                      <h2 className="font-display text-xl md:text-3xl lg:text-4xl font-bold uppercase text-white leading-tight">
+                        {heroTitle1} <span className="stroke">{heroTitle2}</span>
+                      </h2>
+                      <p className="text-[10px] md:text-xs text-white/70 line-clamp-2 max-w-md">
+                        {heroLede}
+                      </p>
+                      <div className="flex gap-2 pt-2">
+                        <span className="bg-[var(--accent)] text-[var(--bg)] px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
+                          {heroCtaPrimaryText}
+                        </span>
+                        <span className="border border-white/30 text-white px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
+                          {heroCtaSecondaryText}
+                        </span>
+                      </div>
+                    </div>
                   </>
                 )}
+              </div>
+            </div>
 
-                {/* Foreground Text in Preview */}
-                <div className="relative z-10 max-w-xl space-y-2">
-                  <span className="text-[9px] md:text-[10px] font-mono tracking-widest uppercase text-[var(--accent)] font-bold">
-                    {heroEyebrow || 'SS26 — VOL. 01 — SMALL BATCH'}
-                  </span>
-                  <h2 className="font-display text-xl md:text-3xl lg:text-4xl font-bold uppercase text-white leading-tight">
-                    {heroTitle1} <span className="stroke">{heroTitle2}</span>
-                  </h2>
-                  <p className="text-[10px] md:text-xs text-white/70 line-clamp-2 max-w-md">
-                    {heroLede}
-                  </p>
-                  <div className="flex gap-2 pt-2">
-                    <span className="bg-[var(--accent)] text-[var(--bg)] px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
-                      {heroCtaPrimaryText}
-                    </span>
-                    <span className="border border-white/30 text-white px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
-                      {heroCtaSecondaryText}
-                    </span>
+            {/* SECTION 0: Top Hero Sliding Carousel Configuration */}
+            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 rounded-2xl space-y-6">
+              <div className="flex justify-between items-center border-b border-[var(--line)] pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-[var(--bg-alt)] border border-[var(--line)] flex items-center justify-center text-[var(--accent)]">
+                    <Layers className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-display text-lg font-bold text-[var(--text)] uppercase">Top Hero Sliding Carousel Banner</h2>
+                    <p className="text-[10px] text-[var(--text-dim)]">Configure a high-impact video/image slider at the top of your storefront homepage.</p>
                   </div>
                 </div>
               </div>
+
+              {/* Global Carousel Toggles */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label className="flex items-center gap-3 p-4 bg-[var(--bg)] border border-[var(--line)] rounded-xl cursor-pointer hover:border-[var(--accent)]/30 transition-all">
+                  <input 
+                    type="checkbox" 
+                    checked={carouselShow} 
+                    onChange={e => setCarouselShow(e.target.checked)} 
+                    className="accent-[var(--accent)] w-5 h-5" 
+                  />
+                  <div>
+                    <span className="block text-xs font-bold text-[var(--text)] uppercase tracking-wider">Enable Top Hero Carousel</span>
+                    <span className="block text-[10px] text-[var(--text-dim)]">Displays multi-slide interactive media carousel at top of home</span>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-4 bg-[var(--bg)] border border-[var(--line)] rounded-xl cursor-pointer hover:border-[var(--accent)]/30 transition-all">
+                  <input 
+                    type="checkbox" 
+                    checked={carouselHideText} 
+                    onChange={e => setCarouselHideText(e.target.checked)} 
+                    className="accent-[var(--accent)] w-5 h-5" 
+                  />
+                  <div>
+                    <span className="block text-xs font-bold text-[var(--text)] uppercase tracking-wider">Hide Text Overlay (Global)</span>
+                    <span className="block text-[10px] text-[var(--text-dim)]">Removes all titles and buttons; displays pure media only</span>
+                  </div>
+                </label>
+              </div>
+
+              {carouselShow && (
+                <div className="space-y-6 pt-4 border-t border-[var(--line)]">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] uppercase font-bold text-[var(--accent)] tracking-widest">
+                      Slides ({carouselSlides.length})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCarouselSlides([
+                          ...carouselSlides,
+                          {
+                            id: `slide-${Date.now()}`,
+                            mediaType: 'image',
+                            mediaUrl: '',
+                            title: 'NEW DROP',
+                            subtitle: 'Collection',
+                            btnText: 'Shop Now',
+                            btnLink: '/#immersive-store'
+                          }
+                        ]);
+                      }}
+                      className="bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--text)] text-[var(--text)] px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                    >
+                      + Add Slide
+                    </button>
+                  </div>
+
+                  {carouselSlides.length === 0 ? (
+                    <div className="text-center py-8 text-xs text-[var(--text-dim)] border border-dashed border-[var(--line)] rounded-xl">
+                      No slides added. Please click "+ Add Slide" to create your first hero banner.
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {carouselSlides.map((slide, idx) => (
+                        <div key={slide.id} className="border border-[var(--line)] bg-[var(--bg)] p-4 rounded-xl space-y-4 relative">
+                          {/* Header Controls */}
+                          <div className="flex justify-between items-center border-b border-[var(--line)] pb-2 text-[10px] font-mono text-[var(--text-dim)]">
+                            <span>SLIDE #{idx + 1}</span>
+                            <div className="flex items-center gap-2">
+                              {idx > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const list = [...carouselSlides];
+                                    const temp = list[idx];
+                                    list[idx] = list[idx - 1];
+                                    list[idx - 1] = temp;
+                                    setCarouselSlides(list);
+                                  }}
+                                  className="hover:text-[var(--text)]"
+                                >
+                                  ▲ Move Up
+                                </button>
+                              )}
+                              {idx < carouselSlides.length - 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const list = [...carouselSlides];
+                                    const temp = list[idx];
+                                    list[idx] = list[idx + 1];
+                                    list[idx + 1] = temp;
+                                    setCarouselSlides(list);
+                                  }}
+                                  className="hover:text-[var(--text)]"
+                                >
+                                  ▼ Move Down
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setCarouselSlides(carouselSlides.filter(s => s.id !== slide.id));
+                                }}
+                                className="text-red-400 hover:text-red-300 font-bold ml-2"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Inputs */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Media Source & Type */}
+                            <div className="space-y-3 md:col-span-1">
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Media Type</label>
+                                <select
+                                  value={slide.mediaType}
+                                  onChange={e => {
+                                    const list = [...carouselSlides];
+                                    list[idx].mediaType = e.target.value as 'image' | 'video';
+                                    setCarouselSlides(list);
+                                  }}
+                                  className="w-full bg-[var(--bg-card)] border border-[var(--line)] rounded-lg p-2 text-xs font-bold text-[var(--text)] cursor-pointer outline-none"
+                                >
+                                  <option value="image">Still Image</option>
+                                  <option value="video">Looping Video</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Media Upload</label>
+                                <MediaUploader 
+                                  onUploadSuccess={(url) => {
+                                    const list = [...carouselSlides];
+                                    list[idx].mediaUrl = url;
+                                    setCarouselSlides(list);
+                                  }} 
+                                  label={slide.mediaType === 'video' ? "Upload Video" : "Upload Image"} 
+                                />
+                              </div>
+                            </div>
+
+                            {/* Title & Copy */}
+                            <div className="space-y-3 md:col-span-2">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Slide Eyebrow</label>
+                                  <input 
+                                    type="text" 
+                                    value={slide.subtitle} 
+                                    disabled={carouselHideText}
+                                    onChange={e => {
+                                      const list = [...carouselSlides];
+                                      list[idx].subtitle = e.target.value;
+                                      setCarouselSlides(list);
+                                    }} 
+                                    placeholder="e.g. Catalog Directory" 
+                                    className="w-full bg-[var(--bg-card)] border border-[var(--line)] rounded-lg p-2 text-xs text-[var(--text)] outline-none" 
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Main Heading</label>
+                                  <input 
+                                    type="text" 
+                                    value={slide.title} 
+                                    disabled={carouselHideText}
+                                    onChange={e => {
+                                      const list = [...carouselSlides];
+                                      list[idx].title = e.target.value;
+                                      setCarouselSlides(list);
+                                    }} 
+                                    placeholder="e.g. ALL GARMENTS" 
+                                    className="w-full bg-[var(--bg-card)] border border-[var(--line)] rounded-lg p-2 text-xs text-[var(--text)] outline-none" 
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Button Text</label>
+                                  <input 
+                                    type="text" 
+                                    value={slide.btnText} 
+                                    disabled={carouselHideText}
+                                    onChange={e => {
+                                      const list = [...carouselSlides];
+                                      list[idx].btnText = e.target.value;
+                                      setCarouselSlides(list);
+                                    }} 
+                                    placeholder="e.g. Shop Now" 
+                                    className="w-full bg-[var(--bg-card)] border border-[var(--line)] rounded-lg p-2 text-xs text-[var(--text)] outline-none" 
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Redirect Destination</label>
+                                  <select
+                                    value={(!slide.btnLink || predefinedLinks.some(opt => opt.value === slide.btnLink) || dbCategories.some(cat => `/category/${cat.slug}` === slide.btnLink)) ? (slide.btnLink || '/') : 'custom'}
+                                    onChange={e => {
+                                      const val = e.target.value;
+                                      const list = [...carouselSlides];
+                                      if (val === 'custom') {
+                                        const wasCustom = slide.btnLink !== '' && !predefinedLinks.some(opt => opt.value === slide.btnLink) && !dbCategories.some(cat => `/category/${cat.slug}` === slide.btnLink);
+                                        if (!wasCustom) {
+                                          list[idx].btnLink = '/product/';
+                                        }
+                                      } else {
+                                        list[idx].btnLink = val;
+                                      }
+                                      setCarouselSlides(list);
+                                    }}
+                                    className="w-full bg-[var(--bg-card)] border border-[var(--line)] rounded-lg p-2 text-xs font-bold text-[var(--text)] cursor-pointer outline-none"
+                                  >
+                                    {predefinedLinks.map(opt => (
+                                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    ))}
+                                    <optgroup label="Shop Categories">
+                                      {dbCategories.map(cat => (
+                                        <option key={cat.id} value={`/category/${cat.slug}`}>
+                                          Category: {cat.name}
+                                        </option>
+                                      ))}
+                                    </optgroup>
+                                    <option value="custom">Custom Link (Type manually...)</option>
+                                  </select>
+                                </div>
+                              </div>
+
+                              {/* Render manual path input if it is a custom link */}
+                              {(() => {
+                                const isCustom = slide.btnLink !== '' && !predefinedLinks.some(opt => opt.value === slide.btnLink) && !dbCategories.some(cat => `/category/${cat.slug}` === slide.btnLink);
+                                return isCustom && (
+                                  <div className="mt-2">
+                                    <label className="block text-[9px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Custom Redirect URL Path</label>
+                                    <input 
+                                      type="text" 
+                                      value={slide.btnLink} 
+                                      onChange={e => {
+                                        const list = [...carouselSlides];
+                                        list[idx].btnLink = e.target.value;
+                                        setCarouselSlides(list);
+                                      }} 
+                                      placeholder="e.g. /product/spider-surge" 
+                                      className="w-full bg-[var(--bg-card)] border border-[var(--line)] rounded-lg p-2 text-xs text-[var(--text)] outline-none" 
+                                    />
+                                  </div>
+                                );
+                              })()}
+
+                              {/* Visibility Checkboxes */}
+                              <div className="grid grid-cols-2 gap-3 mt-3">
+                                <label className="flex items-center gap-2 p-2.5 bg-[var(--bg-card)] border border-[var(--line)] rounded-lg cursor-pointer hover:border-white/10 transition-all select-none">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={!!slide.hideText} 
+                                    disabled={carouselHideText}
+                                    onChange={e => {
+                                      const list = [...carouselSlides];
+                                      list[idx].hideText = e.target.checked;
+                                      setCarouselSlides(list);
+                                    }} 
+                                    className="accent-[var(--accent)] w-4 h-4 cursor-pointer" 
+                                  />
+                                  <div>
+                                    <span className="block text-[9px] font-bold text-[var(--text)] uppercase tracking-wider">Hide Text Overlay</span>
+                                    <span className="block text-[8px] text-[var(--text-dim)]">Removes titles and subheadings</span>
+                                  </div>
+                                </label>
+
+                                <label className="flex items-center gap-2 p-2.5 bg-[var(--bg-card)] border border-[var(--line)] rounded-lg cursor-pointer hover:border-white/10 transition-all select-none">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={!!slide.hideButton} 
+                                    disabled={carouselHideText}
+                                    onChange={e => {
+                                      const list = [...carouselSlides];
+                                      list[idx].hideButton = e.target.checked;
+                                      setCarouselSlides(list);
+                                    }} 
+                                    className="accent-[var(--accent)] w-4 h-4 cursor-pointer" 
+                                  />
+                                  <div>
+                                    <span className="block text-[9px] font-bold text-[var(--text)] uppercase tracking-wider">Hide CTA Button</span>
+                                    <span className="block text-[8px] text-[var(--text-dim)]">Removes button link overlay</span>
+                                  </div>
+                                </label>
+                              </div>
+
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Direct Media URL (fallback / paste)</label>
+                                <input 
+                                  type="text" 
+                                  value={slide.mediaUrl} 
+                                  onChange={e => {
+                                    const list = [...carouselSlides];
+                                    list[idx].mediaUrl = e.target.value;
+                                    setCarouselSlides(list);
+                                  }} 
+                                  placeholder="https://cloudinary.com/..." 
+                                  className="w-full bg-[var(--bg-card)] border border-[var(--line)] rounded-lg p-2 text-xs font-mono text-[var(--text)] outline-none" 
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* CARD 1: Media Type & Upload Source */}

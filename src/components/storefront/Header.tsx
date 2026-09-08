@@ -287,7 +287,7 @@ export default function Header({
                   </Link>
 
                   <Link 
-                    href="/collections" 
+                    href="/#immersive-store" 
                     onClick={() => setMenuOpen(false)} 
                     className="group relative flex items-center justify-between py-2 text-sm uppercase font-bold tracking-wider text-white border-b border-transparent hover:border-white/20 transition-all"
                   >

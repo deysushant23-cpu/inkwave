@@ -6,23 +6,45 @@ import { enrichProductsWithComparePrices } from '@/lib/catalogPrices';
 import HeroCarousel from '@/components/storefront/HeroCarousel';
 import HeroSection from '@/components/storefront/HeroSection';
 import ShopByStyle from '@/components/storefront/ShopByStyle';
-import { PageReveal, StaggerContainer, StaggerItem } from '@/components/storefront/PageReveal';
+import InvertedPerspectiveCarousel from '@/components/storefront/InvertedPerspectiveCarousel';
+import OffersSection from '@/components/storefront/OffersSection';
+import Scroll3DEffect from '@/components/storefront/Scroll3DEffect';
+import ReelsSection from '@/components/storefront/ReelsSection';
+import CuratedFits from '@/components/storefront/CuratedFits';
+import PremiumCategoriesBento from '@/components/storefront/PremiumCategoriesBento';
+import NewsletterForm from '@/components/storefront/NewsletterForm';
 
 export const revalidate = 60;
 
 export default async function Home() {
   const supabase = await createClient();
 
-  // 1. Fetch active categories, custom sort order, and homepage config from CMS configs in parallel
-  const [catRes, sortOrderRes, homepageConfigRes] = await Promise.all([
+  // 1. Fetch active categories, sort orders, and all CMS configs in parallel
+  const [
+    catRes, 
+    sortOrderRes, 
+    homepageConfigRes,
+    newDropsConfigRes,
+    bestsellersConfigRes,
+    fitsConfigRes
+  ] = await Promise.all([
     (supabase.from('categories') as any).select('*').eq('is_active', true),
     (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'categories_sort_order').single(),
-    (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'homepage_config').single()
+    (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'homepage_config').single(),
+    (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'new_drops_config').single(),
+    (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'bestsellers_config').single(),
+    (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'curated_fits_config').single()
   ]);
 
   const rawCategoriesData = (catRes.data as any[]) || [];
   const sortOrderArray = (sortOrderRes.data?.json_content as any)?.order as string[] || [];
   const homepageConfig = (homepageConfigRes.data?.json_content as any) || {};
+  const newDropsConfig = (newDropsConfigRes.data?.json_content as any) || {};
+  const bestsellersConfig = (bestsellersConfigRes.data?.json_content as any) || {};
+  const fitsData = (fitsConfigRes.data?.json_content as any) || {};
+
+  const curatedFits = fitsData?.fits || null;
+  const showFits = fitsData?.show ?? true;
 
   // Sort categories according to admin position settings
   const categoriesData = [...rawCategoriesData].sort((a: any, b: any) => {
@@ -54,6 +76,37 @@ export default async function Home() {
       };
     })
     .filter((cat: any) => cat.products.length > 0);
+
+  // 4. Compute New Drops for Immersive Carousel
+  const newDropSlugs: string[] = newDropsConfig?.slugs || [];
+  let newDropProducts: any[] = [];
+  if (newDropSlugs.length > 0) {
+    newDropProducts = newDropSlugs.map((slug) => products.find((p) => p.slug === slug)).filter(Boolean);
+  }
+  if (newDropProducts.length === 0) {
+    newDropProducts = products.slice(0, 8);
+  }
+
+  // 5. Compute Bestsellers for Immersive Auto-Slider
+  const bestsellerSlugs: string[] = bestsellersConfig?.slugs || [];
+  let bestsellerProducts: any[] = [];
+  if (bestsellerSlugs.length > 0) {
+    bestsellerProducts = bestsellerSlugs.map((slug) => products.find((p) => p.slug === slug)).filter(Boolean);
+  }
+  if (bestsellerProducts.length === 0) {
+    bestsellerProducts = products.filter((p) => p.is_bestseller).slice(0, 8);
+    if (bestsellerProducts.length === 0) {
+      bestsellerProducts = products.slice(0, 8);
+    }
+  }
+
+  const rawMarquee = homepageConfig.marqueeItems || [];
+  const marqueeItems = rawMarquee.map((item: any) => typeof item === 'string' ? { text: item, link: '' } : item);
+  const giantMarqueeText = homepageConfig.giantMarqueeText || "INKWAVE // VOL 04 // NO TWO VATS RUN IDENTICAL //";
+  const giantMarqueeLink = homepageConfig.giantMarqueeLink || "";
+  const valueStrip = homepageConfig.valueStrip || [];
+  const newsletterTitle = homepageConfig.newsletterTitle || "Get the next drop first";
+  const newsletterDesc = homepageConfig.newsletterDesc || "First access to restocks and runs that don't last. No spam, just ink.";
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -150,7 +203,9 @@ export default async function Home() {
 
       <div className="flex flex-col w-full relative z-10 bg-black min-h-screen">
         
-        {/* Top Hero Carousel or Cinematic Static Hero Section */}
+        {/* ══════════════════════════════════════════════════════════════════
+            1. TOP HERO BANNER / CAROUSEL
+        ══════════════════════════════════════════════════════════════════ */}
         {homepageConfig.carouselShow && homepageConfig.carouselSlides && homepageConfig.carouselSlides.length > 0 ? (
           <HeroCarousel 
             slides={homepageConfig.carouselSlides} 
@@ -160,12 +215,36 @@ export default async function Home() {
           <HeroSection config={homepageConfig} />
         )}
 
-        {/* ─── NEW SHOP BY STYLE CURATED SECTION ─── */}
+        {/* ══════════════════════════════════════════════════════════════════
+            2. TOP TICKER MARQUEE
+        ══════════════════════════════════════════════════════════════════ */}
+        {marqueeItems.length > 0 && (
+          <div className="marquee-wrap">
+            <div className="marquee" id="marquee">
+              {marqueeItems.map((item: any, i: number) => (
+                <span key={i}>
+                  <i></i>
+                  {item.link ? <Link href={item.link} className="hover:underline">{item.text}</Link> : item.text}
+                </span>
+              ))}
+              {marqueeItems.map((item: any, i: number) => (
+                <span key={i + 'dup'}>
+                  <i></i>
+                  {item.link ? <Link href={item.link} className="hover:underline">{item.text}</Link> : item.text}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════
+            3. NEW SHOP BY STYLE CURATED SECTION (Y2K, OVERSIZED, ACID WASH...)
+        ══════════════════════════════════════════════════════════════════ */}
         <ShopByStyle products={products} />
 
-
-
-        {/* Dynamic Category Catalog Grid Sections */}
+        {/* ══════════════════════════════════════════════════════════════════
+            4. DYNAMIC CATEGORY CATALOG GRID SECTIONS
+        ══════════════════════════════════════════════════════════════════ */}
         {groupedCategories.map((cat: any, idx: number) => (
           <section key={cat.id} className="py-16 md:py-24 border-b border-[var(--line)] bg-black" id={cat.slug}>
             <div className="wrap">
@@ -200,33 +279,125 @@ export default async function Home() {
           </section>
         ))}
 
-        {/* Fallback Empty State */}
-        {groupedCategories.length === 0 && (
-          <div className="wrap py-24 text-center bg-black">
-            <div className="text-6xl mb-6">🏷️</div>
-            <h2 className="font-display text-2xl sm:text-3xl uppercase font-black text-white mb-2">
-              No Collections Published
-            </h2>
-            <p className="text-[var(--text-dim)] text-xs sm:text-sm font-mono max-w-sm mx-auto">
-              Fresh drops are currently curing in our studio. Join our email list to get drop notifications.
-            </p>
-          </div>
-        )}
-
-        {/* Sleek Bottom Immersive Store Redirect Row */}
-        {groupedCategories.length > 0 && (
-          <div className="border-t border-[var(--line)] py-16 bg-black text-center">
-            <div className="wrap">
-              <Link 
-                href="/collections" 
-                className="btn-immersive inline-flex items-center gap-3 px-8 py-3.5 bg-white text-black font-bold uppercase tracking-widest transition-all hover:bg-black hover:text-white border border-white text-xs"
-              >
-                <span>Explore Immersive Store</span>
-                <span className="font-sans text-[10px]">&rarr;</span>
-              </Link>
+        {/* ══════════════════════════════════════════════════════════════════
+            5. IMMERSIVE STORE CONTINUATION: NEW DROPS INVERTED CAROUSEL
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="section bg-black border-b border-[var(--line)]" id="immersive-store">
+          <div className="wrap">
+            <div className="sec-head reveal in">
+              <div>
+                <span className="sec-tag">Vol. 04 / New Arrivals</span>
+                <h2>New Drops</h2>
+              </div>
+            </div>
+            <div className="mt-12 w-full max-w-full overflow-hidden">
+              <InvertedPerspectiveCarousel products={newDropProducts} />
             </div>
           </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            6. SHOPPABLE REELS SECTION
+        ══════════════════════════════════════════════════════════════════ */}
+        <ReelsSection />
+
+        {/* ══════════════════════════════════════════════════════════════════
+            7. EXCLUSIVE OFFERS & DEALS SECTION
+        ══════════════════════════════════════════════════════════════════ */}
+        <Scroll3DEffect>
+          <OffersSection />
+        </Scroll3DEffect>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            8. BESTSELLERS INFINITE AUTO-SLIDER
+        ══════════════════════════════════════════════════════════════════ */}
+        <Scroll3DEffect>
+          <section className="section bg-black border-b border-[var(--line)]" id="bestsellers" style={{ paddingTop: 0 }}>
+            <div className="wrap">
+              <div className="sec-head reveal in">
+                <div>
+                  <span className="sec-tag">Held their shape</span>
+                  <h2>Bestsellers</h2>
+                </div>
+              </div>
+            </div>
+            
+            <div className="auto-slider-wrap reveal in mt-6">
+              <div className="auto-slider-track">
+                {[...bestsellerProducts, ...bestsellerProducts, ...bestsellerProducts].slice(0, 16).map((p, i) => (
+                  <div key={`${p.id}-${i}`} style={{ width: '300px', flexShrink: 0 }}>
+                    <ProductCard product={p} index={i} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </Scroll3DEffect>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            9. GIANT TYPOGRAPHY MARQUEE DIVIDER
+        ══════════════════════════════════════════════════════════════════ */}
+        <div className="giant-marquee-wrap">
+          {giantMarqueeLink ? (
+            <Link href={giantMarqueeLink} className="giant-marquee-text cursor-pointer hover:opacity-90 transition-opacity block">
+              <span>{giantMarqueeText}</span>
+              <span>{giantMarqueeText}</span>
+            </Link>
+          ) : (
+            <div className="giant-marquee-text">
+              <span>{giantMarqueeText}</span>
+              <span>{giantMarqueeText}</span>
+            </div>
+          )}
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            10. SHOP BY CATEGORY — EXPANDING BENTO ACCORDION
+        ══════════════════════════════════════════════════════════════════ */}
+        <Scroll3DEffect>
+          <PremiumCategoriesBento />
+        </Scroll3DEffect>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            11. CURATED FITS SECTION (SHOP THE LOOK)
+        ══════════════════════════════════════════════════════════════════ */}
+        {showFits && <CuratedFits fits={curatedFits} />}
+
+        {/* ══════════════════════════════════════════════════════════════════
+            12. BRAND VALUE STRIP
+        ══════════════════════════════════════════════════════════════════ */}
+        {valueStrip.length > 0 && (
+          <Scroll3DEffect>
+            <div className="value-strip border-t border-b border-[var(--line)] bg-black">
+              {valueStrip.map((item: any, idx: number) => (
+                <div key={idx} className="value-item reveal in">
+                  <svg viewBox={item.viewBox || "0 0 24 24"}>
+                    {item.type === 'pathRect' ? (
+                      <>
+                        <rect x={item.rect.x} y={item.rect.y} width={item.rect.width} height={item.rect.height} rx={item.rect.rx} />
+                        <path d={item.icon} />
+                      </>
+                    ) : (
+                      <path d={item.icon} />
+                    )}
+                  </svg>
+                  <h4>{item.title}</h4><p>{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </Scroll3DEffect>
         )}
+
+        {/* ══════════════════════════════════════════════════════════════════
+            13. NEWSLETTER SECTION
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="newsletter border-t border-[var(--line)] bg-black">
+          <div className="wrap reveal in">
+            <h2>{newsletterTitle}</h2>
+            <p>{newsletterDesc}</p>
+            <NewsletterForm />
+          </div>
+        </section>
 
       </div>
     </StorefrontShell>

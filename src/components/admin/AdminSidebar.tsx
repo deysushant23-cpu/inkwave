@@ -82,7 +82,6 @@ export default function AdminSidebar() {
     { href: '/admin/customers', label: 'Customers', icon: Users },
     { href: '/admin/reviews', label: 'Reviews', icon: Star },
     { href: '/admin/storefront-manage', label: 'Storefront Manage', icon: LayoutTemplate },
-    { href: '/admin/homepage', label: 'New Home Banner', icon: Store },
     { href: '/admin/requested-prints', label: 'Requested Prints', icon: Sparkles },
     { href: '/admin/newsletter', label: 'Newsletter', icon: Mail },
     { href: '/admin/cms-upcoming-drop', label: 'Upcoming Drop', icon: Clock },
