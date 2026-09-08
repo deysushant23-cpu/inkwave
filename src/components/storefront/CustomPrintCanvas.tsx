@@ -2,7 +2,7 @@
 
 import React, { Suspense, useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Center, useGLTF, Decal, useTexture, Environment } from '@react-three/drei';
+import { OrbitControls, Center, useGLTF, Decal, useTexture, Environment, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 import { GraphicLayer } from '@/lib/customPrintHelpers';
 
@@ -51,9 +51,10 @@ function DecalItem({
   );
 }
 
-/* ── 3D Shirt Mesh with Multi-Decals ────────────────────────────────────── */
+/* ── 3D Shirt Mesh with Multi-Decals & Wireframe Mode ──────────────────── */
 function Shirt({ 
   color, 
+  wireframe = false,
   graphics = [],
   legacyTextureUrl,
   legacyScale,
@@ -65,6 +66,7 @@ function Shirt({
   typographyOptions
 }: { 
   color: string; 
+  wireframe?: boolean;
   graphics?: GraphicLayer[];
   legacyTextureUrl?: string | null;
   legacyScale?: number;
@@ -87,19 +89,21 @@ function Shirt({
     <group>
       <mesh
         castShadow
+        receiveShadow
         geometry={nodes.T_Shirt_male.geometry}
         scale={[1.28, 1.03, 1.25]} // boxy, drop-shoulder, oversized fit
         dispose={null}
       >
         <meshStandardMaterial
-          color={shirtColor}
+          color={wireframe ? '#c084fc' : shirtColor}
+          wireframe={wireframe}
           roughness={0.82} // matte heavy combed cotton
-          metalness={0.06}
+          metalness={wireframe ? 0.8 : 0.06}
           side={THREE.DoubleSide}
         />
 
         {/* 1. Legacy Single Texture Decal (for Admin Orders/Requested Prints) */}
-        {legacyTextureUrl && (
+        {!wireframe && legacyTextureUrl && (
           <Suspense fallback={null}>
             <DecalItem
               textureUrl={legacyTextureUrl}
@@ -113,7 +117,7 @@ function Shirt({
         )}
 
         {/* 2. Front Typography Decal (Front-Only as required) */}
-        {typographyTexture && typographyOptions && (
+        {!wireframe && typographyTexture && typographyOptions && (
           <Suspense fallback={null}>
             <DecalItem
               textureUrl={typographyTexture}
@@ -127,7 +131,7 @@ function Shirt({
         )}
 
         {/* 3. Multi-Graphic Decal Layers (Front AND Back simultaneous) */}
-        {graphics.map((g) => (
+        {!wireframe && graphics.map((g) => (
           (g.processedUrl || g.url) ? (
             <Suspense key={g.id} fallback={null}>
               <DecalItem
@@ -147,13 +151,29 @@ function Shirt({
 }
 
 /* ── Camera & Orbit Controller ─────────────────────────────────────────── */
-function CameraRig({ activeView = 'front' }: { activeView?: 'front' | 'back' }) {
+function CameraRig({ 
+  activeView = 'front', 
+  autoRotate = false,
+  autoRotateSpeed = 2.0
+}: { 
+  activeView?: 'front' | 'back' | 'angle-left' | 'angle-right' | 'side-left' | 'side-right' | string;
+  autoRotate?: boolean;
+  autoRotateSpeed?: number;
+}) {
   const controlsRef = useRef<any>(null);
 
   useEffect(() => {
     if (controlsRef.current) {
       if (activeView === 'back') {
         controlsRef.current.setAzimuthalAngle(Math.PI);
+      } else if (activeView === 'angle-left') {
+        controlsRef.current.setAzimuthalAngle(-Math.PI / 4);
+      } else if (activeView === 'angle-right') {
+        controlsRef.current.setAzimuthalAngle(Math.PI / 4);
+      } else if (activeView === 'side-left') {
+        controlsRef.current.setAzimuthalAngle(-Math.PI / 2);
+      } else if (activeView === 'side-right') {
+        controlsRef.current.setAzimuthalAngle(Math.PI / 2);
       } else {
         controlsRef.current.setAzimuthalAngle(0);
       }
@@ -164,18 +184,27 @@ function CameraRig({ activeView = 'front' }: { activeView?: 'front' | 'back' }) 
   return (
     <OrbitControls 
       ref={controlsRef}
+      autoRotate={autoRotate}
+      autoRotateSpeed={autoRotateSpeed}
       enableZoom={true} 
-      minDistance={1.3}
-      maxDistance={3.2}
+      minDistance={1.2}
+      maxDistance={3.5}
       enablePan={false}
-      maxPolarAngle={Math.PI / 2}
-      minPolarAngle={Math.PI / 3}
+      maxPolarAngle={Math.PI / 1.8}
+      minPolarAngle={Math.PI / 3.2}
+      dampingFactor={0.08}
+      enableDamping
     />
   );
 }
 
 export interface CustomPrintCanvasProps {
-  colorHex: string;
+  colorHex?: string;
+  color?: string;
+  wireframe?: boolean;
+  autoRotate?: boolean;
+  autoRotateSpeed?: number;
+  envPreset?: 'city' | 'studio' | 'sunset' | 'dawn' | 'night' | 'warehouse' | 'lobby' | 'park';
   // Multi-layer props
   graphics?: GraphicLayer[];
   typographyTexture?: string | null;
@@ -185,7 +214,7 @@ export interface CustomPrintCanvasProps {
     scale: number;
     rotate: number;
   };
-  activeView?: 'front' | 'back';
+  activeView?: 'front' | 'back' | 'angle-left' | 'angle-right' | 'side-left' | 'side-right' | string;
   
   // Legacy backward-compatible props
   textureUrl?: string | null;
@@ -199,6 +228,11 @@ export interface CustomPrintCanvasProps {
 /* ── Main R3F Canvas Export ────────────────────────────────────────────── */
 export default function CustomPrintCanvas({ 
   colorHex, 
+  color,
+  wireframe = false,
+  autoRotate = false,
+  autoRotateSpeed = 2.0,
+  envPreset = 'city',
   graphics = [],
   typographyTexture,
   typographyOptions,
@@ -211,23 +245,26 @@ export default function CustomPrintCanvas({
   yPosition,
   printSide
 }: CustomPrintCanvasProps) {
+  const finalColor = color || colorHex || '#ffffff';
   const effectiveView = activeView || printSide || 'front';
 
   return (
-    <div className="w-full h-full min-h-[300px] lg:min-h-[520px] relative">
+    <div className="w-full h-full min-h-[360px] lg:min-h-[580px] relative">
       <Canvas
         shadows
-        camera={{ position: [0, 0, 2.3], fov: 25 }}
-        gl={{ preserveDrawingBuffer: true }}
+        camera={{ position: [0, 0, 2.4], fov: 25 }}
+        gl={{ preserveDrawingBuffer: true, antialias: true, alpha: true }}
       >
-        <ambientLight intensity={0.78} />
-        <directionalLight position={[5, 6, 4]} intensity={1.15} castShadow />
+        <ambientLight intensity={wireframe ? 1.4 : 0.85} />
+        <directionalLight position={[5, 6, 4]} intensity={wireframe ? 1.5 : 1.25} castShadow />
         <directionalLight position={[-5, 6, -4]} intensity={0.75} />
+        <directionalLight position={[0, -5, 2]} intensity={0.35} />
         
         <Suspense fallback={null}>
           <Center>
             <Shirt 
-              color={colorHex} 
+              color={finalColor} 
+              wireframe={wireframe}
               graphics={graphics}
               legacyTextureUrl={textureUrl}
               legacyScale={scaleValue}
@@ -239,11 +276,26 @@ export default function CustomPrintCanvas({
               typographyOptions={typographyOptions}
             />
           </Center>
-          <Environment preset="city" />
+
+          {/* Soft Ground Contact Shadow */}
+          <ContactShadows 
+            position={[0, -0.65, 0]} 
+            opacity={0.65} 
+            scale={2.8} 
+            blur={2.4} 
+            far={1.8} 
+          />
+
+          <Environment preset={envPreset as any} />
         </Suspense>
 
-        <CameraRig activeView={effectiveView} />
+        <CameraRig 
+          activeView={effectiveView} 
+          autoRotate={autoRotate} 
+          autoRotateSpeed={autoRotateSpeed} 
+        />
       </Canvas>
     </div>
   );
 }
+
