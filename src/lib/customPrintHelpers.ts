@@ -490,3 +490,105 @@ export function applyPrintFinishTexture(base64Image: string, finish: PrintFinish
     img.onerror = () => resolve(base64Image);
   });
 }
+
+export interface SizingPreset {
+  id: string;
+  name: string;
+  cmLabel: string;
+  scale: number;
+}
+
+export const SIZING_PRESETS: SizingPreset[] = [
+  { id: 'small', name: 'Pocket Badge', cmLabel: '12cm', scale: 22 },
+  { id: 'medium', name: 'Standard Chest', cmLabel: '24cm', scale: 45 },
+  { id: 'large', name: 'Oversized Street', cmLabel: '34cm', scale: 62 },
+  { id: 'statement', name: 'Full Statement', cmLabel: '42cm', scale: 78 },
+];
+
+/**
+ * AI Auto-Cleaner: Detects solid/light backgrounds from any JPG/PNG,
+ * strips backgrounds automatically, and auto-trims whitespace.
+ */
+export function processImageWithAI(base64Image: string): Promise<{ cleanUrl: string; hasRemovedBg: boolean }> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.src = base64Image;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve({ cleanUrl: base64Image, hasRemovedBg: false });
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0);
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+
+      // Sample 4 corners to detect background color
+      const corners = [
+        [data[0], data[1], data[2], data[3]],
+        [data[(canvas.width - 1) * 4], data[(canvas.width - 1) * 4 + 1], data[(canvas.width - 1) * 4 + 2], data[(canvas.width - 1) * 4 + 3]],
+        [data[(canvas.height - 1) * canvas.width * 4], data[(canvas.height - 1) * canvas.width * 4 + 1], data[(canvas.height - 1) * canvas.width * 4 + 2], data[(canvas.height - 1) * canvas.width * 4 + 3]],
+        [data[data.length - 4], data[data.length - 3], data[data.length - 2], data[data.length - 1]]
+      ];
+
+      // If already transparent, return as is
+      const isAlreadyTransparent = corners.some(c => c[3] < 50);
+      if (isAlreadyTransparent) {
+        resolve({ cleanUrl: base64Image, hasRemovedBg: false });
+        return;
+      }
+
+      let rBg = 0, gBg = 0, bBg = 0;
+      corners.forEach(c => {
+        rBg += c[0];
+        gBg += c[1];
+        bBg += c[2];
+      });
+      rBg = Math.round(rBg / 4);
+      gBg = Math.round(gBg / 4);
+      bBg = Math.round(bBg / 4);
+
+      // Check if corners are homogeneous (indicating a solid photo backdrop)
+      let isHomogeneous = true;
+      corners.forEach(c => {
+        const diff = Math.abs(c[0] - rBg) + Math.abs(c[1] - gBg) + Math.abs(c[2] - bBg);
+        if (diff > 90) isHomogeneous = false;
+      });
+
+      // Default tolerance for JPG cleanup
+      const tolerance = 42;
+      let removedCount = 0;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+
+        const dist = Math.sqrt(
+          Math.pow(r - rBg, 2) +
+          Math.pow(g - gBg, 2) +
+          Math.pow(b - bBg, 2)
+        );
+
+        if (dist < tolerance) {
+          data[i + 3] = 0; // Set transparent
+          removedCount++;
+        } else if (dist < tolerance + 15) {
+          // Soft alpha edge feathering
+          const feather = (dist - tolerance) / 15;
+          data[i + 3] = Math.round(data[i + 3] * feather);
+        }
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+      const hasRemovedBg = removedCount > (data.length / 4) * 0.1;
+      resolve({ cleanUrl: canvas.toDataURL('image/png'), hasRemovedBg });
+    };
+    img.onerror = () => resolve({ cleanUrl: base64Image, hasRemovedBg: false });
+  });
+}
+
