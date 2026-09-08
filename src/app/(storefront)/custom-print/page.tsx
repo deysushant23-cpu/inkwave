@@ -17,20 +17,19 @@ import {
   Trash2, 
   Palette, 
   Wand2, 
-  SunMedium, 
   Play, 
   Pause, 
   X, 
   Compass, 
-  Construction,
-  Tag,
-  Move,
-  RotateCw,
-  Download,
-  Flame,
-  Shirt as ShirtIcon,
+  Construction, 
+  Tag, 
+  Move, 
+  RotateCw, 
+  Download, 
+  Flame, 
   Sparkle,
-  SlidersHorizontal
+  Eye,
+  Hand
 } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { createClient } from '@/lib/supabase/client';
@@ -85,10 +84,10 @@ const CustomPrintCanvas = dynamic(
 );
 
 export default function CustomPrintStudio() {
-  const [activeStep, setActiveStep] = useState<'garment' | 'art' | 'position' | 'text' | 'recipes'>('art');
+  const [activeTab, setActiveTab] = useState<'art' | 'size' | 'garment' | 'recipes'>('art');
   const [cameraView, setCameraView] = useState<'front' | 'back' | 'angle-left'>('front');
+  const [interactionMode, setInteractionMode] = useState<'move' | 'rotate'>('move');
   const [autoRotate, setAutoRotate] = useState<boolean>(false);
-  const [envPreset, setEnvPreset] = useState<'city' | 'studio' | 'sunset' | 'night'>('city');
   const [fabricWash, setFabricWash] = useState<FabricWashStyle>('solid');
 
   const [colors, setColors] = useState<ColorPreset[]>(DEFAULT_COLORS);
@@ -96,7 +95,7 @@ export default function CustomPrintStudio() {
   const [selectedSize, setSelectedSize] = useState<string>('L');
   const [customLabel, setCustomLabel] = useState('INKWAVE // STUDIO SPEC');
 
-  // Graphic layers
+  // Multi-Design Graphic layers
   const [graphics, setGraphics] = useState<GraphicLayer[]>([
     {
       id: 'layer-1',
@@ -137,10 +136,6 @@ export default function CustomPrintStudio() {
 
   const [isPrintLabEnabled, setIsPrintLabEnabled] = useState<boolean>(true);
   const [isConfigLoading, setIsConfigLoading] = useState<boolean>(true);
-
-  // Visual drag state
-  const [isDragging, setIsDragging] = useState(false);
-  const dragAreaRef = useRef<HTMLDivElement>(null);
 
   const { addItem, setCartDrawerOpen } = useCartStore();
   const supabase = createClient();
@@ -214,6 +209,19 @@ export default function CustomPrintStudio() {
     isOutlineText
   ]);
 
+  // Direct On-Garment Drag Handler
+  const handleDirectDragDecal = (dx: number, dy: number) => {
+    if (!activeGraphic) return;
+    const factor = 0.22;
+    const xDelta = (activeGraphic.side === 'back' ? -dx : dx) * factor;
+    const yDelta = dy * factor;
+
+    const newX = Math.max(-35, Math.min(35, activeGraphic.x + xDelta));
+    const newY = Math.max(12, Math.min(68, activeGraphic.y + yDelta));
+
+    updateActiveLayer({ x: newX, y: newY });
+  };
+
   // AI Auto-Processing on Image Upload (Supports JPG, PNG, WebP)
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -225,7 +233,7 @@ export default function CustomPrintStudio() {
     }
 
     setIsProcessingAI(true);
-    toast.info('AI is auto-cleaning background & centering artwork...');
+    toast.info('AI is auto-cleaning background & placing on shirt...');
 
     const reader = new FileReader();
     reader.onload = async (event) => {
@@ -251,7 +259,7 @@ export default function CustomPrintStudio() {
 
       setGraphics(prev => [...prev, newLayer]);
       setSelectedLayerId(newLayer.id);
-      setActiveStep('position');
+      setInteractionMode('move');
       setIsProcessingAI(false);
 
       if (hasRemovedBg) {
@@ -274,6 +282,28 @@ export default function CustomPrintStudio() {
     toast.success('✨ AI Cleanup applied!');
   };
 
+  // Add stock sticker artwork
+  const handleAddSticker = (sticker: typeof STREETWEAR_STICKERS[0]) => {
+    const newLayer: GraphicLayer = {
+      id: `layer-${Date.now()}`,
+      name: sticker.name,
+      url: sticker.url,
+      processedUrl: sticker.url,
+      side: cameraView === 'back' ? 'back' : 'front',
+      x: 0,
+      y: 38,
+      scale: 48,
+      rotate: 0,
+      finish: 'matte',
+      removeBg: false,
+      bgTolerance: 35
+    };
+    setGraphics(prev => [...prev, newLayer]);
+    setSelectedLayerId(newLayer.id);
+    setInteractionMode('move');
+    toast.success(`Added "${sticker.name}" to shirt. Drag to move it!`);
+  };
+
   // Remove graphic layer
   const handleRemoveLayer = (id: string) => {
     setGraphics(prev => prev.filter(g => g.id !== id));
@@ -283,6 +313,32 @@ export default function CustomPrintStudio() {
         setSelectedLayerId(remaining[0].id);
       }
     }
+  };
+
+  // Update active layer
+  const updateActiveLayer = (updates: Partial<GraphicLayer>) => {
+    if (!activeGraphic) return;
+    const updated = { ...activeGraphic, ...updates };
+    setGraphics(prev => prev.map(g => g.id === updated.id ? updated : g));
+  };
+
+  // Apply sizing preset
+  const handleApplySizing = (preset: SizingPreset) => {
+    updateActiveLayer({ scale: preset.scale });
+    toast.info(`Size set to ${preset.name} (${preset.cmLabel})`);
+  };
+
+  // Apply placement preset
+  const handleApplyPlacement = (preset: typeof PLACEMENT_PRESETS[0]) => {
+    updateActiveLayer({
+      x: preset.x,
+      y: preset.y,
+      scale: preset.scale,
+      side: preset.side,
+      rotate: 0
+    });
+    setCameraView(preset.side);
+    toast.info(`Moved to ${preset.name}`);
   };
 
   // 1-Tap Recipe / Template Application
@@ -324,76 +380,8 @@ export default function CustomPrintStudio() {
     setTypographyY(recipe.typography.y);
 
     setCameraView(recipe.stickerPlacement.side);
-    toast.success(`Applied "${recipe.name}" Streetwear Preset!`);
-  };
-
-  // Add stock sticker artwork
-  const handleAddSticker = (sticker: typeof STREETWEAR_STICKERS[0]) => {
-    const newLayer: GraphicLayer = {
-      id: `layer-${Date.now()}`,
-      name: sticker.name,
-      url: sticker.url,
-      processedUrl: sticker.url,
-      side: cameraView === 'back' ? 'back' : 'front',
-      x: 0,
-      y: 38,
-      scale: 48,
-      rotate: 0,
-      finish: 'matte',
-      removeBg: false,
-      bgTolerance: 35
-    };
-    setGraphics(prev => [...prev, newLayer]);
-    setSelectedLayerId(newLayer.id);
-    setActiveStep('position');
-    toast.success(`Added "${sticker.name}" to shirt`);
-  };
-
-  // Update active layer
-  const updateActiveLayer = (updates: Partial<GraphicLayer>) => {
-    if (!activeGraphic) return;
-    const updated = { ...activeGraphic, ...updates };
-    setGraphics(prev => prev.map(g => g.id === updated.id ? updated : g));
-  };
-
-  // Apply sizing preset
-  const handleApplySizing = (preset: SizingPreset) => {
-    updateActiveLayer({ scale: preset.scale });
-    toast.info(`Size set to ${preset.name} (${preset.cmLabel})`);
-  };
-
-  // Apply placement preset
-  const handleApplyPlacement = (preset: typeof PLACEMENT_PRESETS[0]) => {
-    updateActiveLayer({
-      x: preset.x,
-      y: preset.y,
-      scale: preset.scale,
-      side: preset.side,
-      rotate: 0
-    });
-    setCameraView(preset.side);
-    toast.info(`Moved to ${preset.name}`);
-  };
-
-  // Interactive 2D Drag-to-Place Handler
-  const handleDragOnBlueprint = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
-    if (!dragAreaRef.current || !activeGraphic) return;
-    const rect = dragAreaRef.current.getBoundingClientRect();
-    
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-
-    const relX = (clientX - rect.left) / rect.width; // 0 to 1
-    const relY = (clientY - rect.top) / rect.height; // 0 to 1
-
-    // Map to shirt coordinates: X (-30 to 30), Y (15 to 65)
-    const newX = Math.round((relX - 0.5) * 60);
-    const newY = Math.round(15 + (relY * 50));
-
-    updateActiveLayer({ 
-      x: Math.max(-30, Math.min(30, newX)), 
-      y: Math.max(15, Math.min(65, newY)) 
-    });
+    setInteractionMode('move');
+    toast.success(`Applied "${recipe.name}" Preset!`);
   };
 
   // Multi-Angle Lookbook Generator
@@ -514,14 +502,15 @@ export default function CustomPrintStudio() {
           
           <div 
             ref={canvasContainerRef}
-            className="w-full h-[440px] sm:h-[520px] lg:h-[620px] bg-[#09090b] rounded-3xl border border-[var(--line)] overflow-hidden relative shadow-2xl flex items-center justify-center select-none"
+            className="w-full h-[450px] sm:h-[530px] lg:h-[630px] bg-[#09090b] rounded-3xl border border-[var(--line)] overflow-hidden relative shadow-2xl flex items-center justify-center select-none"
           >
-            {/* Realtime 3D Canvas */}
+            {/* Realtime 3D Canvas with Direct On-Mesh Dragging */}
             <CustomPrintCanvas
               color={selectedColor.hex}
               fabricWash={fabricWash}
               autoRotate={autoRotate}
-              envPreset={envPreset}
+              enableOrbit={interactionMode === 'rotate'}
+              onDragDecal={handleDirectDragDecal}
               graphics={graphics}
               typographyTexture={typographyEnabled ? typographyTexture : null}
               typographyOptions={{
@@ -533,20 +522,20 @@ export default function CustomPrintStudio() {
               activeView={cameraView}
             />
 
-            {/* ─── Top Angle Snapper Bar ─── */}
+            {/* ─── Top Bar: Camera Angles & Lookbook ─── */}
             <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center pointer-events-none">
               
               {/* Front / Back View Buttons */}
               <div className="flex bg-black/85 backdrop-blur-md border border-white/10 p-1 rounded-2xl pointer-events-auto shadow-lg">
                 <button
                   onClick={() => setCameraView('front')}
-                  className={`px-4 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'front' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                  className={`px-3.5 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'front' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
                   Front
                 </button>
                 <button
                   onClick={() => setCameraView('back')}
-                  className={`px-4 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'back' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                  className={`px-3.5 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'back' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
                   Back
                 </button>
@@ -554,11 +543,11 @@ export default function CustomPrintStudio() {
                   onClick={() => setCameraView('angle-left')}
                   className={`px-3 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'angle-left' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
-                  3/4 Angle
+                  3/4
                 </button>
               </div>
 
-              {/* Lookbook Snapshot */}
+              {/* Lookbook & Auto-Spin Action */}
               <div className="flex items-center gap-1.5 pointer-events-auto">
                 <button
                   onClick={() => setAutoRotate(!autoRotate)}
@@ -579,14 +568,84 @@ export default function CustomPrintStudio() {
               </div>
             </div>
 
-            {/* Quick Color Pill Indicator on 3D Model */}
-            <div className="absolute bottom-4 left-4 z-10 flex items-center gap-2 bg-black/85 backdrop-blur-md px-3.5 py-1.5 border border-white/10 rounded-2xl text-[11px] font-mono tracking-wider text-white uppercase pointer-events-none">
-              <span className="w-2.5 h-2.5 rounded-full border border-white/40" style={{ backgroundColor: selectedColor.hex }} />
-              <span>{selectedColor.name}</span>
-              <span>•</span>
-              <span className="text-[var(--accent)] font-bold">{selectedSize}</span>
+            {/* ─── Center-Bottom Interactive Mode Switcher & Gesture Tip ─── */}
+            <div className="absolute bottom-4 inset-x-4 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+              
+              {/* Mode Toggle Pill: Move Artwork vs Orbit 3D */}
+              <div className="flex bg-black/85 backdrop-blur-md border border-white/15 p-1 rounded-2xl pointer-events-auto shadow-xl">
+                <button
+                  onClick={() => setInteractionMode('move')}
+                  className={`px-3.5 py-1.5 text-xs font-mono uppercase rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${interactionMode === 'move' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                >
+                  <Hand className="w-3.5 h-3.5" />
+                  <span>Move Design</span>
+                </button>
+                <button
+                  onClick={() => setInteractionMode('rotate')}
+                  className={`px-3.5 py-1.5 text-xs font-mono uppercase rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${interactionMode === 'rotate' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                >
+                  <RotateCw className="w-3.5 h-3.5" />
+                  <span>Spin 3D</span>
+                </button>
+              </div>
+
+              {/* Gesture Helper Badge */}
+              <div className="bg-black/80 backdrop-blur-md px-3 py-1.5 border border-white/10 rounded-2xl text-[10px] font-mono tracking-wider text-[var(--accent)] uppercase pointer-events-none">
+                {interactionMode === 'move' ? '👆 Touch & drag on shirt to place' : '🔄 Drag to rotate view in 3D'}
+              </div>
+            </div>
+
+          </div>
+
+          {/* ─── Multi-Design Layer Selector Chips ─── */}
+          <div className="p-3 bg-[var(--bg-card)] border border-[var(--line)] rounded-2xl space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-[var(--accent)]" /> Active Graphic Layers ({graphics.length})
+              </span>
+              <label className="px-2.5 py-1 rounded-xl bg-[var(--accent)] text-black text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer hover:opacity-90 transition-all">
+                <Plus className="w-3 h-3" />
+                <span>Add Graphic</span>
+                <input 
+                  type="file" 
+                  accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml" 
+                  onChange={handleFileUpload} 
+                  className="hidden" 
+                />
+              </label>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {graphics.map((layer, idx) => (
+                <div 
+                  key={layer.id}
+                  onClick={() => {
+                    setSelectedLayerId(layer.id);
+                    setCameraView(layer.side);
+                    setInteractionMode('move');
+                  }}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-mono cursor-pointer transition-all ${selectedLayerId === layer.id ? 'border-[var(--accent)] bg-[var(--accent)]/15 text-[var(--accent)] font-bold shadow' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'}`}
+                >
+                  <span className="text-[10px] opacity-60">#{idx + 1}</span>
+                  <div className="w-4 h-4 rounded bg-black flex items-center justify-center overflow-hidden border border-white/10">
+                    <img src={layer.processedUrl || layer.url} alt="" className="w-full h-full object-contain" />
+                  </div>
+                  <span>{layer.name}</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 uppercase">{layer.side}</span>
+                  {graphics.length > 1 && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleRemoveLayer(layer.id); }}
+                      className="hover:text-red-400 p-0.5"
+                      title="Delete Layer"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
+
         </div>
 
         {/* ─── OPTIONS & SIMPLE CONTROLS CONTENT (5 Cols) ─── */}
@@ -598,13 +657,13 @@ export default function CustomPrintStudio() {
               <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)] bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20 flex items-center gap-1">
                 <Sparkle className="w-3 h-3" /> 3D CUSTOMIZER
               </span>
-              <span className="text-xs font-mono text-[var(--text-dim)]">• 240GSM HEAVY COTTON</span>
+              <span className="text-xs font-mono text-[var(--text-dim)]">• 240GSM BOXY COTTON</span>
             </div>
             <h1 className="font-display text-2xl sm:text-3xl uppercase font-bold tracking-tight">
               Design Your T-Shirt
             </h1>
             <p className="text-xs text-[var(--text-dim)] font-mono">
-              Upload any picture (AI auto-cleans it), drag to place on the shirt, and order your bespoke custom piece.
+              Upload any picture (AI cleans it automatically), drag directly on the 3D shirt, and add multiple designs.
             </p>
           </div>
 
@@ -613,29 +672,29 @@ export default function CustomPrintStudio() {
           {/* ════════════════════════════════════════════════════════════════ */}
           <div className="grid grid-cols-4 gap-1 p-1 bg-[var(--bg-card)] border border-[var(--line)] rounded-2xl">
             <button
-              onClick={() => setActiveStep('art')}
-              className={`py-2 px-1 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeStep === 'art' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+              onClick={() => setActiveTab('art')}
+              className={`py-2 px-1 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'art' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
             >
               <ImageIcon className="w-4 h-4" />
               <span>1. Artwork</span>
             </button>
             <button
-              onClick={() => setActiveStep('position')}
-              className={`py-2 px-1 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeStep === 'position' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+              onClick={() => setActiveTab('size')}
+              className={`py-2 px-1 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'size' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
             >
               <Move className="w-4 h-4" />
-              <span>2. Place & Size</span>
+              <span>2. Size & Side</span>
             </button>
             <button
-              onClick={() => setActiveStep('garment')}
-              className={`py-2 px-1 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeStep === 'garment' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+              onClick={() => setActiveTab('garment')}
+              className={`py-2 px-1 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'garment' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
             >
               <Palette className="w-4 h-4" />
               <span>3. Color/Size</span>
             </button>
             <button
-              onClick={() => setActiveStep('recipes')}
-              className={`py-2 px-1 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeStep === 'recipes' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+              onClick={() => setActiveTab('recipes')}
+              className={`py-2 px-1 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'recipes' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
             >
               <Flame className="w-4 h-4" />
               <span>Presets</span>
@@ -645,7 +704,7 @@ export default function CustomPrintStudio() {
           {/* ════════════════════════════════════════════════════════════════ */}
           {/* ─── STEP 1: 🖼️ ARTWORK & UPLOAD (WITH AI AUTO-CLEAN) ─────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
-          {activeStep === 'art' && (
+          {activeTab === 'art' && (
             <div className="space-y-4 animate-in fade-in duration-200">
               
               {/* Big AI Upload Dropzone */}
@@ -658,7 +717,7 @@ export default function CustomPrintStudio() {
                     <Sparkles className="w-4 h-4 text-[var(--accent)]" /> Upload Any Image (JPG, PNG, WebP)
                   </div>
                   <p className="text-[11px] font-mono text-[var(--text-dim)] mt-1">
-                    AI automatically strips background, cleans edges, and centers on shirt
+                    AI automatically strips background and centers on the 3D t-shirt
                   </p>
                 </div>
                 <span className="px-4 py-1.5 rounded-full bg-[var(--accent)] text-black font-mono font-bold text-xs uppercase">
@@ -672,7 +731,7 @@ export default function CustomPrintStudio() {
                 />
               </label>
 
-              {/* Current Active Graphic Card with AI Clean Re-run */}
+              {/* Active Graphic Card with AI Clean Button */}
               {activeGraphic && (
                 <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] flex items-center justify-between gap-3 shadow">
                   <div className="flex items-center gap-3 overflow-hidden">
@@ -682,7 +741,7 @@ export default function CustomPrintStudio() {
                     <div className="overflow-hidden">
                       <div className="text-xs font-mono font-bold text-[var(--text)] truncate">{activeGraphic.name}</div>
                       <div className="text-[10px] font-mono text-[var(--accent)] capitalize">
-                        {activeGraphic.side} View • Size: {activeGraphic.scale}%
+                        {activeGraphic.side} View • Drag on 3D shirt to move
                       </div>
                     </div>
                   </div>
@@ -714,7 +773,7 @@ export default function CustomPrintStudio() {
               <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" /> Or Pick Free Streetwear Art
+                    <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" /> Free Streetwear Stickers
                   </span>
                 </div>
 
@@ -757,104 +816,95 @@ export default function CustomPrintStudio() {
                 </div>
               </div>
 
-              {/* Optional Text Toggle Button */}
-              <div className="p-3.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <Type className="w-4 h-4 text-[var(--accent)]" />
-                  <span className="text-xs font-mono uppercase font-bold text-[var(--text)]">Add Custom Text / Typography</span>
+              {/* Optional Custom Streetwear Text */}
+              <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
+                    <Type className="w-4 h-4 text-[var(--accent)]" /> Add Streetwear Text
+                  </span>
+                  <button
+                    onClick={() => setTypographyEnabled(!typographyEnabled)}
+                    className={`px-3 py-1 rounded-xl text-xs font-mono uppercase transition-all cursor-pointer ${typographyEnabled ? 'bg-[var(--accent)] text-black font-bold' : 'bg-[var(--bg)] border border-[var(--line)] text-[var(--text-dim)]'}`}
+                  >
+                    {typographyEnabled ? 'Enabled' : '+ Add Text'}
+                  </button>
                 </div>
-                <button
-                  onClick={() => { setTypographyEnabled(!typographyEnabled); setActiveStep('text'); }}
-                  className={`px-3 py-1 rounded-xl text-xs font-mono uppercase transition-all cursor-pointer ${typographyEnabled ? 'bg-[var(--accent)] text-black font-bold' : 'bg-[var(--bg)] border border-[var(--line)] text-[var(--text-dim)]'}`}
-                >
-                  {typographyEnabled ? 'Edit Text' : '+ Add Text'}
-                </button>
+
+                {typographyEnabled && (
+                  <div className="space-y-2.5 pt-1">
+                    <input
+                      type="text"
+                      value={customText}
+                      onChange={(e) => setCustomText(e.target.value)}
+                      placeholder="e.g. INKWAVE 2026"
+                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs font-mono text-[var(--text)] uppercase outline-none focus:border-[var(--accent)]"
+                    />
+
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {STREETWEAR_FONTS.slice(0, 4).map((f) => (
+                        <button
+                          key={f.name}
+                          onClick={() => setSelectedFont(f.family)}
+                          className={`p-2 rounded-xl border text-left cursor-pointer ${selectedFont === f.family ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'}`}
+                        >
+                          <div className="text-xs truncate" style={{ fontFamily: f.family }}>{f.name}</div>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        onClick={() => setIsCurvedText(!isCurvedText)}
+                        className={`flex-1 py-1.5 px-3 rounded-xl border text-xs font-mono uppercase cursor-pointer ${isCurvedText ? 'bg-[var(--accent)] text-black font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'}`}
+                      >
+                        {isCurvedText ? '✓ Curved' : 'Curve Text'}
+                      </button>
+                      <button
+                        onClick={() => setIsOutlineText(!isOutlineText)}
+                        className={`flex-1 py-1.5 px-3 rounded-xl border text-xs font-mono uppercase cursor-pointer ${isOutlineText ? 'bg-[var(--accent)] text-black font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'}`}
+                      >
+                        {isOutlineText ? '✓ Outline' : 'Outline'}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
             </div>
           )}
 
           {/* ════════════════════════════════════════════════════════════════ */}
-          {/* ─── STEP 2: 👆 DRAG TO POSITION & SIZING (NO CONFUSING AXIS) ─── */}
+          {/* ─── STEP 2: 📏 SIZE, SIDE & PLACEMENT ─────────────────────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
-          {activeStep === 'position' && (
+          {activeTab === 'size' && (
             <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-4 animate-in fade-in duration-200">
               
+              {/* Front / Back Toggle */}
               <div className="flex justify-between items-center">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--accent)] flex items-center gap-1.5">
-                  <Move className="w-4 h-4" /> Drag & Adjust Placement
-                </span>
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)]">
+                  Print Placement Side
+                </label>
                 
-                {/* Front / Back View Toggle */}
                 <div className="flex bg-[var(--bg)] p-0.5 rounded-xl border border-[var(--line)]">
                   <button
                     onClick={() => { updateActiveLayer({ side: 'front' }); setCameraView('front'); }}
                     className={`px-3 py-1 text-xs font-mono uppercase rounded-lg cursor-pointer ${activeGraphic?.side === 'front' ? 'bg-[var(--accent)] text-black font-bold' : 'text-[var(--text-dim)]'}`}
                   >
-                    Front
+                    Front Chest
                   </button>
                   <button
                     onClick={() => { updateActiveLayer({ side: 'back' }); setCameraView('back'); }}
                     className={`px-3 py-1 text-xs font-mono uppercase rounded-lg cursor-pointer ${activeGraphic?.side === 'back' ? 'bg-[var(--accent)] text-black font-bold' : 'text-[var(--text-dim)]'}`}
                   >
-                    Back
+                    Back Print
                   </button>
                 </div>
               </div>
 
-              {/* 👕 INTERACTIVE T-SHIRT DRAG BLUEPRINT */}
-              <div className="space-y-1.5">
-                <p className="text-[11px] font-mono text-[var(--text-dim)]">
-                  Touch or Click anywhere on the shirt below to position your design:
-                </p>
-
-                <div 
-                  ref={dragAreaRef}
-                  onMouseDown={(e) => { setIsDragging(true); handleDragOnBlueprint(e); }}
-                  onMouseMove={(e) => { if (isDragging) handleDragOnBlueprint(e); }}
-                  onMouseUp={() => setIsDragging(false)}
-                  onTouchStart={(e) => { setIsDragging(true); handleDragOnBlueprint(e); }}
-                  onTouchMove={(e) => { if (isDragging) handleDragOnBlueprint(e); }}
-                  onTouchEnd={() => setIsDragging(false)}
-                  className="relative w-full h-64 rounded-2xl bg-black border border-white/15 flex items-center justify-center cursor-crosshair overflow-hidden select-none"
-                  style={{
-                    backgroundImage: `radial-gradient(circle at center, ${selectedColor.hex}33 0%, #000000 70%)`
-                  }}
-                >
-                  {/* T-Shirt Silhouette Outline */}
-                  <svg className="w-52 h-52 text-white/20 pointer-events-none" viewBox="0 0 100 100" fill="currentColor">
-                    <path d="M30,20 L38,20 C42,28 58,28 62,20 L70,20 L88,32 L78,44 L70,38 L70,85 L30,85 L30,38 L22,44 L12,32 Z" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  </svg>
-
-                  {/* Visual Draggable Graphic Marker */}
-                  {activeGraphic && (
-                    <div 
-                      className="absolute border-2 border-[var(--accent)] rounded-lg p-1.5 bg-black/60 shadow-xl pointer-events-none flex items-center justify-center transition-transform duration-75"
-                      style={{
-                        width: `${Math.max(36, activeGraphic.scale * 1.3)}px`,
-                        height: `${Math.max(36, activeGraphic.scale * 1.3)}px`,
-                        transform: `translate(${activeGraphic.x * 2.8}px, ${(activeGraphic.y - 38) * 2.8}px)`
-                      }}
-                    >
-                      <img 
-                        src={activeGraphic.processedUrl || activeGraphic.url} 
-                        alt="Placed decal preview" 
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  )}
-
-                  {/* Center Target Indicator */}
-                  <div className="absolute top-2 right-2 text-[9px] font-mono text-[var(--accent)] bg-black/70 px-2 py-0.5 rounded-full border border-white/10 pointer-events-none">
-                    Drag anywhere 👆
-                  </div>
-                </div>
-              </div>
-
-              {/* 🎯 Quick 1-Tap Alignment Zones */}
+              {/* Quick 1-Tap Alignment Zones */}
               <div className="space-y-1.5">
                 <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] block">
-                  Quick Alignment Presets
+                  Quick Placement Presets
                 </label>
                 <div className="grid grid-cols-3 gap-1.5">
                   {PLACEMENT_PRESETS.map((p) => (
@@ -870,11 +920,11 @@ export default function CustomPrintStudio() {
                 </div>
               </div>
 
-              {/* 📏 HUMAN-FRIENDLY SIZING PRESETS */}
+              {/* Design Sizing Presets */}
               <div className="pt-2 border-t border-[var(--line)] space-y-2">
                 <div className="flex justify-between items-center">
                   <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)]">
-                    Artwork Size
+                    Design Sizing
                   </label>
                   <span className="text-xs font-mono text-[var(--accent)] font-bold">
                     {activeGraphic?.scale}% Size
@@ -886,7 +936,7 @@ export default function CustomPrintStudio() {
                     <button
                       key={sz.id}
                       onClick={() => handleApplySizing(sz)}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${activeGraphic?.scale === sz.scale ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${activeGraphic?.scale === sz.scale ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
                     >
                       <div className="text-xs font-mono font-bold">{sz.name}</div>
                       <div className="text-[10px] font-mono opacity-60">Width: {sz.cmLabel}</div>
@@ -894,11 +944,11 @@ export default function CustomPrintStudio() {
                   ))}
                 </div>
 
-                {/* Single Intuitive Sizing Slider */}
+                {/* Sizing Slider */}
                 <div className="pt-2">
                   <div className="flex justify-between text-[10px] text-[var(--text-dim)] font-mono mb-1">
                     <span>Smaller Badge</span>
-                    <span>Larger Print</span>
+                    <span>Larger Statement</span>
                   </div>
                   <input 
                     type="range" 
@@ -911,20 +961,28 @@ export default function CustomPrintStudio() {
                 </div>
               </div>
 
+              {/* Direct Drag Instruction Card */}
+              <div className="p-3 rounded-xl bg-[var(--bg)] border border-white/10 flex items-center gap-2.5">
+                <Hand className="w-5 h-5 text-[var(--accent)] shrink-0" />
+                <p className="text-[11px] font-mono text-[var(--text-dim)] leading-relaxed">
+                  Touch and drag directly on the 3D t-shirt on the left to move the artwork anywhere you want!
+                </p>
+              </div>
+
             </div>
           )}
 
           {/* ════════════════════════════════════════════════════════════════ */}
           {/* ─── STEP 3: 🎨 T-SHIRT COLOR & SIZING (S to XXL) ─────────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
-          {activeStep === 'garment' && (
+          {activeTab === 'garment' && (
             <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-4 animate-in fade-in duration-200">
               
               {/* Color Picker */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
-                    <Palette className="w-4 h-4 text-[var(--accent)]" /> T-Shirt Color
+                    <Palette className="w-4 h-4 text-[var(--accent)]" /> T-Shirt Blank Color
                   </label>
                   <span className="text-xs font-mono text-[var(--accent)] font-bold uppercase">
                     {selectedColor.name}
@@ -1007,79 +1065,9 @@ export default function CustomPrintStudio() {
           )}
 
           {/* ════════════════════════════════════════════════════════════════ */}
-          {/* ─── STEP 4: ✍️ OPTIONAL TEXT TYPOGRAPHY ──────────────────────── */}
+          {/* ─── STEP 4: ⚡ 1-TAP STREETWEAR PRESETS ───────────────────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
-          {activeStep === 'text' && (
-            <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3.5 animate-in fade-in duration-200">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-2">
-                  <Type className="w-4 h-4 text-[var(--accent)]" />
-                  <span>Custom Streetwear Text</span>
-                </label>
-                <button
-                  onClick={() => setTypographyEnabled(!typographyEnabled)}
-                  className={`px-3 py-1 text-xs font-mono uppercase rounded-lg border transition-all cursor-pointer ${typographyEnabled ? 'bg-[var(--accent)] text-black font-bold' : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-dim)]'}`}
-                >
-                  {typographyEnabled ? 'Enabled' : 'Disabled'}
-                </button>
-              </div>
-
-              {typographyEnabled && (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-[10px] font-mono uppercase text-[var(--text-dim)] mb-1">
-                      Text
-                    </label>
-                    <input
-                      type="text"
-                      value={customText}
-                      onChange={(e) => setCustomText(e.target.value)}
-                      placeholder="e.g. INKWAVE 2026"
-                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs font-mono text-[var(--text)] uppercase outline-none focus:border-[var(--accent)]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-mono uppercase text-[var(--text-dim)] mb-1">
-                      Font Style
-                    </label>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {STREETWEAR_FONTS.slice(0, 6).map((f) => (
-                        <button
-                          key={f.name}
-                          onClick={() => setSelectedFont(f.family)}
-                          className={`p-2 rounded-xl border text-left cursor-pointer ${selectedFont === f.family ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'}`}
-                        >
-                          <div className="text-xs truncate" style={{ fontFamily: f.family }}>{f.name}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Curved Arc Toggle */}
-                  <div className="flex gap-2 pt-1">
-                    <button
-                      onClick={() => setIsCurvedText(!isCurvedText)}
-                      className={`flex-1 py-2 px-3 rounded-xl border text-xs font-mono uppercase cursor-pointer ${isCurvedText ? 'bg-[var(--accent)] text-black font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'}`}
-                    >
-                      {isCurvedText ? '✓ Curved Arc' : 'Curve Text'}
-                    </button>
-                    <button
-                      onClick={() => setIsOutlineText(!isOutlineText)}
-                      className={`flex-1 py-2 px-3 rounded-xl border text-xs font-mono uppercase cursor-pointer ${isOutlineText ? 'bg-[var(--accent)] text-black font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'}`}
-                    >
-                      {isOutlineText ? '✓ Hollow Outline' : 'Outline'}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ════════════════════════════════════════════════════════════════ */}
-          {/* ─── STEP 5: ⚡ 1-TAP STREETWEAR PRESETS ───────────────────────── */}
-          {/* ════════════════════════════════════════════════════════════════ */}
-          {activeStep === 'recipes' && (
+          {activeTab === 'recipes' && (
             <div className="space-y-2.5 animate-in fade-in duration-200">
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--accent)] block px-1">
                 1-Tap Complete Streetwear Outfits

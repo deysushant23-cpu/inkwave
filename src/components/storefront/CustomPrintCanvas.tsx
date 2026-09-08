@@ -120,7 +120,7 @@ function Shirt({
           </Suspense>
         )}
 
-        {/* 2. Front Typography Decal (Front-Only as required) */}
+        {/* 2. Front Typography Decal */}
         {!wireframe && typographyTexture && typographyOptions && (
           <Suspense fallback={null}>
             <DecalItem
@@ -158,14 +158,17 @@ function Shirt({
 function CameraRig({ 
   activeView = 'front', 
   autoRotate = false,
-  autoRotateSpeed = 2.0
+  autoRotateSpeed = 2.0,
+  enableOrbit = false
 }: { 
-  activeView?: 'front' | 'back' | 'angle-left' | 'angle-right' | 'side-left' | 'side-right' | string;
+  activeView?: string; 
   autoRotate?: boolean;
   autoRotateSpeed?: number;
+  enableOrbit?: boolean;
 }) {
   const controlsRef = useRef<any>(null);
 
+  // Smoothly update camera azimuthal rotation angle on preset change
   useEffect(() => {
     if (controlsRef.current) {
       if (activeView === 'back') {
@@ -190,6 +193,7 @@ function CameraRig({
       ref={controlsRef}
       autoRotate={autoRotate}
       autoRotateSpeed={autoRotateSpeed}
+      enableRotate={enableOrbit}
       enableZoom={true} 
       minDistance={1.2}
       maxDistance={3.5}
@@ -209,6 +213,8 @@ export interface CustomPrintCanvasProps {
   fabricWash?: FabricWashStyle;
   autoRotate?: boolean;
   autoRotateSpeed?: number;
+  enableOrbit?: boolean;
+  onDragDecal?: (deltaX: number, deltaY: number) => void;
   envPreset?: 'city' | 'studio' | 'sunset' | 'dawn' | 'night' | 'warehouse' | 'lobby' | 'park';
   // Multi-layer props
   graphics?: GraphicLayer[];
@@ -238,6 +244,8 @@ export default function CustomPrintCanvas({
   fabricWash = 'solid',
   autoRotate = false,
   autoRotateSpeed = 2.0,
+  enableOrbit = false,
+  onDragDecal,
   envPreset = 'city',
   graphics = [],
   typographyTexture,
@@ -254,8 +262,44 @@ export default function CustomPrintCanvas({
   const finalColor = color || colorHex || '#ffffff';
   const effectiveView = activeView || printSide || 'front';
 
+  const isDraggingRef = useRef(false);
+  const lastPosRef = useRef({ x: 0, y: 0 });
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (!enableOrbit && onDragDecal) {
+      isDraggingRef.current = true;
+      lastPosRef.current = { x: e.clientX, y: e.clientY };
+      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (isDraggingRef.current && onDragDecal) {
+      const dx = e.clientX - lastPosRef.current.x;
+      const dy = e.clientY - lastPosRef.current.y;
+      lastPosRef.current = { x: e.clientX, y: e.clientY };
+      onDragDecal(dx, dy);
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      try {
+        (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
+      } catch {}
+    }
+  };
+
   return (
-    <div className="w-full h-full min-h-[360px] lg:min-h-[580px] relative">
+    <div 
+      className={`w-full h-full min-h-[360px] lg:min-h-[580px] relative select-none ${enableOrbit ? 'cursor-grab active:cursor-grabbing' : 'cursor-move'}`}
+      style={{ touchAction: 'none' }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+    >
       <Canvas
         shadows
         camera={{ position: [0, 0, 2.4], fov: 25 }}
@@ -288,21 +332,22 @@ export default function CustomPrintCanvas({
           <ContactShadows 
             position={[0, -0.65, 0]} 
             opacity={0.65} 
-            scale={2.8} 
-            blur={2.4} 
-            far={1.8} 
+            scale={2.2} 
+            blur={1.8} 
+            far={1.2} 
           />
 
+          {/* HDR Environment Lighting Simulation */}
           <Environment preset={envPreset as any} />
         </Suspense>
 
         <CameraRig 
           activeView={effectiveView} 
-          autoRotate={autoRotate} 
-          autoRotateSpeed={autoRotateSpeed} 
+          autoRotate={autoRotate}
+          autoRotateSpeed={autoRotateSpeed}
+          enableOrbit={enableOrbit}
         />
       </Canvas>
     </div>
   );
 }
-
