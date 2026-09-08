@@ -7,26 +7,35 @@ import SupportChatHub from "@/components/storefront/SupportChatHub";
 import { createClient } from '@/lib/supabase/server';
 
 
-/**
- * Wraps any server-rendered page with the full storefront chrome
- * (header, footer, theme dock, cart drawer, auth modal).
- * Use this only for pages that are NOT inside the (storefront) route group.
- */
+interface StorefrontShellProps {
+  children: React.ReactNode;
+  categories?: any[];
+  theme?: any;
+}
+
 export default async function StorefrontShell({
   children,
-}: {
-  children: React.ReactNode;
-}) {
-  const supabase = await createClient();
-  
-  const [catRes, themeRes] = await Promise.all([
-    supabase.from('categories').select('*').eq('is_active', true).order('name', { ascending: true }),
-    (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'theme_config').single()
-  ]);
+  categories: passedCategories,
+  theme: passedTheme,
+}: StorefrontShellProps) {
+  let categories = passedCategories;
+  let theme = passedTheme;
 
-  let categories = catRes.data as any[] || [];
+  // Only query database if not pre-fetched by parent page
+  if (!categories || !theme) {
+    const supabase = await createClient();
+    const [catRes, themeRes] = await Promise.all([
+      !categories ? supabase.from('categories').select('*').eq('is_active', true).order('name', { ascending: true }) : Promise.resolve({ data: categories }),
+      !theme ? (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'theme_config').single() : Promise.resolve({ data: { json_content: theme } })
+    ]);
 
-  const theme = themeRes.data?.json_content || {};
+    if (!categories) {
+      categories = (catRes.data as any[]) || [];
+    }
+    if (!theme) {
+      theme = themeRes.data?.json_content || {};
+    }
+  }
 
   return (
     <>

@@ -7,12 +7,12 @@ import HeroCarousel from '@/components/storefront/HeroCarousel';
 import HeroSection from '@/components/storefront/HeroSection';
 import { PageReveal, StaggerContainer, StaggerItem } from '@/components/storefront/PageReveal';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function Home() {
   const supabase = await createClient();
 
-  // 1. Fetch active categories, custom sort order, and homepage config from CMS configs
+  // 1. Fetch active categories, custom sort order, and homepage config from CMS configs in parallel
   const [catRes, sortOrderRes, homepageConfigRes] = await Promise.all([
     (supabase.from('categories') as any).select('*').eq('is_active', true),
     (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'categories_sort_order').single(),
@@ -77,7 +77,7 @@ export default async function Home() {
   };
 
   return (
-    <StorefrontShell>
+    <StorefrontShell categories={categoriesData}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

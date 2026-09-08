@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 
 interface Slide {
@@ -68,14 +69,21 @@ export default function HeroCarousel({ slides = [], hideText = false, autoplaySp
           loop
           muted
           playsInline
+          preload="metadata"
           className="absolute inset-0 w-full h-full object-cover scale-[1.02]"
         />
       ) : (
-        <img
-          src={currentSlide.mediaUrl}
-          alt={currentSlide.title || 'Streetwear banner'}
-          className="absolute inset-0 w-full h-full object-cover animate-hero-ken-burns scale-[1.02]"
-        />
+        <div className="absolute inset-0 w-full h-full">
+          <Image
+            src={currentSlide.mediaUrl}
+            alt={currentSlide.title || 'Streetwear banner'}
+            fill
+            priority={current === 0}
+            sizes="100vw"
+            quality={85}
+            className="object-cover object-center scale-[1.02] transition-transform duration-1000"
+          />
+        </div>
       )}
 
       {/* Cinematic Overlays */}

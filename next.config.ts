@@ -1,15 +1,25 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  compress: true,
+  poweredByHeader: false,
   experimental: {
     optimizePackageImports: [
       'lucide-react',
       'framer-motion',
       '@radix-ui/react-dialog',
-      'lucide-react/dist/esm/icons'
+      '@radix-ui/react-slot',
+      'gsap',
+      'lenis',
+      'sonner',
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei'
     ]
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 2678400,
     remotePatterns: [
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
       { protocol: 'https', hostname: 'via.placeholder.com' },
