@@ -4,7 +4,7 @@ import React, { Suspense, useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Center, useGLTF, Decal, useTexture, Environment, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
-import { GraphicLayer } from '@/lib/customPrintHelpers';
+import { GraphicLayer, FabricWashStyle } from '@/lib/customPrintHelpers';
 
 // Pre-load the GLB model locally
 useGLTF.preload('/shirt.glb');
@@ -55,6 +55,7 @@ function DecalItem({
 function Shirt({ 
   color, 
   wireframe = false,
+  fabricWash = 'solid',
   graphics = [],
   legacyTextureUrl,
   legacyScale,
@@ -67,6 +68,7 @@ function Shirt({
 }: { 
   color: string; 
   wireframe?: boolean;
+  fabricWash?: FabricWashStyle;
   graphics?: GraphicLayer[];
   legacyTextureUrl?: string | null;
   legacyScale?: number;
@@ -84,6 +86,8 @@ function Shirt({
 }) {
   const { nodes } = useGLTF('/shirt.glb') as any;
   const shirtColor = new THREE.Color(color || '#ffffff');
+  const roughness = fabricWash === 'acid-wash' ? 0.96 : fabricWash === 'mercerized' ? 0.45 : 0.82;
+  const metalness = wireframe ? 0.8 : fabricWash === 'mercerized' ? 0.12 : 0.05;
 
   return (
     <group>
@@ -97,8 +101,8 @@ function Shirt({
         <meshStandardMaterial
           color={wireframe ? '#c084fc' : shirtColor}
           wireframe={wireframe}
-          roughness={0.82} // matte heavy combed cotton
-          metalness={wireframe ? 0.8 : 0.06}
+          roughness={roughness}
+          metalness={metalness}
           side={THREE.DoubleSide}
         />
 
@@ -202,6 +206,7 @@ export interface CustomPrintCanvasProps {
   colorHex?: string;
   color?: string;
   wireframe?: boolean;
+  fabricWash?: FabricWashStyle;
   autoRotate?: boolean;
   autoRotateSpeed?: number;
   envPreset?: 'city' | 'studio' | 'sunset' | 'dawn' | 'night' | 'warehouse' | 'lobby' | 'park';
@@ -230,6 +235,7 @@ export default function CustomPrintCanvas({
   colorHex, 
   color,
   wireframe = false,
+  fabricWash = 'solid',
   autoRotate = false,
   autoRotateSpeed = 2.0,
   envPreset = 'city',
@@ -265,6 +271,7 @@ export default function CustomPrintCanvas({
             <Shirt 
               color={finalColor} 
               wireframe={wireframe}
+              fabricWash={fabricWash}
               graphics={graphics}
               legacyTextureUrl={textureUrl}
               legacyScale={scaleValue}

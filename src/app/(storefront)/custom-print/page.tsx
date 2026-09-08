@@ -28,7 +28,14 @@ import {
   Construction,
   Tag,
   Eye,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Flame,
+  Move,
+  RotateCw,
+  Maximize2,
+  Download,
+  Share2,
+  Sparkle
 } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { createClient } from '@/lib/supabase/client';
@@ -38,9 +45,14 @@ import {
   applyPrintFinishTexture, 
   GraphicLayer,
   PrintFinish, 
+  FabricWashStyle,
   PLACEMENT_PRESETS, 
   STREETWEAR_FONTS, 
-  INK_COLORS 
+  INK_COLORS,
+  STREETWEAR_STICKERS,
+  DESIGN_RECIPES,
+  DesignRecipe,
+  StickerCategory
 } from '@/lib/customPrintHelpers';
 
 interface ColorPreset {
@@ -58,30 +70,6 @@ const DEFAULT_COLORS: ColorPreset[] = [
   { name: 'Washed Navy', hex: '#1e293b', image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1000&auto=format&fit=crop' },
   { name: 'Light Pink', hex: '#ffc0cb', image: 'https://images.unsplash.com/photo-1574169208507-84376144848b?q=80&w=1000&auto=format&fit=crop' },
   { name: 'Sage Green', hex: '#90ee90', image: 'https://images.unsplash.com/photo-1603252109303-2751441dd157?q=80&w=1000&auto=format&fit=crop' }
-];
-
-/* ── Streetwear Stock Graphics ─────────────────────────────────────────── */
-const STOCK_PRINTS = [
-  {
-    name: 'Gothic Brand',
-    description: 'Minimalist editorial label',
-    url: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 100 100"><text x="50" y="45" font-family="serif" font-weight="900" font-size="16" fill="white" text-anchor="middle" letter-spacing="2">INKWAVE</text><line x1="20" y1="55" x2="80" y2="55" stroke="white" stroke-width="1.5" /><text x="50" y="70" font-family="monospace" font-size="6" fill="white" text-anchor="middle" letter-spacing="1">STUDIO LAB</text></svg>`
-  },
-  {
-    name: 'Cyber Skull',
-    description: 'High-contrast graphic badge',
-    url: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 100 100"><rect x="30" y="20" width="40" height="40" fill="none" stroke="white" stroke-width="2"/><circle cx="42" cy="38" r="4" fill="white"/><circle cx="58" cy="38" r="4" fill="white"/><path d="M45 50 h10 v4 h-10 z" fill="white"/><text x="50" y="78" font-family="monospace" font-size="7" fill="white" text-anchor="middle" letter-spacing="1.5">LIMITED EDITION</text></svg>`
-  },
-  {
-    name: 'Tokyo Typo',
-    description: 'Retro futuristic typography',
-    url: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 100 100"><text x="50" y="40" font-family="sans-serif" font-weight="900" font-size="26" fill="white" text-anchor="middle" letter-spacing="-1">TOKYO</text><text x="50" y="65" font-family="sans-serif" font-weight="900" font-size="18" fill="white" text-anchor="middle" letter-spacing="4">SOUL</text><text x="50" y="80" font-family="monospace" font-size="5" fill="white" text-anchor="middle" opacity="0.6">SMALL BATCH RUN 04</text></svg>`
-  },
-  {
-    name: 'Aesthetic Wave',
-    description: 'Clean geometry wave lineart',
-    url: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="none" stroke="white" stroke-width="1.5"/><path d="M25 50 Q37.5 35 50 50 T75 50" fill="none" stroke="white" stroke-width="2"/><text x="50" y="92" font-family="monospace" font-size="6" fill="white" text-anchor="middle" letter-spacing="1">AUTHENTIC STREETWEAR</text></svg>`
-  }
 ];
 
 // Canvas-based chroma key background remover
@@ -157,27 +145,29 @@ const CustomPrintCanvas = dynamic(
 );
 
 export default function CustomPrintStudio() {
-  const [activeTab, setActiveTab] = useState<'color' | 'graphics' | 'typography' | 'lighting'>('color');
+  const [activeTab, setActiveTab] = useState<'templates' | 'color' | 'graphics' | 'typography' | 'lighting'>('templates');
   const [cameraView, setCameraView] = useState<'front' | 'back' | 'angle-left' | 'angle-right' | 'side-left' | 'side-right'>('front');
   const [wireframeMode, setWireframeMode] = useState<boolean>(false);
   const [autoRotate, setAutoRotate] = useState<boolean>(false);
   const [envPreset, setEnvPreset] = useState<'city' | 'studio' | 'sunset' | 'dawn' | 'night' | 'warehouse'>('city');
+  const [fabricWash, setFabricWash] = useState<FabricWashStyle>('solid');
+  const [showGizmoOverlay, setShowGizmoOverlay] = useState<boolean>(false);
 
   const [colors, setColors] = useState<ColorPreset[]>(DEFAULT_COLORS);
-  const [selectedColor, setSelectedColor] = useState<ColorPreset>(DEFAULT_COLORS[0]);
-  const [selectedSize, setSelectedSize] = useState<string>('M');
-  const [customLabel, setCustomLabel] = useState('INKWAVE // STUDIO SPEC');
+  const [selectedColor, setSelectedColor] = useState<ColorPreset>(DEFAULT_COLORS[1]); // Ink Black default
+  const [selectedSize, setSelectedSize] = useState<string>('L');
+  const [customLabel, setCustomLabel] = useState('TOKYO DIVISION // SPEC 01');
 
   const [graphics, setGraphics] = useState<GraphicLayer[]>([
     {
       id: 'layer-1',
-      name: 'Gothic Brand',
-      url: STOCK_PRINTS[0].url,
-      processedUrl: STOCK_PRINTS[0].url,
-      side: 'front',
+      name: 'Tokyo Underground',
+      url: STREETWEAR_STICKERS[3].url,
+      processedUrl: STREETWEAR_STICKERS[3].url,
+      side: 'back',
       x: 0,
       y: 38,
-      scale: 48,
+      scale: 65,
       rotate: 0,
       finish: 'matte',
       removeBg: false,
@@ -185,24 +175,28 @@ export default function CustomPrintStudio() {
     }
   ]);
   const [selectedLayerId, setSelectedLayerId] = useState<string>('layer-1');
+  const [selectedStickerCat, setSelectedStickerCat] = useState<StickerCategory | 'all'>('all');
 
   const [typographyEnabled, setTypographyEnabled] = useState(true);
-  const [customText, setCustomText] = useState('INKWAVE TOKYO');
-  const [customSubtext, setCustomSubtext] = useState('EDITION 01 // 2026');
-  const [selectedFont, setSelectedFont] = useState(STREETWEAR_FONTS[0].family);
-  const [fontSize, setFontSize] = useState(72);
-  const [selectedTextColor, setSelectedTextColor] = useState(INK_COLORS[0].hex);
-  const [isCurvedText, setIsCurvedText] = useState(false);
+  const [customText, setCustomText] = useState('SHIBUYA SOUL');
+  const [customSubtext, setCustomSubtext] = useState('NEO-TOKYO // 2026');
+  const [selectedFont, setSelectedFont] = useState(STREETWEAR_FONTS[2].family);
+  const [fontSize, setFontSize] = useState(68);
+  const [selectedTextColor, setSelectedTextColor] = useState(INK_COLORS[4].hex); // Electric Cyan
+  const [isCurvedText, setIsCurvedText] = useState(true);
   const [isOutlineText, setIsOutlineText] = useState(false);
   const [letterSpacing, setLetterSpacing] = useState(4);
   const [typographyX, setTypographyX] = useState(0);
-  const [typographyY, setTypographyY] = useState(25);
-  const [typographyScale, setTypographyScale] = useState(42);
+  const [typographyY, setTypographyY] = useState(26);
+  const [typographyScale, setTypographyScale] = useState(45);
   const [typographyRotate, setTypographyRotate] = useState(0);
   const [typographyTexture, setTypographyTexture] = useState<string | null>(null);
 
   const [adding, setAdding] = useState(false);
   const [isSnapping, setIsSnapping] = useState(false);
+  const [lookbookModalOpen, setLookbookModalOpen] = useState(false);
+  const [lookbookSnapshots, setLookbookSnapshots] = useState<{ front?: string; back?: string; angle?: string }>({});
+
   const [isPrintLabEnabled, setIsPrintLabEnabled] = useState<boolean>(true);
   const [isConfigLoading, setIsConfigLoading] = useState<boolean>(true);
 
@@ -228,7 +222,6 @@ export default function CustomPrintStudio() {
 
         if (configRes.data?.json_content?.colors && configRes.data.json_content.colors.length > 0) {
           setColors(configRes.data.json_content.colors);
-          setSelectedColor(configRes.data.json_content.colors[0]);
         }
 
         if (settingsRes.data?.json_content) {
@@ -296,6 +289,51 @@ export default function CustomPrintStudio() {
     setGraphics(prev => prev.map(g => g.id === layer.id ? { ...g, processedUrl: outputUrl } : g));
   };
 
+  // 1-Tap Recipe / Template Application
+  const handleApplyRecipe = (recipe: DesignRecipe) => {
+    const matchedColor = colors.find(c => c.hex.toLowerCase() === recipe.tshirtHex.toLowerCase()) || {
+      name: recipe.tshirtName,
+      hex: recipe.tshirtHex,
+      image: DEFAULT_COLORS[0].image
+    };
+
+    setSelectedColor(matchedColor);
+    setFabricWash(recipe.fabricWash);
+    setCustomLabel(recipe.customLabel);
+
+    // Apply Graphics
+    const newLayer: GraphicLayer = {
+      id: `layer-${Date.now()}`,
+      name: recipe.sticker.name,
+      url: recipe.sticker.url,
+      processedUrl: recipe.sticker.url,
+      side: recipe.stickerPlacement.side,
+      x: recipe.stickerPlacement.x,
+      y: recipe.stickerPlacement.y,
+      scale: recipe.stickerPlacement.scale,
+      rotate: 0,
+      finish: recipe.finish,
+      removeBg: false,
+      bgTolerance: 35
+    };
+    setGraphics([newLayer]);
+    setSelectedLayerId(newLayer.id);
+
+    // Apply Typography
+    setTypographyEnabled(recipe.typography.enabled);
+    setCustomText(recipe.typography.text);
+    setCustomSubtext(recipe.typography.subtext);
+    setSelectedFont(recipe.typography.fontFamily);
+    setFontSize(recipe.typography.fontSize);
+    setSelectedTextColor(recipe.typography.color);
+    setIsCurvedText(recipe.typography.isCurved);
+    setIsOutlineText(recipe.typography.isOutline);
+    setTypographyY(recipe.typography.y);
+
+    setCameraView(recipe.stickerPlacement.side);
+    toast.success(`Loaded "${recipe.name}" Streetwear Preset!`);
+  };
+
   // Upload custom graphic artwork
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -337,17 +375,17 @@ export default function CustomPrintStudio() {
     reader.readAsDataURL(file);
   };
 
-  // Add stock print artwork
-  const handleAddStockPrint = (print: typeof STOCK_PRINTS[0]) => {
+  // Add stock sticker artwork
+  const handleAddSticker = (sticker: typeof STREETWEAR_STICKERS[0]) => {
     const newLayer: GraphicLayer = {
       id: `layer-${Date.now()}`,
-      name: print.name,
-      url: print.url,
-      processedUrl: print.url,
+      name: sticker.name,
+      url: sticker.url,
+      processedUrl: sticker.url,
       side: cameraView === 'back' ? 'back' : 'front',
       x: 0,
       y: 38,
-      scale: 45,
+      scale: 48,
       rotate: 0,
       finish: 'matte',
       removeBg: false,
@@ -356,7 +394,7 @@ export default function CustomPrintStudio() {
     setGraphics(prev => [...prev, newLayer]);
     setSelectedLayerId(newLayer.id);
     setActiveTab('graphics');
-    toast.success(`Attached "${print.name}" to garment`);
+    toast.success(`Attached "${sticker.name}" to garment`);
   };
 
   // Remove graphic layer
@@ -395,23 +433,47 @@ export default function CustomPrintStudio() {
     toast.info(`Snapped to ${preset.name}`);
   };
 
-  // High-res Snapshot capture
-  const handleCaptureLookbook = () => {
+  // Multi-Angle Lookbook Generator
+  const handleGenerateLookbook = async () => {
     setIsSnapping(true);
-    setTimeout(() => {
-      const canvas = canvasContainerRef.current?.querySelector('canvas');
-      if (canvas) {
-        const image = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.download = `inkwave-bespoke-${selectedColor.name.toLowerCase().replace(/\s+/g, '-')}-lookbook.png`;
-        link.href = image;
-        link.click();
-        toast.success('3D Lookbook snapshot downloaded!');
-      } else {
-        toast.error('Unable to capture snapshot');
-      }
-      setIsSnapping(false);
-    }, 400);
+    toast.info('Generating 3-angle streetwear lookbook renders...');
+
+    // Angle 1: Front
+    setCameraView('front');
+    await new Promise(r => setTimeout(r, 600));
+    const canvas1 = canvasContainerRef.current?.querySelector('canvas');
+    const frontSnap = canvas1 ? canvas1.toDataURL('image/png') : '';
+
+    // Angle 2: Back
+    setCameraView('back');
+    await new Promise(r => setTimeout(r, 600));
+    const canvas2 = canvasContainerRef.current?.querySelector('canvas');
+    const backSnap = canvas2 ? canvas2.toDataURL('image/png') : '';
+
+    // Angle 3: 3/4 Perspective
+    setCameraView('angle-left');
+    await new Promise(r => setTimeout(r, 600));
+    const canvas3 = canvasContainerRef.current?.querySelector('canvas');
+    const angleSnap = canvas3 ? canvas3.toDataURL('image/png') : '';
+
+    setLookbookSnapshots({
+      front: frontSnap,
+      back: backSnap,
+      angle: angleSnap
+    });
+
+    setIsSnapping(false);
+    setLookbookModalOpen(true);
+    toast.success('3D Lookbook generation complete!');
+  };
+
+  // Download individual lookbook snapshot
+  const downloadSnapshot = (url: string, label: string) => {
+    const link = document.createElement('a');
+    link.download = `inkwave-${selectedColor.name.toLowerCase().replace(/\s+/g, '-')}-${label}.png`;
+    link.href = url;
+    link.click();
+    toast.success(`Downloaded ${label} render!`);
   };
 
   // Add to Bag action
@@ -439,6 +501,7 @@ export default function CustomPrintStudio() {
         color: selectedColor.name,
         colorHex: selectedColor.hex,
         size: selectedSize,
+        fabricWash: fabricWash,
         customLabel: customLabel,
         cameraAngle: cameraView,
         envLighting: envPreset,
@@ -475,6 +538,10 @@ export default function CustomPrintStudio() {
     setAdding(false);
   };
 
+  const filteredStickers = selectedStickerCat === 'all' 
+    ? STREETWEAR_STICKERS 
+    : STREETWEAR_STICKERS.filter(s => s.category === selectedStickerCat);
+
   if (!isConfigLoading && !isPrintLabEnabled) {
     return (
       <main className="pt-28 lg:pt-36 pb-32 min-h-screen bg-black flex items-center justify-center px-4 text-white">
@@ -507,7 +574,8 @@ export default function CustomPrintStudio() {
       <div className="max-w-7xl mx-auto px-4 lg:px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* ─── 3D VIEWPORT CONTAINER (7 Cols) ─── */}
-        <div className="w-full lg:col-span-7 lg:sticky lg:top-28 flex flex-col z-20">
+        <div className="w-full lg:col-span-7 lg:sticky lg:top-28 flex flex-col z-20 space-y-3">
+          
           <div 
             ref={canvasContainerRef}
             className="w-full h-[460px] sm:h-[540px] lg:h-[640px] bg-[#09090b] rounded-3xl border border-[var(--line)] overflow-hidden relative shadow-2xl flex items-center justify-center select-none"
@@ -515,6 +583,7 @@ export default function CustomPrintStudio() {
             {/* Realtime 3D Canvas */}
             <CustomPrintCanvas
               color={selectedColor.hex}
+              fabricWash={fabricWash}
               wireframe={wireframeMode}
               autoRotate={autoRotate}
               envPreset={envPreset}
@@ -529,11 +598,11 @@ export default function CustomPrintStudio() {
               activeView={cameraView}
             />
 
-            {/* ─── Top Snap Bar: Multi-Angle Snap & Snapshot ─── */}
+            {/* ─── Top Snap Bar: Multi-Angle Snap & Lookbook ─── */}
             <div className="absolute top-4 left-4 right-4 z-10 flex flex-wrap justify-between items-center gap-2 pointer-events-none">
               
               {/* Camera Snap Views */}
-              <div className="flex bg-black/80 backdrop-blur-md border border-white/10 p-1 rounded-xl pointer-events-auto shadow-lg overflow-x-auto max-w-[calc(100%-80px)]">
+              <div className="flex bg-black/85 backdrop-blur-md border border-white/10 p-1 rounded-xl pointer-events-auto shadow-lg overflow-x-auto max-w-[calc(100%-80px)]">
                 <button
                   onClick={() => setCameraView('front')}
                   className={`px-3 py-1.5 text-[10px] font-mono tracking-widest uppercase rounded-lg transition-all shrink-0 ${cameraView === 'front' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
@@ -568,11 +637,20 @@ export default function CustomPrintStudio() {
 
               {/* Utility Action Buttons */}
               <div className="flex items-center gap-1.5 pointer-events-auto">
+                {/* 2D Visual Placement Gizmo Toggle */}
+                <button
+                  onClick={() => setShowGizmoOverlay(!showGizmoOverlay)}
+                  title={showGizmoOverlay ? 'Hide Visual Placement Gizmo' : 'Show 2D Visual Placement Gizmo'}
+                  className={`p-2 rounded-xl border backdrop-blur-md transition-all ${showGizmoOverlay ? 'bg-[var(--accent)] text-black border-[var(--accent)] font-bold' : 'bg-black/85 text-white border-white/10 hover:border-white/30'}`}
+                >
+                  <Move className="w-3.5 h-3.5" />
+                </button>
+
                 {/* 360 Auto-Spin */}
                 <button
                   onClick={() => setAutoRotate(!autoRotate)}
                   title={autoRotate ? 'Pause 360 Auto-Rotation' : 'Start 360 Auto-Rotation'}
-                  className={`p-2 rounded-xl border backdrop-blur-md transition-all ${autoRotate ? 'bg-[var(--accent)] text-black border-[var(--accent)]' : 'bg-black/80 text-white border-white/10 hover:border-white/30'}`}
+                  className={`p-2 rounded-xl border backdrop-blur-md transition-all ${autoRotate ? 'bg-[var(--accent)] text-black border-[var(--accent)]' : 'bg-black/85 text-white border-white/10 hover:border-white/30'}`}
                 >
                   {autoRotate ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                 </button>
@@ -581,17 +659,17 @@ export default function CustomPrintStudio() {
                 <button
                   onClick={() => setWireframeMode(!wireframeMode)}
                   title={wireframeMode ? 'Disable Wireframe Shader' : 'Enable Wireframe 3D Matrix'}
-                  className={`p-2 rounded-xl border backdrop-blur-md transition-all ${wireframeMode ? 'bg-purple-600 text-white border-purple-400' : 'bg-black/80 text-white border-white/10 hover:border-white/30'}`}
+                  className={`p-2 rounded-xl border backdrop-blur-md transition-all ${wireframeMode ? 'bg-purple-600 text-white border-purple-400' : 'bg-black/85 text-white border-white/10 hover:border-white/30'}`}
                 >
                   <Eye className="w-3.5 h-3.5" />
                 </button>
 
                 {/* Snap Lookbook */}
                 <button
-                  onClick={handleCaptureLookbook}
+                  onClick={handleGenerateLookbook}
                   disabled={isSnapping}
-                  title="Download High-Res 3D Render"
-                  className="px-3 py-1.5 bg-black/80 backdrop-blur-md border border-white/10 hover:border-[var(--accent)] text-white text-[10px] font-mono uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-lg"
+                  title="Generate 3-Angle High-Res Lookbook"
+                  className="px-3 py-1.5 bg-black/85 backdrop-blur-md border border-white/10 hover:border-[var(--accent)] text-white text-[10px] font-mono uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-lg"
                 >
                   <Camera className="w-3.5 h-3.5 text-[var(--accent)]" />
                   <span className="hidden sm:inline">{isSnapping ? 'Rendering...' : 'Lookbook'}</span>
@@ -599,8 +677,75 @@ export default function CustomPrintStudio() {
               </div>
             </div>
 
+            {/* ─── 2D Interactive Placement Gizmo Floating Overlay ─── */}
+            {showGizmoOverlay && activeGraphic && (
+              <div className="absolute inset-x-8 top-16 bottom-16 z-20 pointer-events-none flex items-center justify-center animate-in fade-in zoom-in-95 duration-200">
+                <div className="relative w-72 h-96 border-2 border-dashed border-[var(--accent)]/40 rounded-3xl bg-black/60 backdrop-blur-sm pointer-events-auto p-4 flex flex-col justify-between shadow-2xl">
+                  
+                  {/* Top Bar inside Gizmo */}
+                  <div className="flex justify-between items-center text-[10px] font-mono text-[var(--accent)] uppercase font-bold">
+                    <span className="flex items-center gap-1">
+                      <Move className="w-3 h-3" /> Visual Placement ({activeGraphic.side.toUpperCase()})
+                    </span>
+                    <button 
+                      onClick={() => setShowGizmoOverlay(false)}
+                      className="p-1 hover:text-white"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Garment Chest Target Area */}
+                  <div className="relative w-full h-56 border border-white/10 rounded-2xl bg-black/40 flex items-center justify-center overflow-hidden">
+                    {/* Visual Decal Box */}
+                    <div 
+                      className="absolute border-2 border-[var(--accent)] rounded-lg flex items-center justify-center p-2 shadow-lg bg-[var(--accent)]/10"
+                      style={{
+                        width: `${Math.max(40, activeGraphic.scale * 1.6)}px`,
+                        height: `${Math.max(40, activeGraphic.scale * 1.6)}px`,
+                        transform: `translate(${activeGraphic.x * 2.2}px, ${(activeGraphic.y - 38) * 2.2}px) rotate(${activeGraphic.rotate}deg)`,
+                        transition: 'transform 0.05s ease-out'
+                      }}
+                    >
+                      <img 
+                        src={activeGraphic.processedUrl || activeGraphic.url} 
+                        alt="Gizmo decal preview" 
+                        className="w-full h-full object-contain pointer-events-none"
+                      />
+                      
+                      {/* Interactive Drag Pill */}
+                      <div className="absolute -top-3 -right-3 w-6 h-6 bg-[var(--accent)] text-black rounded-full flex items-center justify-center text-[9px] font-bold shadow">
+                        <Move className="w-3 h-3" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mini Quick Placement Controls inside Gizmo */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-[9px] font-mono text-[var(--text-dim)]">
+                      <span>Position X: {activeGraphic.x}%</span>
+                      <span>Position Y: {activeGraphic.y}%</span>
+                      <span>Scale: {activeGraphic.scale}%</span>
+                    </div>
+                    <div className="flex gap-1">
+                      {PLACEMENT_PRESETS.slice(0, 3).map((p) => (
+                        <button
+                          key={p.name}
+                          onClick={() => applyPlacementPreset(p)}
+                          className="flex-1 py-1 text-[9px] font-mono uppercase bg-white/5 hover:bg-[var(--accent)] hover:text-black rounded-lg border border-white/10 transition-all"
+                        >
+                          {p.name.split(' ')[0]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )}
+
             {/* Quick Floating Swatches Overlay on 3D Model */}
-            <div className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 bg-black/80 backdrop-blur-md p-1.5 border border-white/10 rounded-2xl shadow-xl">
+            <div className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 bg-black/85 backdrop-blur-md p-1.5 border border-white/10 rounded-2xl shadow-xl">
               {colors.slice(0, 5).map((c) => (
                 <button
                   key={c.name}
@@ -613,21 +758,21 @@ export default function CustomPrintStudio() {
             </div>
 
             {/* Layer Counter & Stats */}
-            <div className="absolute bottom-4 left-4 z-10 flex items-center gap-2 bg-black/80 backdrop-blur-md px-3 py-1.5 border border-white/10 rounded-xl text-[10px] font-mono tracking-wider text-white uppercase pointer-events-none">
+            <div className="absolute bottom-4 left-4 z-10 flex items-center gap-2 bg-black/85 backdrop-blur-md px-3 py-1.5 border border-white/10 rounded-xl text-[10px] font-mono tracking-wider text-white uppercase pointer-events-none">
               <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse" />
               <span>{selectedColor.name}</span>
               <span>•</span>
-              <span>{graphics.length} Graphics</span>
+              <span className="capitalize">{fabricWash} Wash</span>
               <span>•</span>
-              <span>HD HDR</span>
+              <span>{graphics.length} Graphics</span>
             </div>
           </div>
 
           {/* Quick Placement Presets Toolbar */}
           {activeGraphic && (
-            <div className="mt-4 p-3 bg-[var(--bg-card)] border border-[var(--line)] rounded-2xl flex items-center justify-between gap-2 overflow-x-auto">
+            <div className="p-3 bg-[var(--bg-card)] border border-[var(--line)] rounded-2xl flex items-center justify-between gap-2 overflow-x-auto">
               <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--text-dim)] shrink-0 flex items-center gap-1.5">
-                <Compass className="w-3.5 h-3.5 text-[var(--accent)]" /> Quick Placement:
+                <Compass className="w-3.5 h-3.5 text-[var(--accent)]" /> Alignment Presets:
               </span>
               <div className="flex gap-1.5 shrink-0">
                 {PLACEMENT_PRESETS.map((preset) => (
@@ -646,86 +791,162 @@ export default function CustomPrintStudio() {
         </div>
 
         {/* ─── OPTIONS & CONTROLS SCROLLING CONTENT (5 Cols) ─── */}
-        <div className="w-full lg:col-span-5 flex flex-col space-y-6 z-10 relative bg-[var(--bg)]">
+        <div className="w-full lg:col-span-5 flex flex-col space-y-5 z-10 relative bg-[var(--bg)]">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)] bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20">
-                INKWAVE 3D STUDIO
+              <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)] bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20 flex items-center gap-1">
+                <Sparkle className="w-3 h-3" /> INKWAVE 3D STUDIO
               </span>
-              <span className="text-xs font-mono text-[var(--text-dim)]">• 220GSM BOXY FIT</span>
+              <span className="text-xs font-mono text-[var(--text-dim)]">• 240GSM BOXY FIT</span>
             </div>
             <h1 className="font-display text-3xl md:text-4xl uppercase font-bold tracking-tight mb-2">
               Bespoke Clothes Designer
             </h1>
             <p className="text-xs text-[var(--text-dim)] leading-relaxed font-mono">
-              Real-time WebGL studio. Customize blanks with multi-layer decals, AI background removal, and viral streetwear typography.
+              Pick from 1-tap streetwear recipes or create your own piece with vector decals, fabric wash textures, and viral typography.
             </p>
           </div>
 
           {/* ════════════════════════════════════════════════════════════════ */}
           {/* ─── 🎛️ STUDIO PILL DOCK TABS ─────────────────────────────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
-          <div className="grid grid-cols-4 gap-1.5 p-1.5 bg-[var(--bg-card)] border border-[var(--line)] rounded-2xl">
+          <div className="grid grid-cols-5 gap-1 p-1 bg-[var(--bg-card)] border border-[var(--line)] rounded-2xl">
+            <button
+              onClick={() => setActiveTab('templates')}
+              className={`py-2 px-1.5 text-[10px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'templates' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+            >
+              <Flame className="w-3.5 h-3.5" />
+              <span>Presets</span>
+            </button>
             <button
               onClick={() => setActiveTab('color')}
-              className={`py-2 px-2 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'color' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+              className={`py-2 px-1.5 text-[10px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'color' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
             >
               <Palette className="w-3.5 h-3.5" />
               <span>Garment</span>
             </button>
             <button
               onClick={() => setActiveTab('graphics')}
-              className={`py-2 px-2 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'graphics' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+              className={`py-2 px-1.5 text-[10px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'graphics' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
             >
               <ImageIcon className="w-3.5 h-3.5" />
-              <span>Artwork ({graphics.length})</span>
+              <span>Art ({graphics.length})</span>
             </button>
             <button
               onClick={() => setActiveTab('typography')}
-              className={`py-2 px-2 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'typography' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+              className={`py-2 px-1.5 text-[10px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'typography' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
             >
               <Type className="w-3.5 h-3.5" />
               <span>Typo</span>
             </button>
             <button
               onClick={() => setActiveTab('lighting')}
-              className={`py-2 px-2 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'lighting' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+              className={`py-2 px-1.5 text-[10px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'lighting' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
             >
               <SunMedium className="w-3.5 h-3.5" />
-              <span>HDR Light</span>
+              <span>Lighting</span>
             </button>
           </div>
 
           {/* ════════════════════════════════════════════════════════════════ */}
-          {/* ─── TAB 1: 🎨 GARMENT BLANK & SIZE SELECTOR ───────────────────── */}
+          {/* ─── TAB 0: ⚡ 1-TAP STREETWEAR DESIGN RECIPES (TEMPLATES) ──────── */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {activeTab === 'templates' && (
+            <div className="space-y-3.5 animate-in fade-in duration-200">
+              <div className="flex justify-between items-center px-1">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--accent)] flex items-center gap-1.5">
+                  <Flame className="w-4 h-4" /> 1-Tap Streetwear Presets
+                </span>
+                <span className="text-[10px] font-mono text-[var(--text-dim)]">Tap to load full recipe</span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2.5">
+                {DESIGN_RECIPES.map((rec) => (
+                  <button
+                    key={rec.id}
+                    onClick={() => handleApplyRecipe(rec)}
+                    className="p-3.5 rounded-2xl border border-[var(--line)] hover:border-[var(--accent)] bg-[var(--bg-card)] flex items-center gap-3.5 text-left transition-all group cursor-pointer hover:shadow-lg"
+                  >
+                    <div 
+                      className="w-12 h-12 rounded-xl border border-white/20 flex items-center justify-center p-1.5 shrink-0 group-hover:scale-105 transition-all"
+                      style={{ backgroundColor: rec.tshirtHex }}
+                    >
+                      <img src={rec.sticker.url} alt={rec.name} className="w-full h-full object-contain" />
+                    </div>
+
+                    <div className="flex-1 overflow-hidden">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="text-xs font-mono font-bold text-[var(--text)] truncate">{rec.name}</span>
+                        <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)] font-bold shrink-0">
+                          {rec.badge}
+                        </span>
+                      </div>
+                      <p className="text-[10px] font-mono text-[var(--text-dim)] line-clamp-2 leading-relaxed">
+                        {rec.description}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* ─── TAB 1: 🎨 GARMENT BLANK, FABRIC WASH & SIZING ─────────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
           {activeTab === 'color' && (
             <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-4 shadow-lg animate-in fade-in duration-200">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-2">
-                  <Palette className="w-4 h-4 text-[var(--accent)]" />
-                  <span>Garment Color</span>
-                </label>
-                <span className="text-[11px] font-mono text-[var(--accent)] font-bold uppercase">
-                  {selectedColor.name}
-                </span>
+              
+              {/* Garment Color Swatches */}
+              <div className="space-y-2.5">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-2">
+                    <Palette className="w-4 h-4 text-[var(--accent)]" />
+                    <span>Garment Color</span>
+                  </label>
+                  <span className="text-[11px] font-mono text-[var(--accent)] font-bold uppercase">
+                    {selectedColor.name}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-2.5 items-center">
+                  {colors.map((c) => (
+                    <button
+                      key={c.name}
+                      onClick={() => setSelectedColor(c)}
+                      className={`w-9 h-9 rounded-xl border-2 transition-all flex items-center justify-center cursor-pointer ${selectedColor.hex === c.hex ? 'border-[var(--accent)] scale-110 shadow-lg ring-2 ring-[var(--accent)]/20' : 'border-white/10 hover:border-white/40'}`}
+                      style={{ backgroundColor: c.hex }}
+                      title={c.name}
+                    >
+                      {selectedColor.hex === c.hex && (
+                        <Check className={`w-4 h-4 ${c.hex.toLowerCase() === '#ffffff' || c.hex.toLowerCase() === '#d4c5b9' || c.hex.toLowerCase() === '#90ee90' || c.hex.toLowerCase() === '#ffc0cb' ? 'text-black' : 'text-white'}`} />
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Color Swatches */}
-              <div className="flex flex-wrap gap-2.5 items-center">
-                {colors.map((c) => (
-                  <button
-                    key={c.name}
-                    onClick={() => setSelectedColor(c)}
-                    className={`w-9 h-9 rounded-xl border-2 transition-all flex items-center justify-center cursor-pointer ${selectedColor.hex === c.hex ? 'border-[var(--accent)] scale-110 shadow-lg ring-2 ring-[var(--accent)]/20' : 'border-white/10 hover:border-white/40'}`}
-                    style={{ backgroundColor: c.hex }}
-                    title={c.name}
-                  >
-                    {selectedColor.hex === c.hex && (
-                      <Check className={`w-4 h-4 ${c.hex.toLowerCase() === '#ffffff' || c.hex.toLowerCase() === '#d4c5b9' || c.hex.toLowerCase() === '#90ee90' || c.hex.toLowerCase() === '#ffc0cb' ? 'text-black' : 'text-white'}`} />
-                    )}
-                  </button>
-                ))}
+              {/* Fabric Wash Shader Selector */}
+              <div className="pt-2 border-t border-[var(--line)] space-y-2">
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] block">
+                  Fabric Texture & Wash Finish
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'solid', label: 'Solid Heavy', desc: '240GSM Cotton' },
+                    { id: 'acid-wash', label: 'Acid Wash', desc: 'Mineral Distressed' },
+                    { id: 'mercerized', label: 'Silky Sheen', desc: 'Luxury Finish' }
+                  ].map((w) => (
+                    <button
+                      key={w.id}
+                      onClick={() => setFabricWash(w.id as FabricWashStyle)}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${fabricWash === w.id ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+                    >
+                      <div className="text-xs font-mono font-bold">{w.label}</div>
+                      <div className="text-[9px] font-mono opacity-60">{w.desc}</div>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Size Selector */}
@@ -749,7 +970,7 @@ export default function CustomPrintStudio() {
           )}
 
           {/* ════════════════════════════════════════════════════════════════ */}
-          {/* ─── TAB 2: 🖼️ MULTI-LAYER GRAPHICS & DECAL STUDIO ─────────────── */}
+          {/* ─── TAB 2: 🖼️ MULTI-LAYER GRAPHICS & STICKERS STUDIO ──────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
           {activeTab === 'graphics' && (
             <div className="space-y-4 animate-in fade-in duration-200">
@@ -798,7 +1019,7 @@ export default function CustomPrintStudio() {
 
               {/* Active Decal Fine Tuning Controls */}
               {activeGraphic && (
-                <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-4 shadow-lg">
+                <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3.5 shadow-lg">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--accent)] flex items-center gap-1.5">
                       <Sliders className="w-3.5 h-3.5" /> Adjusting: {activeGraphic.name}
@@ -808,13 +1029,13 @@ export default function CustomPrintStudio() {
                     <div className="flex bg-[var(--bg)] p-0.5 rounded-lg border border-[var(--line)]">
                       <button
                         onClick={() => { updateActiveLayer({ side: 'front' }); setCameraView('front'); }}
-                        className={`px-2 py-0.5 text-[10px] font-mono uppercase rounded ${activeGraphic.side === 'front' ? 'bg-[var(--accent)] text-black font-bold' : 'text-[var(--text-dim)]'}`}
+                        className={`px-2.5 py-0.5 text-[10px] font-mono uppercase rounded ${activeGraphic.side === 'front' ? 'bg-[var(--accent)] text-black font-bold' : 'text-[var(--text-dim)]'}`}
                       >
                         Front
                       </button>
                       <button
                         onClick={() => { updateActiveLayer({ side: 'back' }); setCameraView('back'); }}
-                        className={`px-2 py-0.5 text-[10px] font-mono uppercase rounded ${activeGraphic.side === 'back' ? 'bg-[var(--accent)] text-black font-bold' : 'text-[var(--text-dim)]'}`}
+                        className={`px-2.5 py-0.5 text-[10px] font-mono uppercase rounded ${activeGraphic.side === 'back' ? 'bg-[var(--accent)] text-black font-bold' : 'text-[var(--text-dim)]'}`}
                       >
                         Back
                       </button>
@@ -937,24 +1158,49 @@ export default function CustomPrintStudio() {
                 </div>
               )}
 
-              {/* Stock Streetwear Artworks Library */}
-              <div className="p-3.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-2">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[var(--text-dim)] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" /> Stock Streetwear Decals
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  {STOCK_PRINTS.map((print) => (
+              {/* Categorized Streetwear Stickers Library */}
+              <div className="p-3.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[var(--text-dim)] flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" /> Vector Decal Library
+                  </span>
+                  <span className="text-[9px] font-mono text-[var(--accent)]">{filteredStickers.length} Artworks</span>
+                </div>
+
+                {/* Category Filter Chips */}
+                <div className="flex gap-1 overflow-x-auto pb-1">
+                  {[
+                    { id: 'all', label: 'All' },
+                    { id: 'y2k', label: '🔥 Y2K' },
+                    { id: 'gothic', label: '⚡ Gothic' },
+                    { id: 'tokyo', label: '🎌 Tokyo' },
+                    { id: 'minimal', label: '💎 Minimal' },
+                    { id: 'skulls', label: '💀 Skulls' }
+                  ].map((cat) => (
                     <button
-                      key={print.name}
-                      onClick={() => handleAddStockPrint(print)}
+                      key={cat.id}
+                      onClick={() => setSelectedStickerCat(cat.id as any)}
+                      className={`px-2.5 py-1 text-[10px] font-mono uppercase rounded-lg border shrink-0 transition-all cursor-pointer ${selectedStickerCat === cat.id ? 'border-[var(--accent)] bg-[var(--accent)] text-black font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'}`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Sticker Grid */}
+                <div className="grid grid-cols-2 gap-2">
+                  {filteredStickers.map((sticker) => (
+                    <button
+                      key={sticker.id}
+                      onClick={() => handleAddSticker(sticker)}
                       className="p-2.5 rounded-xl border border-[var(--line)] hover:border-[var(--accent)] bg-[var(--bg)] flex items-center gap-2.5 text-left transition-all group cursor-pointer"
                     >
-                      <div className="w-9 h-9 rounded-lg bg-black border border-white/10 flex items-center justify-center p-1 shrink-0 group-hover:border-[var(--accent)]">
-                        <img src={print.url} alt={print.name} className="w-full h-full object-contain" />
+                      <div className="w-10 h-10 rounded-lg bg-black border border-white/10 flex items-center justify-center p-1 shrink-0 group-hover:border-[var(--accent)]">
+                        <img src={sticker.url} alt={sticker.name} className="w-full h-full object-contain" />
                       </div>
                       <div className="overflow-hidden">
-                        <div className="text-xs font-mono font-bold text-[var(--text)] truncate">{print.name}</div>
-                        <div className="text-[9px] font-mono text-[var(--text-dim)] truncate">{print.description}</div>
+                        <div className="text-xs font-mono font-bold text-[var(--text)] truncate">{sticker.name}</div>
+                        <div className="text-[9px] font-mono text-[var(--text-dim)] truncate">{sticker.description}</div>
                       </div>
                     </button>
                   ))}
@@ -1168,13 +1414,127 @@ export default function CustomPrintStudio() {
             <div className="flex gap-2.5 items-start bg-yellow-500/10 border border-yellow-500/20 p-3.5 rounded-2xl">
               <AlertTriangle className="w-4 h-4 text-yellow-400 shrink-0 mt-0.5" />
               <p className="text-[10px] font-mono text-[var(--text-dim)] leading-relaxed">
-                Vector artwork & print coordinates are atomically packaged into the dispatch payload. Hand-finished on 220GSM cotton in Surat.
+                Vector artwork & print coordinates are atomically packaged into the dispatch payload. Hand-finished on 240GSM cotton in Surat.
               </p>
             </div>
           </div>
         </div>
 
       </div>
+
+      {/* ════════════════════════════════════════════════════════════════ */}
+      {/* ─── 📸 3-ANGLE LOOKBOOK PRESENTATION MODAL ────────────────────── */}
+      {/* ════════════════════════════════════════════════════════════════ */}
+      {lookbookModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="max-w-4xl w-full bg-[#09090b] border border-[var(--line)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative">
+            
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+                  3D STUDIO LOOKBOOK RENDER
+                </span>
+                <h3 className="font-display text-2xl font-bold uppercase text-white mt-1">
+                  {selectedColor.name} Bespoke Streetwear Tee
+                </h3>
+              </div>
+              <button 
+                onClick={() => setLookbookModalOpen(false)}
+                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* 3 Snapshot Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Front Card */}
+              <div className="bg-black/60 rounded-2xl border border-white/10 p-3 flex flex-col space-y-3">
+                <div className="w-full aspect-[4/5] bg-black rounded-xl overflow-hidden flex items-center justify-center border border-white/5">
+                  {lookbookSnapshots.front ? (
+                    <img src={lookbookSnapshots.front} alt="Front lookbook" className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="text-xs font-mono text-white/40">Front Hero</div>
+                  )}
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-mono font-bold text-white uppercase">Front Hero</span>
+                  {lookbookSnapshots.front && (
+                    <button 
+                      onClick={() => downloadSnapshot(lookbookSnapshots.front!, 'front')}
+                      className="p-1.5 bg-white/10 hover:bg-[var(--accent)] hover:text-black rounded-lg text-white transition-all"
+                      title="Download Front"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Back Card */}
+              <div className="bg-black/60 rounded-2xl border border-white/10 p-3 flex flex-col space-y-3">
+                <div className="w-full aspect-[4/5] bg-black rounded-xl overflow-hidden flex items-center justify-center border border-white/5">
+                  {lookbookSnapshots.back ? (
+                    <img src={lookbookSnapshots.back} alt="Back lookbook" className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="text-xs font-mono text-white/40">Back Hero</div>
+                  )}
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-mono font-bold text-white uppercase">Back Graphic</span>
+                  {lookbookSnapshots.back && (
+                    <button 
+                      onClick={() => downloadSnapshot(lookbookSnapshots.back!, 'back')}
+                      className="p-1.5 bg-white/10 hover:bg-[var(--accent)] hover:text-black rounded-lg text-white transition-all"
+                      title="Download Back"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* 3/4 Angle Card */}
+              <div className="bg-black/60 rounded-2xl border border-white/10 p-3 flex flex-col space-y-3">
+                <div className="w-full aspect-[4/5] bg-black rounded-xl overflow-hidden flex items-center justify-center border border-white/5">
+                  {lookbookSnapshots.angle ? (
+                    <img src={lookbookSnapshots.angle} alt="3/4 perspective lookbook" className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="text-xs font-mono text-white/40">3/4 Dynamic Angle</div>
+                  )}
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-mono font-bold text-white uppercase">3/4 Dynamic Angle</span>
+                  {lookbookSnapshots.angle && (
+                    <button 
+                      onClick={() => downloadSnapshot(lookbookSnapshots.angle!, '3quarter')}
+                      className="p-1.5 bg-white/10 hover:bg-[var(--accent)] hover:text-black rounded-lg text-white transition-all"
+                      title="Download 3/4 View"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex flex-wrap justify-between items-center gap-3 pt-2 border-t border-white/10">
+              <span className="text-xs font-mono text-[var(--text-dim)]">
+                Rendered at 60FPS WebGL in Surat Lab Studio.
+              </span>
+              <button 
+                onClick={() => setLookbookModalOpen(false)}
+                className="px-6 py-2.5 bg-[var(--accent)] text-black font-mono font-bold text-xs uppercase rounded-xl hover:opacity-90 transition-all cursor-pointer"
+              >
+                Done & Return to Studio
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </main>
   );
 }
