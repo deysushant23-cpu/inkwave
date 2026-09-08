@@ -5,6 +5,7 @@ import StorefrontShell from '@/components/storefront/StorefrontShell';
 import { enrichProductsWithComparePrices } from '@/lib/catalogPrices';
 import HeroCarousel from '@/components/storefront/HeroCarousel';
 import HeroSection from '@/components/storefront/HeroSection';
+import ShopByStyle from '@/components/storefront/ShopByStyle';
 import { PageReveal, StaggerContainer, StaggerItem } from '@/components/storefront/PageReveal';
 
 export const revalidate = 60;
@@ -158,6 +159,9 @@ export default async function Home() {
         ) : (
           <HeroSection config={homepageConfig} />
         )}
+
+        {/* ─── NEW SHOP BY STYLE CURATED SECTION ─── */}
+        <ShopByStyle products={products} />
 
 
 
