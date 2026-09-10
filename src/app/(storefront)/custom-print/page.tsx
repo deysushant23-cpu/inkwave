@@ -85,7 +85,7 @@ const CustomPrintCanvas = dynamic(
 );
 
 export default function CustomPrintStudio() {
-  const [activeTab, setActiveTab] = useState<'art' | 'size' | 'garment' | 'recipes'>('art');
+  const [activeTab, setActiveTab] = useState<'garment' | 'art' | 'size' | 'recipes'>('garment');
   const [cameraView, setCameraView] = useState<'front' | 'back' | 'sleeve-left' | 'sleeve-right' | 'angle-left'>('front');
   const [interactionMode, setInteractionMode] = useState<'move' | 'rotate'>('move');
   const [autoRotate, setAutoRotate] = useState<boolean>(false);
@@ -518,8 +518,8 @@ export default function CustomPrintStudio() {
   };
 
   const filteredStickers = selectedStickerCat === 'all' 
-    ? STREETWEAR_STICKERS 
-    : STREETWEAR_STICKERS.filter(s => s.category === selectedStickerCat);
+    ? stickers 
+    : stickers.filter(s => s.category === selectedStickerCat);
 
   if (!isConfigLoading && !isPrintLabEnabled) {
     return (
@@ -690,11 +690,17 @@ export default function CustomPrintStudio() {
                     <img src={layer.processedUrl || layer.url} alt="" className="w-full h-full object-contain" />
                   </div>
                   <span>{layer.name}</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 uppercase">{layer.side}</span>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
+                    layer.side === 'sleeve-left' || layer.side === 'sleeve-right' 
+                      ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
+                      : 'bg-white/10 text-[var(--text-dim)]'
+                  }`}>
+                    {layer.side === 'sleeve-left' ? 'L-Sleeve' : layer.side === 'sleeve-right' ? 'R-Sleeve' : layer.side}
+                  </span>
                   {graphics.length > 1 && (
                     <button 
                       onClick={(e) => { e.stopPropagation(); handleRemoveLayer(layer.id); }}
-                      className="hover:text-red-400 p-0.5"
+                      className="hover:text-red-400 p-0.5 ml-1"
                       title="Delete Layer"
                     >
                       <Trash2 className="w-3 h-3" />
@@ -714,7 +720,7 @@ export default function CustomPrintStudio() {
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)] bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20 flex items-center gap-1">
-                <Sparkle className="w-3 h-3" /> 3D CUSTOMIZER
+                <Sparkle className="w-3 h-3" /> 3D CUSTOM STUDIO
               </span>
               <span className="text-xs font-mono text-[var(--text-dim)]">• 240GSM BOXY COTTON</span>
             </div>
@@ -722,34 +728,34 @@ export default function CustomPrintStudio() {
               Design Your T-Shirt
             </h1>
             <p className="text-xs text-[var(--text-dim)] font-mono">
-              Upload any picture (AI cleans it automatically), drag directly on the 3D shirt, and add multiple designs.
+              Place artwork anywhere (Chest, Back & Sleeves). Drag directly on the 3D t-shirt with AI auto-clean.
             </p>
           </div>
 
           {/* ════════════════════════════════════════════════════════════════ */}
           {/* ─── 🎛️ SIMPLE STEP TABS ──────────────────────────────────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
-          <div className="grid grid-cols-4 gap-1 p-1 bg-[var(--bg-card)] border border-[var(--line)] rounded-2xl">
+          <div className="grid grid-cols-4 gap-1 p-1 bg-[var(--bg-card)] border border-[var(--line)] rounded-2xl shadow-sm">
+            <button
+              onClick={() => setActiveTab('garment')}
+              className={`py-2 px-1 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'garment' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+            >
+              <Palette className="w-4 h-4" />
+              <span>1. Garment</span>
+            </button>
             <button
               onClick={() => setActiveTab('art')}
               className={`py-2 px-1 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'art' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
             >
               <ImageIcon className="w-4 h-4" />
-              <span>1. Artwork</span>
+              <span>2. Artwork</span>
             </button>
             <button
               onClick={() => setActiveTab('size')}
               className={`py-2 px-1 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'size' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
             >
               <Move className="w-4 h-4" />
-              <span>2. Size & Side</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('garment')}
-              className={`py-2 px-1 text-[11px] font-mono uppercase tracking-wider rounded-xl transition-all flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'garment' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
-            >
-              <Palette className="w-4 h-4" />
-              <span>3. Color/Size</span>
+              <span>3. Placement</span>
             </button>
             <button
               onClick={() => setActiveTab('recipes')}
@@ -761,7 +767,111 @@ export default function CustomPrintStudio() {
           </div>
 
           {/* ════════════════════════════════════════════════════════════════ */}
-          {/* ─── STEP 1: 🖼️ ARTWORK & UPLOAD (WITH AI AUTO-CLEAN) ─────────── */}
+          {/* ─── STEP 1: 👕 GARMENT BASE & SIZING (S to XXL) ───────────────── */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {activeTab === 'garment' && (
+            <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-4 animate-in fade-in duration-200">
+              
+              {/* Color Picker */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
+                    <Palette className="w-4 h-4 text-[var(--accent)]" /> Garment Color
+                  </label>
+                  <span className="text-xs font-mono text-[var(--accent)] font-bold uppercase">
+                    {selectedColor.name}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-2.5 items-center">
+                  {colors.map((c) => (
+                    <button
+                      key={c.name}
+                      onClick={() => setSelectedColor(c)}
+                      className={`w-9 h-9 rounded-xl border-2 transition-all flex items-center justify-center cursor-pointer ${selectedColor.hex === c.hex ? 'border-[var(--accent)] scale-110 shadow-lg ring-2 ring-[var(--accent)]/20' : 'border-white/10 hover:border-white/40'}`}
+                      style={{ backgroundColor: c.hex }}
+                      title={c.name}
+                    >
+                      {selectedColor.hex === c.hex && (
+                        <Check className={`w-4 h-4 ${c.hex.toLowerCase() === '#ffffff' || c.hex.toLowerCase() === '#d4c5b9' || c.hex.toLowerCase() === '#90ee90' || c.hex.toLowerCase() === '#ffc0cb' ? 'text-black' : 'text-white'}`} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* T-Shirt Size Selector (S, M, L, XL, XXL) */}
+              <div className="pt-2 border-t border-[var(--line)] space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] block">
+                    Garment Size (Unisex Oversized Fit)
+                  </label>
+                  <span className="text-xs font-mono text-[var(--accent)] font-bold">{selectedSize}</span>
+                </div>
+                <div className="grid grid-cols-5 gap-2">
+                  {['S', 'M', 'L', 'XL', 'XXL'].map((sz) => (
+                    <button
+                      key={sz}
+                      onClick={() => setSelectedSize(sz)}
+                      className={`py-2.5 text-xs font-mono uppercase rounded-xl border transition-all cursor-pointer ${selectedSize === sz ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+                    >
+                      {sz}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Fabric Finish Style */}
+              <div className="pt-2 border-t border-[var(--line)] space-y-2">
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] block">
+                  Fabric Finish & Wash
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'solid', label: 'Solid Heavy', desc: '240GSM Cotton' },
+                    { id: 'acid-wash', label: 'Acid Wash', desc: 'Vintage Mineral' },
+                    { id: 'mercerized', label: 'Silky Sheen', desc: 'Mercerized Cotton' }
+                  ].map((w) => (
+                    <button
+                      key={w.id}
+                      onClick={() => setFabricWash(w.id as FabricWashStyle)}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${fabricWash === w.id ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+                    >
+                      <div className="text-xs font-mono font-bold">{w.label}</div>
+                      <div className="text-[9px] font-mono opacity-60">{w.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Custom Woven Neck / Hem Label */}
+              <div className="pt-2 border-t border-[var(--line)] space-y-1.5">
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-dim)] flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-[var(--accent)]" /> Custom Woven Neck Label (Included)
+                </label>
+                <input
+                  type="text"
+                  value={customLabel}
+                  onChange={(e) => setCustomLabel(e.target.value)}
+                  placeholder="e.g. EDITION 01 // YOUR NAME"
+                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:border-[var(--accent)] outline-none uppercase"
+                />
+              </div>
+
+              {/* Next Step CTA */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('art')}
+                className="w-full bg-[var(--bg)] border border-[var(--accent)]/50 text-[var(--accent)] hover:bg-[var(--accent)] hover:text-black font-mono font-bold text-xs uppercase py-3 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>Next: Add Artwork & Sleeves &rarr;</span>
+              </button>
+
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* ─── STEP 2: 🖼️ ARTWORK & UPLOAD (WITH AI AUTO-CLEAN) ─────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
           {activeTab === 'art' && (
             <div className="space-y-4 animate-in fade-in duration-200">
@@ -773,13 +883,13 @@ export default function CustomPrintStudio() {
                 </div>
                 <div>
                   <div className="text-sm font-mono font-bold text-[var(--text)] uppercase flex items-center justify-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-[var(--accent)]" /> Upload Any Image (JPG, PNG, WebP)
+                    <Sparkles className="w-4 h-4 text-[var(--accent)]" /> Upload Image / Logo (JPG, PNG, WebP)
                   </div>
                   <p className="text-[11px] font-mono text-[var(--text-dim)] mt-1">
-                    AI automatically strips background and centers on the 3D t-shirt
+                    AI automatically strips the background and centers it on your t-shirt
                   </p>
                 </div>
-                <span className="px-4 py-1.5 rounded-full bg-[var(--accent)] text-black font-mono font-bold text-xs uppercase">
+                <span className="px-4 py-1.5 rounded-full bg-[var(--accent)] text-black font-mono font-bold text-xs uppercase shadow">
                   Choose Photo / Graphic
                 </span>
                 <input 
@@ -800,7 +910,7 @@ export default function CustomPrintStudio() {
                     <div className="overflow-hidden">
                       <div className="text-xs font-mono font-bold text-[var(--text)] truncate">{activeGraphic.name}</div>
                       <div className="text-[10px] font-mono text-[var(--accent)] capitalize">
-                        {activeGraphic.side} View • Drag on 3D shirt to move
+                        {activeGraphic.side === 'sleeve-left' ? 'Left Sleeve' : activeGraphic.side === 'sleeve-right' ? 'Right Sleeve' : activeGraphic.side} View • Drag on 3D shirt to move
                       </div>
                     </div>
                   </div>
@@ -828,11 +938,11 @@ export default function CustomPrintStudio() {
                 </div>
               )}
 
-              {/* Streetwear Sticker Library */}
-              <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3">
+              {/* Streetwear & Sleeve Decals Library */}
+              <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3 shadow-xs">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" /> Free Streetwear Stickers
+                    <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" /> Free Streetwear & Sleeve Decals ({filteredStickers.length})
                   </span>
                 </div>
 
@@ -840,12 +950,12 @@ export default function CustomPrintStudio() {
                 <div className="flex gap-1 overflow-x-auto pb-1">
                   {[
                     { id: 'all', label: 'All' },
+                    { id: 'sleeve', label: '🦾 Sleeves' },
                     { id: 'y2k', label: '🔥 Y2K' },
                     { id: 'gothic', label: '⚡ Gothic' },
                     { id: 'tokyo', label: '🎌 Tokyo' },
                     { id: 'minimal', label: '💎 Minimal' },
-                    { id: 'skulls', label: '💀 Skulls' },
-                    { id: 'sleeve', label: '🦾 Sleeves' }
+                    { id: 'skulls', label: '💀 Skulls' }
                   ].map((cat) => (
                     <button
                       key={cat.id}
@@ -857,7 +967,7 @@ export default function CustomPrintStudio() {
                   ))}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1">
                   {filteredStickers.map((sticker) => (
                     <button
                       key={sticker.id}
@@ -869,7 +979,9 @@ export default function CustomPrintStudio() {
                       </div>
                       <div className="overflow-hidden">
                         <div className="text-xs font-mono font-bold text-[var(--text)] truncate">{sticker.name}</div>
-                        <div className="text-[9px] font-mono text-[var(--text-dim)] truncate">{sticker.description}</div>
+                        <div className="text-[9px] font-mono text-[var(--text-dim)] truncate">
+                          {sticker.category === 'sleeve' ? '🦾 Sleeve Placement' : sticker.description}
+                        </div>
                       </div>
                     </button>
                   ))}
@@ -877,7 +989,7 @@ export default function CustomPrintStudio() {
               </div>
 
               {/* Optional Custom Streetwear Text */}
-              <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3">
+              <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3 shadow-xs">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
                     <Type className="w-4 h-4 text-[var(--accent)]" /> Add Streetwear Text
@@ -930,43 +1042,57 @@ export default function CustomPrintStudio() {
                 )}
               </div>
 
+              {/* Next Step CTA */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('size')}
+                className="w-full bg-[var(--bg)] border border-[var(--accent)]/50 text-[var(--accent)] hover:bg-[var(--accent)] hover:text-black font-mono font-bold text-xs uppercase py-3 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>Next: Placement & Sizing &rarr;</span>
+              </button>
+
             </div>
           )}
 
           {/* ════════════════════════════════════════════════════════════════ */}
-          {/* ─── STEP 2: 📏 SIZE, SIDE & PLACEMENT ─────────────────────────── */}
+          {/* ─── STEP 3: 📏 SIZE, SIDE & PLACEMENT ─────────────────────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
           {activeTab === 'size' && (
             <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-4 animate-in fade-in duration-200">
               
               {/* Front / Back / L-Sleeve / R-Sleeve Toggle */}
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)]">
-                  Print Placement Side
-                </label>
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)]">
+                    Print Surface / Side
+                  </label>
+                  <span className="text-[10px] font-mono text-[var(--accent)] uppercase font-bold">
+                    Target: {activeGraphic?.side || 'Front'}
+                  </span>
+                </div>
                 
-                <div className="flex bg-[var(--bg)] p-0.5 rounded-xl border border-[var(--line)]">
+                <div className="grid grid-cols-4 gap-1 bg-[var(--bg)] p-1 rounded-xl border border-[var(--line)]">
                   <button
                     onClick={() => { updateActiveLayer({ side: 'front' }); setCameraView('front'); }}
-                    className={`px-2.5 py-1 text-xs font-mono uppercase rounded-lg cursor-pointer transition-all ${activeGraphic?.side === 'front' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)]'}`}
+                    className={`py-2 text-xs font-mono uppercase rounded-lg cursor-pointer transition-all ${activeGraphic?.side === 'front' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
                   >
                     Front
                   </button>
                   <button
                     onClick={() => { updateActiveLayer({ side: 'back' }); setCameraView('back'); }}
-                    className={`px-2.5 py-1 text-xs font-mono uppercase rounded-lg cursor-pointer transition-all ${activeGraphic?.side === 'back' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)]'}`}
+                    className={`py-2 text-xs font-mono uppercase rounded-lg cursor-pointer transition-all ${activeGraphic?.side === 'back' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
                   >
                     Back
                   </button>
                   <button
                     onClick={() => { updateActiveLayer({ side: 'sleeve-left' }); setCameraView('sleeve-left'); }}
-                    className={`px-2.5 py-1 text-xs font-mono uppercase rounded-lg cursor-pointer transition-all ${activeGraphic?.side === 'sleeve-left' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)]'}`}
+                    className={`py-2 text-xs font-mono uppercase rounded-lg cursor-pointer transition-all ${activeGraphic?.side === 'sleeve-left' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
                   >
                     L-Sleeve
                   </button>
                   <button
                     onClick={() => { updateActiveLayer({ side: 'sleeve-right' }); setCameraView('sleeve-right'); }}
-                    className={`px-2.5 py-1 text-xs font-mono uppercase rounded-lg cursor-pointer transition-all ${activeGraphic?.side === 'sleeve-right' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)]'}`}
+                    className={`py-2 text-xs font-mono uppercase rounded-lg cursor-pointer transition-all ${activeGraphic?.side === 'sleeve-right' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)] hover:text-[var(--text)]'}`}
                   >
                     R-Sleeve
                   </button>
@@ -974,19 +1100,23 @@ export default function CustomPrintStudio() {
               </div>
 
               {/* Quick 1-Tap Alignment Zones */}
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 pt-2 border-t border-[var(--line)]">
                 <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] block">
                   Quick Placement Presets
                 </label>
-                <div className="grid grid-cols-3 gap-1.5">
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
                   {PLACEMENT_PRESETS.map((p) => (
                     <button
                       key={p.name}
                       onClick={() => handleApplyPlacement(p)}
-                      className="py-2 px-2 text-xs font-mono uppercase bg-[var(--bg)] hover:bg-[var(--accent)] hover:text-black border border-[var(--line)] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1"
+                      className={`py-2 px-1 text-[10px] font-mono uppercase border rounded-xl transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 ${
+                        activeGraphic?.side === p.side 
+                          ? 'bg-[var(--bg)] border-[var(--line)] hover:border-[var(--accent)] hover:text-[var(--accent)]' 
+                          : 'bg-[var(--bg)] opacity-60 border-transparent hover:opacity-100'
+                      }`}
                     >
-                      <span>{p.icon}</span>
-                      <span className="truncate">{p.name.split(' ')[0]}</span>
+                      <span className="text-sm">{p.icon}</span>
+                      <span className="truncate max-w-full text-center">{p.name.replace('L-Sleeve ', 'L-').replace('R-Sleeve ', 'R-')}</span>
                     </button>
                   ))}
                 </div>
@@ -999,19 +1129,19 @@ export default function CustomPrintStudio() {
                     Design Sizing
                   </label>
                   <span className="text-xs font-mono text-[var(--accent)] font-bold">
-                    {activeGraphic?.scale}% Size
+                    {activeGraphic?.scale}% Scale
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  {SIZING_PRESETS.map((sz) => (
+                <div className="grid grid-cols-3 gap-2">
+                  {SIZING_PRESETS.slice(0, 3).map((sz) => (
                     <button
                       key={sz.id}
                       onClick={() => handleApplySizing(sz)}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${activeGraphic?.scale === sz.scale ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${activeGraphic?.scale === sz.scale ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
                     >
-                      <div className="text-xs font-mono font-bold">{sz.name}</div>
-                      <div className="text-[10px] font-mono opacity-60">Width: {sz.cmLabel}</div>
+                      <div className="text-[11px] font-mono font-bold">{sz.name}</div>
+                      <div className="text-[9px] font-mono opacity-60">{sz.cmLabel}</div>
                     </button>
                   ))}
                 </div>
@@ -1019,8 +1149,8 @@ export default function CustomPrintStudio() {
                 {/* Sizing Slider */}
                 <div className="pt-2">
                   <div className="flex justify-between text-[10px] text-[var(--text-dim)] font-mono mb-1">
-                    <span>Smaller Badge</span>
-                    <span>Larger Statement</span>
+                    <span>Smaller (18%)</span>
+                    <span>Larger (85%)</span>
                   </div>
                   <input 
                     type="range" 
@@ -1028,109 +1158,19 @@ export default function CustomPrintStudio() {
                     max="85" 
                     value={activeGraphic?.scale || 45} 
                     onChange={e => updateActiveLayer({ scale: Number(e.target.value) })} 
-                    className="w-full accent-[var(--accent)]"
+                    className="w-full accent-[var(--accent)] cursor-pointer"
                   />
                 </div>
               </div>
 
               {/* Direct Drag Instruction Card */}
-              <div className="p-3 rounded-xl bg-[var(--bg)] border border-white/10 flex items-center gap-2.5">
-                <Hand className="w-5 h-5 text-[var(--accent)] shrink-0" />
+              <div className="p-3.5 rounded-2xl bg-[var(--bg)] border border-white/10 flex items-center gap-3 shadow-inner">
+                <div className="w-8 h-8 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center shrink-0">
+                  <Hand className="w-4 h-4 text-[var(--accent)]" />
+                </div>
                 <p className="text-[11px] font-mono text-[var(--text-dim)] leading-relaxed">
-                  Touch and drag directly on the 3D t-shirt on the left to move the artwork anywhere you want!
+                  Touch & drag directly on the 3D t-shirt on the left to move your artwork anywhere on the chest, back, or sleeves!
                 </p>
-              </div>
-
-            </div>
-          )}
-
-          {/* ════════════════════════════════════════════════════════════════ */}
-          {/* ─── STEP 3: 🎨 T-SHIRT COLOR & SIZING (S to XXL) ─────────────── */}
-          {/* ════════════════════════════════════════════════════════════════ */}
-          {activeTab === 'garment' && (
-            <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-4 animate-in fade-in duration-200">
-              
-              {/* Color Picker */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
-                    <Palette className="w-4 h-4 text-[var(--accent)]" /> T-Shirt Blank Color
-                  </label>
-                  <span className="text-xs font-mono text-[var(--accent)] font-bold uppercase">
-                    {selectedColor.name}
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap gap-2.5 items-center">
-                  {colors.map((c) => (
-                    <button
-                      key={c.name}
-                      onClick={() => setSelectedColor(c)}
-                      className={`w-9 h-9 rounded-xl border-2 transition-all flex items-center justify-center cursor-pointer ${selectedColor.hex === c.hex ? 'border-[var(--accent)] scale-110 shadow-lg ring-2 ring-[var(--accent)]/20' : 'border-white/10 hover:border-white/40'}`}
-                      style={{ backgroundColor: c.hex }}
-                      title={c.name}
-                    >
-                      {selectedColor.hex === c.hex && (
-                        <Check className={`w-4 h-4 ${c.hex.toLowerCase() === '#ffffff' || c.hex.toLowerCase() === '#d4c5b9' || c.hex.toLowerCase() === '#90ee90' || c.hex.toLowerCase() === '#ffc0cb' ? 'text-black' : 'text-white'}`} />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* T-Shirt Size Selector (S, M, L, XL, XXL) */}
-              <div className="pt-2 border-t border-[var(--line)] space-y-2">
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] block">
-                  Garment Size (Unisex Oversized Boxy Cut)
-                </label>
-                <div className="grid grid-cols-5 gap-2">
-                  {['S', 'M', 'L', 'XL', 'XXL'].map((sz) => (
-                    <button
-                      key={sz}
-                      onClick={() => setSelectedSize(sz)}
-                      className={`py-2.5 text-xs font-mono uppercase rounded-xl border transition-all cursor-pointer ${selectedSize === sz ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
-                    >
-                      {sz}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Fabric Finish Style */}
-              <div className="pt-2 border-t border-[var(--line)] space-y-2">
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] block">
-                  Fabric Finish
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: 'solid', label: 'Solid Heavy', desc: '240GSM Cotton' },
-                    { id: 'acid-wash', label: 'Acid Wash', desc: 'Vintage Mineral' },
-                    { id: 'mercerized', label: 'Silky Sheen', desc: 'Mercerized Cotton' }
-                  ].map((w) => (
-                    <button
-                      key={w.id}
-                      onClick={() => setFabricWash(w.id as FabricWashStyle)}
-                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${fabricWash === w.id ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
-                    >
-                      <div className="text-xs font-mono font-bold">{w.label}</div>
-                      <div className="text-[9px] font-mono opacity-60">{w.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Custom Woven Neck / Hem Label */}
-              <div className="pt-2 border-t border-[var(--line)] space-y-1.5">
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-dim)] flex items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5 text-[var(--accent)]" /> Custom Woven Neck Label
-                </label>
-                <input
-                  type="text"
-                  value={customLabel}
-                  onChange={(e) => setCustomLabel(e.target.value)}
-                  placeholder="e.g. EDITION 01 // YOUR NAME"
-                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs font-mono text-[var(--text)] placeholder-[var(--text-dim)] focus:border-[var(--accent)] outline-none uppercase"
-                />
               </div>
 
             </div>
@@ -1140,27 +1180,27 @@ export default function CustomPrintStudio() {
           {/* ─── STEP 4: ⚡ 1-TAP STREETWEAR PRESETS ───────────────────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
           {activeTab === 'recipes' && (
-            <div className="space-y-2.5 animate-in fade-in duration-200">
+            <div className="space-y-3 animate-in fade-in duration-200">
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--accent)] block px-1">
                 1-Tap Complete Streetwear Outfits
               </span>
 
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-1 gap-2.5">
                 {recipes.map((rec) => (
                   <button
                     key={rec.id}
                     onClick={() => handleApplyRecipe(rec)}
-                    className="p-3 rounded-2xl border border-[var(--line)] hover:border-[var(--accent)] bg-[var(--bg-card)] flex items-center gap-3 text-left transition-all group cursor-pointer"
+                    className="p-3.5 rounded-2xl border border-[var(--line)] hover:border-[var(--accent)] bg-[var(--bg-card)] flex items-center gap-3 text-left transition-all group cursor-pointer shadow-sm"
                   >
                     <div 
-                      className="w-10 h-10 rounded-xl border border-white/20 flex items-center justify-center p-1 shrink-0"
+                      className="w-11 h-11 rounded-xl border border-white/20 flex items-center justify-center p-1 shrink-0"
                       style={{ backgroundColor: rec.tshirtHex }}
                     >
                       <img src={rec.sticker.url} alt={rec.name} className="w-full h-full object-contain" />
                     </div>
                     <div className="flex-1 overflow-hidden">
-                      <div className="text-xs font-mono font-bold text-[var(--text)]">{rec.name}</div>
-                      <div className="text-[10px] font-mono text-[var(--text-dim)] truncate">{rec.description}</div>
+                      <div className="text-xs font-mono font-bold text-[var(--text)] group-hover:text-[var(--accent)] transition-colors">{rec.name}</div>
+                      <div className="text-[10px] font-mono text-[var(--text-dim)] truncate mt-0.5">{rec.description}</div>
                     </div>
                   </button>
                 ))}
@@ -1184,7 +1224,7 @@ export default function CustomPrintStudio() {
             <div className="flex gap-2.5 items-start bg-yellow-500/10 border border-yellow-500/20 p-3 rounded-2xl">
               <Sparkles className="w-4 h-4 text-yellow-400 shrink-0 mt-0.5" />
               <p className="text-[10px] font-mono text-[var(--text-dim)] leading-relaxed">
-                Atomic vector dispatch. Hand-printed on 240GSM cotton in Surat with luxury wash finish.
+                Atomic vector dispatch. Hand-printed on 240GSM cotton in Surat with luxury wash finish. Free Shipping included.
               </p>
             </div>
           </div>

@@ -42,12 +42,13 @@ export const PLACEMENT_PRESETS: PrintPlacementPreset[] = [
   { name: 'Center Chest', icon: '🎯', side: 'front', x: 0, y: 38, scale: 48 },
   { name: 'Pocket Left', icon: '📍', side: 'front', x: -22, y: 30, scale: 22 },
   { name: 'Right Chest', icon: '🏷️', side: 'front', x: 22, y: 30, scale: 22 },
-  { name: 'Left Sleeve Badge', icon: '🦾', side: 'sleeve-left', x: 0, y: 34, scale: 24 },
-  { name: 'Right Sleeve Badge', icon: '🦾', side: 'sleeve-right', x: 0, y: 34, scale: 24 },
-  { name: 'Left Shoulder', icon: '🦾', side: 'front', x: -32, y: 16, scale: 22 },
-  { name: 'Lower Hem', icon: '📐', side: 'front', x: -20, y: 66, scale: 25 },
-  { name: 'Oversized Back', icon: '🔥', side: 'back', x: 0, y: 38, scale: 65 },
+  { name: 'L-Sleeve Bicep', icon: '🦾', side: 'sleeve-left', x: 0, y: 30, scale: 24 },
+  { name: 'L-Sleeve Band', icon: '⛓️', side: 'sleeve-left', x: 0, y: 44, scale: 28 },
+  { name: 'R-Sleeve Bicep', icon: '🦾', side: 'sleeve-right', x: 0, y: 30, scale: 24 },
+  { name: 'R-Sleeve Band', icon: '⛓️', side: 'sleeve-right', x: 0, y: 44, scale: 28 },
+  { name: 'Oversized Back', icon: '🔥', side: 'back', x: 0, y: 38, scale: 62 },
   { name: 'Nape Collar', icon: '🏷️', side: 'back', x: 0, y: 18, scale: 18 },
+  { name: 'Lower Hem', icon: '📐', side: 'front', x: -20, y: 66, scale: 25 },
 ];
 
 export const STREETWEAR_FONTS = [

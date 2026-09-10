@@ -49,37 +49,42 @@ function DecalItem({
   const mappedScale = (scaleValue / 100) * 0.34;
   const mappedRotation = (rotateValue * Math.PI) / 180;
 
-  // Slap-on projection depth & position:
-  // Deep projection depth (0.38) guarantees that the decal wraps across curved shoulders,
-  // collar, ribs, pectorals, and sleeves with 0 clipping or cutout bugs when dragged.
-  const projectionDepth = Math.max(0.38, (mappedScale / 1.25) * 2.5);
-
   let decalPosition: [number, number, number];
   let decalRotation: [number, number, number];
+  let decalScale: [number, number, number];
 
   if (isLeftSleeve) {
-    // Project directly into outer Left Sleeve (-X side of model)
-    decalPosition = [-0.34 / 1.28, mappedY / 1.03, (xOffset / 100) * 0.10];
+    // Outer Left Sleeve:
+    // Outer surface of the left arm sleeve mesh (-X side)
+    decalPosition = [-0.265 / 1.28, (mappedY + 0.015) / 1.03, (xOffset / 100) * 0.07];
     decalRotation = [0, -Math.PI / 2, mappedRotation];
+    // Controlled projection depth (0.12) ensures clean wrap around outer bicep without bleeding into torso
+    decalScale = [mappedScale / 1.25, mappedScale / 1.03, 0.12];
   } else if (isRightSleeve) {
-    // Project directly into outer Right Sleeve (+X side of model)
-    decalPosition = [0.34 / 1.28, mappedY / 1.03, -(xOffset / 100) * 0.10];
+    // Outer Right Sleeve:
+    // Outer surface of the right arm sleeve mesh (+X side)
+    decalPosition = [0.265 / 1.28, (mappedY + 0.015) / 1.03, -(xOffset / 100) * 0.07];
     decalRotation = [0, Math.PI / 2, -mappedRotation];
+    decalScale = [mappedScale / 1.25, mappedScale / 1.03, 0.12];
   } else if (isBack) {
     // Project onto Back of shirt
+    const projectionDepth = Math.max(0.38, (mappedScale / 1.25) * 2.5);
     decalPosition = [-mappedX / 1.28, mappedY / 1.03, -0.16];
     decalRotation = [0, Math.PI, -mappedRotation];
+    decalScale = [mappedScale / 1.28, mappedScale / 1.03, projectionDepth];
   } else {
     // Project onto Front Chest of shirt
+    const projectionDepth = Math.max(0.38, (mappedScale / 1.25) * 2.5);
     decalPosition = [mappedX / 1.28, mappedY / 1.03, 0.16];
     decalRotation = [0, 0, mappedRotation];
+    decalScale = [mappedScale / 1.28, mappedScale / 1.03, projectionDepth];
   }
 
   return (
     <Decal
       position={decalPosition}
       rotation={decalRotation}
-      scale={[mappedScale / 1.28, mappedScale / 1.03, projectionDepth]}
+      scale={decalScale}
       map={decalTexture}
       polygonOffsetFactor={-2}
     />
