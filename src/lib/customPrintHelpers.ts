@@ -40,9 +40,11 @@ export interface PrintPlacementPreset {
 export const PLACEMENT_PRESETS: PrintPlacementPreset[] = [
   { name: 'Center Chest', icon: '🎯', side: 'front', x: 0, y: 38, scale: 48 },
   { name: 'Pocket Left', icon: '📍', side: 'front', x: -22, y: 30, scale: 22 },
-  { name: 'Lower Hem', icon: '📐', side: 'front', x: -20, y: 62, scale: 25 },
+  { name: 'Right Chest', icon: '🏷️', side: 'front', x: 22, y: 30, scale: 22 },
+  { name: 'Left Shoulder', icon: '🦾', side: 'front', x: -32, y: 16, scale: 22 },
+  { name: 'Lower Hem', icon: '📐', side: 'front', x: -20, y: 66, scale: 25 },
   { name: 'Oversized Back', icon: '🔥', side: 'back', x: 0, y: 38, scale: 65 },
-  { name: 'Nape Collar', icon: '🏷️', side: 'back', x: 0, y: 22, scale: 18 },
+  { name: 'Nape Collar', icon: '🏷️', side: 'back', x: 0, y: 18, scale: 18 },
 ];
 
 export const STREETWEAR_FONTS = [

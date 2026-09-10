@@ -57,6 +57,7 @@ function CustomPrintOrderPreview({
 }) {
   const [typoTexture, setTypoTexture] = useState<string | null>(null);
   const [loadingTypo, setLoadingTypo] = useState(false);
+  const [adminView, setAdminView] = useState<'front' | 'back' | 'angle-left'>('front');
 
   useEffect(() => {
     const typoSpec = print.metadata?.typography;
@@ -85,21 +86,22 @@ function CustomPrintOrderPreview({
   }, [print.metadata?.typography]);
 
   const colorName = print.metadata?.color || print.color || 'Pure White';
-  const presetHex = print.metadata?.color_hex || COLOR_HEX_MAP[colorName] || '#ffffff';
+  const presetHex = print.metadata?.colorHex || print.metadata?.color_hex || COLOR_HEX_MAP[colorName] || '#ffffff';
   
-  const layers = print.metadata?.graphic_layers || [];
+  const layers = print.metadata?.graphics || print.metadata?.graphic_layers || [];
   const typography = print.metadata?.typography || null;
-  const neckLabel = print.metadata?.custom_label || 'N/A';
+  const neckLabel = print.metadata?.customLabel || print.metadata?.custom_label || 'N/A';
+  const fabricWash = print.metadata?.fabricWash || 'solid';
 
   // Support backward compatibility for legacy simple print formats
   const hasLayersOrTypo = layers.length > 0 || !!typography;
   const legacyImageUrl = !hasLayersOrTypo ? (print.metadata?.uploaded_design || print.uploaded_design) : null;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-black/20 border border-[var(--line)] p-5">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-black/30 border border-[var(--line)] p-5 rounded-2xl">
       
-      {/* 1. 3D Position Preview Block */}
-      <div className="border border-[var(--line)] overflow-hidden aspect-square bg-[var(--bg-card)] relative flex items-center justify-center">
+      {/* 1. 3D Position Preview Block with View Angle Switcher */}
+      <div className="border border-[var(--line)] overflow-hidden aspect-square bg-[var(--bg-card)] rounded-xl relative flex items-center justify-center">
         {loadingTypo ? (
           <div className="w-full h-full min-h-[250px] flex flex-col items-center justify-center text-[var(--text-dim)] font-mono text-[10px] uppercase tracking-widest gap-2 bg-black/20">
             <Loader2 className="w-4 h-4 animate-spin text-[var(--accent)]" /> Loading Typography...
@@ -107,14 +109,16 @@ function CustomPrintOrderPreview({
         ) : (
           <CustomPrintCanvas 
             colorHex={presetHex}
+            fabricWash={fabricWash}
             graphics={layers}
             typographyTexture={typoTexture}
             typographyOptions={typography ? {
-              x: typography.x,
-              y: typography.y,
-              scale: typography.scale,
-              rotate: typography.rotate
+              x: typography.x || 0,
+              y: typography.y || 25,
+              scale: typography.scale || 42,
+              rotate: typography.rotate || 0
             } : undefined}
+            activeView={adminView}
             // Backward compatibility properties
             textureUrl={legacyImageUrl}
             scaleValue={print.metadata?.scale || 40}
@@ -124,97 +128,184 @@ function CustomPrintOrderPreview({
             printSide={print.metadata?.side || 'front'}
           />
         )}
-        <div className="absolute top-4 left-4 bg-black/60 border border-white/10 px-2.5 py-1 text-[8px] font-mono tracking-widest text-white uppercase font-bold z-10 font-bold">
-          Interactive 3D Preview
+
+        {/* View Switcher Controls */}
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1 bg-black/85 backdrop-blur-md border border-white/15 p-1 rounded-xl shadow-lg">
+          <button
+            onClick={() => setAdminView('front')}
+            className={`px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider rounded-lg transition-all cursor-pointer ${adminView === 'front' ? 'bg-[var(--accent)] text-black font-bold' : 'text-white/70 hover:text-white'}`}
+          >
+            Front
+          </button>
+          <button
+            onClick={() => setAdminView('back')}
+            className={`px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider rounded-lg transition-all cursor-pointer ${adminView === 'back' ? 'bg-[var(--accent)] text-black font-bold' : 'text-white/70 hover:text-white'}`}
+          >
+            Back
+          </button>
+          <button
+            onClick={() => setAdminView('angle-left')}
+            className={`px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider rounded-lg transition-all cursor-pointer ${adminView === 'angle-left' ? 'bg-[var(--accent)] text-black font-bold' : 'text-white/70 hover:text-white'}`}
+          >
+            3/4
+          </button>
+        </div>
+
+        <div className="absolute bottom-3 right-3 bg-black/75 border border-white/10 px-2.5 py-1 rounded-lg text-[9px] font-mono tracking-widest text-[var(--accent)] uppercase font-bold">
+          Surat Lab 3D Spec
         </div>
       </div>
 
-      {/* 2. Specs details and file download */}
+      {/* 2. Specs details and high-resolution file download */}
       <div className="flex flex-col justify-between space-y-4">
         <div className="space-y-4">
-          <div className="text-xs uppercase font-mono text-[var(--text-dim)] font-bold">Mockup Alignments</div>
-          <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-            <div className="bg-[var(--bg)] p-2 border border-[var(--line)]">Color: <span className="font-bold text-[var(--text)]">{colorName}</span></div>
-            <div className="bg-[var(--bg)] p-2 border border-[var(--line)]">Size: <span className="font-bold text-[var(--text)]">{print.size || 'N/A'}</span></div>
-            <div className="bg-[var(--bg)] p-2 border border-[var(--line)] col-span-2">Woven Label: <span className="font-bold text-[var(--text)] uppercase">{neckLabel}</span></div>
+          <div className="text-xs uppercase font-mono text-[var(--accent)] font-bold flex items-center justify-between">
+            <span>Garment & Dispatch Blueprint</span>
+            <span className="text-[10px] text-[var(--text-dim)] font-normal">Surat Production</span>
           </div>
 
-          {/* Legacy simple design specs */}
-          {!hasLayersOrTypo && (
-            <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-              <div className="bg-[var(--bg)] p-2 border border-[var(--line)]">Side: <span className="font-bold text-[var(--text)] uppercase">{print.metadata?.side || 'front'}</span></div>
-              <div className="bg-[var(--bg)] p-2 border border-[var(--line)]">Scale: <span className="font-bold text-[var(--text)]">{print.metadata?.scale || 0}%</span></div>
-              <div className="bg-[var(--bg)] p-2 border border-[var(--line)]">X-Align: <span className="font-bold text-[var(--text)]">{print.metadata?.left || 0}%</span></div>
-              <div className="bg-[var(--bg)] p-2 border border-[var(--line)]">Y-Align: <span className="font-bold text-[var(--text)]">{print.metadata?.top || 0}%</span></div>
+          <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+            <div className="bg-[var(--bg)] p-2.5 border border-[var(--line)] rounded-lg">
+              <span className="text-[10px] text-[var(--text-dim)] uppercase block">Color Blank</span>
+              <span className="font-bold text-[var(--text)]">{colorName}</span>
+            </div>
+            <div className="bg-[var(--bg)] p-2.5 border border-[var(--line)] rounded-lg">
+              <span className="text-[10px] text-[var(--text-dim)] uppercase block">Size & Fit</span>
+              <span className="font-bold text-[var(--text)]">{print.size || 'L'} (Boxy Fit)</span>
+            </div>
+            <div className="bg-[var(--bg)] p-2.5 border border-[var(--line)] rounded-lg">
+              <span className="text-[10px] text-[var(--text-dim)] uppercase block">Fabric Wash</span>
+              <span className="font-bold text-[var(--text)] uppercase">{fabricWash}</span>
+            </div>
+            <div className="bg-[var(--bg)] p-2.5 border border-[var(--line)] rounded-lg">
+              <span className="text-[10px] text-[var(--text-dim)] uppercase block">Woven Neck Label</span>
+              <span className="font-bold text-[var(--text)] uppercase truncate block">{neckLabel}</span>
+            </div>
+          </div>
+
+          {/* Graphic layers list with Real High-Res Asset Download */}
+          {layers.length > 0 && (
+            <div className="border-t border-[var(--line)] pt-3 space-y-2.5">
+              <div className="flex justify-between items-center">
+                <span className="text-[11px] uppercase font-mono text-[var(--text)] font-bold">
+                  Graphic Layers ({layers.length}) • High-Res Real Files
+                </span>
+              </div>
+              
+              <div className="space-y-2.5 max-h-[240px] overflow-y-auto pr-1">
+                {layers.map((layer: any, lIdx: number) => {
+                  const rawFile = layer.rawUrl || layer.url;
+                  const cleanFile = layer.processedUrl || layer.url;
+                  const isSvg = (rawFile || '').startsWith('data:image/svg');
+
+                  return (
+                    <div key={lIdx} className="bg-[var(--bg)] p-3 border border-[var(--line)] rounded-xl text-[11px] font-mono flex flex-col gap-2.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-9 h-9 rounded-lg bg-black border border-white/15 flex items-center justify-center p-1 shrink-0 overflow-hidden">
+                            <img src={cleanFile || rawFile} alt="" className="w-full h-full object-contain" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-bold text-[var(--text)] truncate">{layer.name || `Graphic #${lIdx + 1}`}</div>
+                            <div className="text-[10px] text-[var(--accent)] mt-0.5 uppercase">
+                              Side: {layer.side || 'front'} • Scale: {layer.scale}% • Pos: [{layer.x || 0}%, {layer.y || 38}%]
+                            </div>
+                          </div>
+                        </div>
+
+                        <span className="text-[9px] px-2 py-0.5 rounded-full bg-white/10 text-white font-mono uppercase shrink-0">
+                          {isSvg ? 'Vector SVG' : 'High-Res'}
+                        </span>
+                      </div>
+
+                      {/* Download Action Buttons */}
+                      <div className="flex flex-wrap gap-2 pt-1 border-t border-white/5">
+                        {rawFile && (
+                          <button
+                            onClick={() => {
+                              const ext = isSvg ? 'svg' : 'png';
+                              downloadOriginalDesign(
+                                rawFile, 
+                                `inkwave-real-highres-order-${orderId}-layer-${lIdx + 1}.${ext}`
+                              );
+                            }}
+                            className="flex-1 bg-[var(--text)] hover:bg-[var(--accent)] text-[var(--bg)] hover:text-black py-1.5 px-2.5 text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Download className="w-3.5 h-3.5" /> Download Real High-Res Asset
+                          </button>
+                        )}
+                        {layer.processedUrl && layer.processedUrl !== rawFile && (
+                          <button
+                            onClick={() => {
+                              downloadOriginalDesign(
+                                layer.processedUrl, 
+                                `inkwave-cleaned-order-${orderId}-layer-${lIdx + 1}.png`
+                              );
+                            }}
+                            className="bg-[var(--bg-alt)] hover:bg-white/20 border border-[var(--line)] text-[var(--text)] py-1.5 px-2.5 text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 rounded-lg transition-colors cursor-pointer"
+                            title="Download AI-Cleaned Transparent Layer"
+                          >
+                            <Download className="w-3.5 h-3.5" /> Cleaned PNG
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
-          {/* Typography specs summary */}
+          {/* Typography specs summary & Download */}
           {typography && (
-            <div className="border-t border-[var(--line)] pt-3 space-y-1">
-              <div className="text-[10px] uppercase font-mono text-[var(--text-dim)] font-semibold">Custom Typography</div>
-              <div className="bg-[var(--bg)] p-3 border border-[var(--line)] text-xs font-mono space-y-1 leading-relaxed text-[var(--text-dim)]">
+            <div className="border-t border-[var(--line)] pt-3 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] uppercase font-mono text-[var(--text-dim)] font-semibold">Custom Typography Artwork</span>
+                {typoTexture && (
+                  <button
+                    onClick={() => downloadOriginalDesign(typoTexture, `inkwave-typography-order-${orderId}.png`)}
+                    className="text-[9px] font-mono text-[var(--accent)] hover:underline flex items-center gap-1 cursor-pointer font-bold"
+                  >
+                    <Download className="w-3 h-3" /> Download Text Decal PNG
+                  </button>
+                )}
+              </div>
+              <div className="bg-[var(--bg)] p-3 border border-[var(--line)] rounded-xl text-xs font-mono space-y-1.5 leading-relaxed text-[var(--text-dim)]">
                 <div>Text: <span className="text-[var(--text)] font-bold">{typography.text}</span></div>
                 {typography.subtext && <div>Subtext: <span className="text-[var(--text)] font-bold">{typography.subtext}</span></div>}
                 <div>Font Family: <span className="text-[var(--text)]">{typography.font}</span></div>
-                <div className="grid grid-cols-2 gap-1 mt-1 text-[10px]">
-                  <div>Scale: {typography.scale}%</div>
-                  <div>Rotate: {typography.rotate}°</div>
-                  <div>X-Align: {typography.x}%</div>
-                  <div>Y-Align: {typography.y}%</div>
+                <div className="grid grid-cols-2 gap-1 text-[10px] pt-1">
+                  <div>Color: <span className="text-white font-bold">{typography.textColor || '#FFFFFF'}</span></div>
+                  <div>Style: {typography.isCurved ? 'Arc Curved' : 'Straight'} {typography.isOutline ? '+ Outline' : ''}</div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Graphic layers list */}
-          {layers.length > 0 && (
-            <div className="border-t border-[var(--line)] pt-3 space-y-2">
-              <div className="text-[10px] uppercase font-mono text-[var(--text-dim)] font-semibold">Graphic Layers ({layers.length})</div>
-              <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1">
-                {layers.map((layer: any, lIdx: number) => (
-                  <div key={lIdx} className="bg-[var(--bg)] p-2.5 border border-[var(--line)] text-[11px] font-mono leading-normal flex items-center justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="font-bold text-[var(--text)] truncate">{layer.name || `Layer ${lIdx + 1}`}</div>
-                      <div className="text-[10px] text-[var(--text-dim)] mt-0.5">
-                        Side: {layer.side.toUpperCase()} · Finish: {layer.finish} · Scale: {layer.scale}%
-                      </div>
-                    </div>
-                    
-                    {layer.url ? (
-                      <button
-                        onClick={() => downloadOriginalDesign(
-                          layer.url, 
-                          `custom-print-order-${orderId}-layer-${idx + 1}-${lIdx + 1}.png`
-                        )}
-                        className="px-2.5 py-1 bg-[var(--text)] hover:bg-[var(--accent)] text-[var(--bg)] hover:text-black font-mono font-bold text-[9px] uppercase tracking-wider transition-colors shrink-0 font-bold"
-                      >
-                        Download
-                      </button>
-                    ) : (
-                      <span className="text-[9px] text-red-400 font-bold shrink-0">No File</span>
-                    )}
-                  </div>
-                ))}
+          {/* Legacy simple design specs */}
+          {!hasLayersOrTypo && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                <div className="bg-[var(--bg)] p-2 border border-[var(--line)] rounded">Side: <span className="font-bold text-[var(--text)] uppercase">{print.metadata?.side || 'front'}</span></div>
+                <div className="bg-[var(--bg)] p-2 border border-[var(--line)] rounded">Scale: <span className="font-bold text-[var(--text)]">{print.metadata?.scale || 0}%</span></div>
+                <div className="bg-[var(--bg)] p-2 border border-[var(--line)] rounded">X-Align: <span className="font-bold text-[var(--text)]">{print.metadata?.left || 0}%</span></div>
+                <div className="bg-[var(--bg)] p-2 border border-[var(--line)] rounded">Y-Align: <span className="font-bold text-[var(--text)]">{print.metadata?.top || 0}%</span></div>
               </div>
+
+              {legacyImageUrl && (
+                <button
+                  onClick={() => downloadOriginalDesign(
+                    legacyImageUrl, 
+                    `custom-print-order-${orderId}-${idx + 1}.png`
+                  )}
+                  className="w-full bg-[var(--text)] hover:bg-[var(--accent)] text-[var(--bg)] hover:text-black py-3 px-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors font-bold rounded-xl cursor-pointer"
+                >
+                  <Download className="w-4 h-4" /> Download Original High-Res PNG
+                </button>
+              )}
             </div>
           )}
 
-          {/* Legacy simple download */}
-          {!hasLayersOrTypo && legacyImageUrl && (
-            <div className="space-y-2">
-              <div className="text-xs font-mono text-[var(--text-dim)]">Design Image Source</div>
-              <button
-                onClick={() => downloadOriginalDesign(
-                  legacyImageUrl, 
-                  `custom-print-order-${orderId}-${idx + 1}.png`
-                )}
-                className="w-full bg-[var(--text)] hover:bg-[var(--accent)] text-[var(--bg)] hover:text-black py-3 px-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors font-bold"
-              >
-                <Download className="w-4 h-4" /> Download Original PNG
-              </button>
-            </div>
-          )}
         </div>
       </div>
 

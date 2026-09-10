@@ -209,15 +209,16 @@ export default function CustomPrintStudio() {
     isOutlineText
   ]);
 
-  // Direct On-Garment Drag Handler
+  // Direct On-Garment Drag Handler (Unrestricted Slap-On Placement)
   const handleDirectDragDecal = (dx: number, dy: number) => {
     if (!activeGraphic) return;
     const factor = 0.22;
     const xDelta = (activeGraphic.side === 'back' ? -dx : dx) * factor;
     const yDelta = dy * factor;
 
-    const newX = Math.max(-35, Math.min(35, activeGraphic.x + xDelta));
-    const newY = Math.max(12, Math.min(68, activeGraphic.y + yDelta));
+    // Full garment freedom: chest, shoulders, lower hem, ribs, pocket zones
+    const newX = Math.max(-46, Math.min(46, activeGraphic.x + xDelta));
+    const newY = Math.max(4, Math.min(80, activeGraphic.y + yDelta));
 
     updateActiveLayer({ x: newX, y: newY });
   };
@@ -450,7 +451,21 @@ export default function CustomPrintStudio() {
           scale: g.scale,
           x: g.x,
           y: g.y,
-          url: g.processedUrl || g.url
+          finish: g.finish || 'matte',
+          url: g.processedUrl || g.url,
+          processedUrl: g.processedUrl || g.url,
+          rawUrl: g.url // Pristine original high-resolution user upload for Surat factory printing
+        })),
+        graphic_layers: graphics.map(g => ({
+          name: g.name,
+          side: g.side,
+          scale: g.scale,
+          x: g.x,
+          y: g.y,
+          finish: g.finish || 'matte',
+          url: g.processedUrl || g.url,
+          processedUrl: g.processedUrl || g.url,
+          rawUrl: g.url
         })),
         typography: typographyEnabled && customText.trim() ? {
           text: customText,

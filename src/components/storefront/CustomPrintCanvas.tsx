@@ -9,7 +9,7 @@ import { GraphicLayer, FabricWashStyle } from '@/lib/customPrintHelpers';
 // Pre-load the GLB model locally
 useGLTF.preload('/shirt.glb');
 
-/* ── Individual Decal Layer Component ──────────────────────────────────── */
+/* ── Individual Decal Layer Component with Slap-On Projection ──────────── */
 function DecalItem({ 
   textureUrl, 
   xOffset = 0, 
@@ -28,15 +28,30 @@ function DecalItem({
   const decalTexture = useTexture(
     textureUrl || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
   );
+
+  useEffect(() => {
+    if (decalTexture) {
+      decalTexture.generateMipmaps = true;
+      decalTexture.minFilter = THREE.LinearMipmapLinearFilter;
+      decalTexture.magFilter = THREE.LinearFilter;
+      decalTexture.anisotropy = 16;
+      decalTexture.needsUpdate = true;
+    }
+  }, [decalTexture]);
+
   const isBack = side === 'back';
   
   // Decal coordinates on the oversized boxy shirt geometry
-  const mappedX = (xOffset / 100) * 0.3;
-  const mappedY = 0.04 + ((38 - yOffset) * 0.005);
-  const mappedScale = (scaleValue / 100) * 0.32;
+  const mappedX = (xOffset / 100) * 0.32;
+  const mappedY = 0.04 + ((38 - yOffset) * 0.0055);
+  const mappedScale = (scaleValue / 100) * 0.34;
   const mappedRotation = (rotateValue * Math.PI) / 180;
 
-  const decalZ = isBack ? -0.12 : 0.15;
+  // Slap-on projection depth & position:
+  // Deep projection depth (0.38) guarantees that the decal wraps across curved shoulders,
+  // collar, ribs, and pectorals with 0 clipping or cutout bugs when dragged.
+  const projectionDepth = Math.max(0.38, (mappedScale / 1.25) * 2.5);
+  const decalZ = isBack ? -0.16 : 0.16;
   const decalRotY = isBack ? Math.PI : 0;
   const adjustedX = isBack ? -mappedX : mappedX;
   const adjustedRotZ = isBack ? -mappedRotation : mappedRotation;
@@ -45,8 +60,9 @@ function DecalItem({
     <Decal
       position={[adjustedX / 1.28, mappedY / 1.03, decalZ]}
       rotation={[0, decalRotY, adjustedRotZ]}
-      scale={[mappedScale / 1.28, mappedScale / 1.03, mappedScale / 1.25]}
+      scale={[mappedScale / 1.28, mappedScale / 1.03, projectionDepth]}
       map={decalTexture}
+      polygonOffsetFactor={-2}
     />
   );
 }
@@ -135,16 +151,16 @@ function Shirt({
         )}
 
         {/* 3. Multi-Graphic Decal Layers (Front AND Back simultaneous) */}
-        {!wireframe && graphics.map((g) => (
+        {!wireframe && graphics.map((g, idx) => (
           (g.processedUrl || g.url) ? (
-            <Suspense key={g.id} fallback={null}>
+            <Suspense key={g.id || `graphic-${idx}`} fallback={null}>
               <DecalItem
                 textureUrl={g.processedUrl || g.url}
                 xOffset={g.x}
                 yOffset={g.y}
                 scaleValue={g.scale}
-                rotateValue={g.rotate}
-                side={g.side}
+                rotateValue={g.rotate || 0}
+                side={g.side || 'front'}
               />
             </Suspense>
           ) : null
@@ -162,9 +178,9 @@ function CameraRig({
   enableOrbit = false
 }: { 
   activeView?: string; 
-  autoRotate?: boolean;
-  autoRotateSpeed?: number;
-  enableOrbit?: boolean;
+  autoRotate?: boolean; 
+  autoRotateSpeed?: number; 
+  enableOrbit?: boolean; 
 }) {
   const controlsRef = useRef<any>(null);
 
@@ -173,7 +189,7 @@ function CameraRig({
     if (controlsRef.current) {
       if (activeView === 'back') {
         controlsRef.current.setAzimuthalAngle(Math.PI);
-      } else if (activeView === 'angle-left') {
+      } else if (activeView === 'angle-left' || activeView === '3quarter') {
         controlsRef.current.setAzimuthalAngle(-Math.PI / 4);
       } else if (activeView === 'angle-right') {
         controlsRef.current.setAzimuthalAngle(Math.PI / 4);

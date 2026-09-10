@@ -215,23 +215,27 @@ export default function AdminRequestedPrints() {
           {requests.map((req) => {
             const presetHex = COLOR_HEX_MAP[req.color] || '#ffffff';
             const dateStr = req.created_at ? new Date(req.created_at).toLocaleString() : 'N/A';
+            const layers = req.graphics || req.graphic_layers || [];
+            const hasLayers = layers.length > 0;
+            const singleDesign = req.uploaded_design || req.url;
             
             return (
-              <div key={req.dbId} className="bg-[var(--bg-card)] border border-[var(--line)] flex flex-col justify-between overflow-hidden">
+              <div key={req.dbId} className="bg-[var(--bg-card)] border border-[var(--line)] rounded-2xl flex flex-col justify-between overflow-hidden shadow-xl">
                 
                 {/* 1. 3D Model Interactive View */}
-                <div className="border-b border-[var(--line)] relative aspect-square bg-black/10 flex items-center justify-center overflow-hidden">
+                <div className="border-b border-[var(--line)] relative aspect-square bg-black/20 flex items-center justify-center overflow-hidden">
                   <CustomPrintCanvas 
                     colorHex={presetHex}
-                    textureUrl={req.uploaded_design || null}
+                    graphics={layers}
+                    textureUrl={!hasLayers ? singleDesign : null}
                     scaleValue={req.scale || 40}
                     rotateValue={req.rotate || 0}
                     xPosition={req.left || 0}
                     yPosition={req.top || 38}
                     printSide={req.side || 'front'}
                   />
-                  <div className="absolute top-4 left-4 bg-black/60 border border-white/10 px-2.5 py-1 text-[8px] font-mono tracking-widest text-white uppercase font-bold">
-                    Locked 3D Preview Model
+                  <div className="absolute top-4 left-4 bg-black/75 border border-white/10 px-3 py-1 rounded-xl text-[9px] font-mono tracking-widest text-[var(--accent)] uppercase font-bold">
+                    3D Custom Spec Preview
                   </div>
                 </div>
 
@@ -247,53 +251,93 @@ export default function AdminRequestedPrints() {
                           <Calendar className="w-3 h-3" /> {dateStr}
                         </div>
                       </div>
-                      <span className="text-[9px] font-mono border border-[var(--line)] px-2 py-0.5 text-[var(--text-dim)] uppercase font-semibold">
-                        ID: {req.id ? req.id.toUpperCase() : 'N/A'}
+                      <span className="text-[9px] font-mono border border-[var(--line)] px-2 py-0.5 rounded text-[var(--text-dim)] uppercase font-semibold">
+                        ID: {req.id ? req.id.toUpperCase() : req.dbId.slice(0, 8).toUpperCase()}
                       </span>
                     </div>
 
                     <div className="border-t border-[var(--line)] pt-4 space-y-2">
-                      <div className="text-[9px] uppercase font-mono tracking-wider text-[var(--text-dim)]">Design Coordinates</div>
+                      <div className="text-[10px] uppercase font-mono tracking-wider text-[var(--accent)] font-bold">
+                        Garment & Placement Blueprint
+                      </div>
                       <div className="grid grid-cols-3 gap-2 text-[10px] font-mono">
-                        <div className="bg-[var(--bg)] p-2 border border-[var(--line)] text-center">
+                        <div className="bg-[var(--bg)] p-2 border border-[var(--line)] rounded text-center">
                           Color<div className="font-bold text-[var(--text)] mt-0.5">{req.color || 'White'}</div>
                         </div>
-                        <div className="bg-[var(--bg)] p-2 border border-[var(--line)] text-center">
-                          Size<div className="font-bold text-[var(--text)] mt-0.5">{req.size || 'M'}</div>
+                        <div className="bg-[var(--bg)] p-2 border border-[var(--line)] rounded text-center">
+                          Size<div className="font-bold text-[var(--text)] mt-0.5">{req.size || 'L'}</div>
                         </div>
-                        <div className="bg-[var(--bg)] p-2 border border-[var(--line)] text-center">
+                        <div className="bg-[var(--bg)] p-2 border border-[var(--line)] rounded text-center">
                           Side<div className="font-bold text-[var(--text)] uppercase mt-0.5">{req.side || 'front'}</div>
                         </div>
-                        <div className="bg-[var(--bg)] p-2 border border-[var(--line)] text-center">
-                          Scale<div className="font-bold text-[var(--text)] mt-0.5">{req.scale || 40}%</div>
+                        <div className="bg-[var(--bg)] p-2 border border-[var(--line)] rounded text-center">
+                          Scale<div className="font-bold text-[var(--text)] mt-0.5">{req.scale || 45}%</div>
                         </div>
-                        <div className="bg-[var(--bg)] p-2 border border-[var(--line)] text-center">
+                        <div className="bg-[var(--bg)] p-2 border border-[var(--line)] rounded text-center">
                           X-Pos<div className="font-bold text-[var(--text)] mt-0.5">{req.left || 0}%</div>
                         </div>
-                        <div className="bg-[var(--bg)] p-2 border border-[var(--line)] text-center">
+                        <div className="bg-[var(--bg)] p-2 border border-[var(--line)] rounded text-center">
                           Y-Pos<div className="font-bold text-[var(--text)] mt-0.5">{req.top || 38}%</div>
                         </div>
                       </div>
                     </div>
+
+                    {/* Graphic Layers Download section */}
+                    {hasLayers ? (
+                      <div className="space-y-2 pt-2 border-t border-[var(--line)]">
+                        <div className="text-[10px] font-mono uppercase text-[var(--text-dim)] font-bold">
+                          Graphic Layers ({layers.length}) • High-Res Real Files
+                        </div>
+                        <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                          {layers.map((layer: any, lIdx: number) => {
+                            const rawFile = layer.rawUrl || layer.url;
+                            const isSvg = (rawFile || '').startsWith('data:image/svg');
+                            return (
+                              <div key={lIdx} className="bg-[var(--bg)] p-2.5 border border-[var(--line)] rounded-xl flex items-center justify-between gap-3 text-[10px] font-mono">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <div className="w-8 h-8 rounded bg-black border border-white/10 flex items-center justify-center p-1 shrink-0">
+                                    <img src={layer.processedUrl || rawFile} alt="" className="w-full h-full object-contain" />
+                                  </div>
+                                  <div className="min-w-0 truncate">
+                                    <div className="font-bold text-[var(--text)] truncate">{layer.name || `Layer ${lIdx + 1}`}</div>
+                                    <div className="text-[9px] text-[var(--accent)] uppercase">{layer.side} • {layer.scale}%</div>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    const ext = isSvg ? 'svg' : 'png';
+                                    handleDownload(rawFile, `requested-print-layer-${lIdx + 1}.${ext}`);
+                                  }}
+                                  className="px-2 py-1 bg-[var(--text)] hover:bg-[var(--accent)] text-[var(--bg)] hover:text-black font-bold uppercase rounded text-[9px] flex items-center gap-1 transition-colors shrink-0 cursor-pointer"
+                                >
+                                  <Download className="w-3 h-3" /> Download High-Res
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
 
                   {/* Actions console */}
                   <div className="flex gap-3 pt-4 border-t border-[var(--line)]">
-                    <button
-                      onClick={() => {
-                        const ext = req.uploaded_design?.startsWith('data:image/svg') ? 'svg' : 
-                                   req.uploaded_design?.startsWith('data:image/jpeg') ? 'jpg' : 'png';
-                        handleDownload(req.uploaded_design, `requested-print-${req.id || req.dbId}.${ext}`);
-                      }}
-                      disabled={!req.uploaded_design}
-                      className="flex-1 bg-[var(--text)] hover:bg-[var(--accent)] text-[var(--bg)] hover:text-black py-2.5 px-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors disabled:opacity-40"
-                    >
-                      <Download className="w-3.5 h-3.5" /> Download Design
-                    </button>
+                    {!hasLayers && singleDesign && (
+                      <button
+                        onClick={() => {
+                          const ext = singleDesign.startsWith('data:image/svg') ? 'svg' : 
+                                     singleDesign.startsWith('data:image/jpeg') ? 'jpg' : 'png';
+                          handleDownload(singleDesign, `requested-print-${req.id || req.dbId}.${ext}`);
+                        }}
+                        className="flex-1 bg-[var(--text)] hover:bg-[var(--accent)] text-[var(--bg)] hover:text-black py-2.5 px-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 rounded-xl transition-colors cursor-pointer"
+                      >
+                        <Download className="w-3.5 h-3.5" /> Download Real File
+                      </button>
+                    )}
                     <button
                       onClick={() => handleDelete(req.dbId, req.sectionKey)}
                       disabled={deletingId === req.dbId}
-                      className="bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 hover:border-transparent p-2.5 transition-colors"
+                      className="bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 hover:border-transparent p-2.5 rounded-xl transition-colors cursor-pointer"
                       title="Delete Request"
                     >
                       {deletingId === req.dbId ? (
