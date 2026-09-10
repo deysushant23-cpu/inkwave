@@ -9,7 +9,7 @@ import { GraphicLayer, FabricWashStyle } from '@/lib/customPrintHelpers';
 // Pre-load the GLB model locally
 useGLTF.preload('/shirt.glb');
 
-/* ── Individual Decal Layer Component with Slap-On Projection ──────────── */
+/* ── Individual Decal Layer Component with Slap-On & Sleeve Projection ─── */
 function DecalItem({ 
   textureUrl, 
   xOffset = 0, 
@@ -23,7 +23,7 @@ function DecalItem({
   yOffset?: number; 
   scaleValue?: number; 
   rotateValue?: number; 
-  side?: 'front' | 'back'; 
+  side?: 'front' | 'back' | 'sleeve-left' | 'sleeve-right'; 
 }) {
   const decalTexture = useTexture(
     textureUrl || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
@@ -40,6 +40,8 @@ function DecalItem({
   }, [decalTexture]);
 
   const isBack = side === 'back';
+  const isLeftSleeve = side === 'sleeve-left';
+  const isRightSleeve = side === 'sleeve-right';
   
   // Decal coordinates on the oversized boxy shirt geometry
   const mappedX = (xOffset / 100) * 0.32;
@@ -49,17 +51,34 @@ function DecalItem({
 
   // Slap-on projection depth & position:
   // Deep projection depth (0.38) guarantees that the decal wraps across curved shoulders,
-  // collar, ribs, and pectorals with 0 clipping or cutout bugs when dragged.
+  // collar, ribs, pectorals, and sleeves with 0 clipping or cutout bugs when dragged.
   const projectionDepth = Math.max(0.38, (mappedScale / 1.25) * 2.5);
-  const decalZ = isBack ? -0.16 : 0.16;
-  const decalRotY = isBack ? Math.PI : 0;
-  const adjustedX = isBack ? -mappedX : mappedX;
-  const adjustedRotZ = isBack ? -mappedRotation : mappedRotation;
+
+  let decalPosition: [number, number, number];
+  let decalRotation: [number, number, number];
+
+  if (isLeftSleeve) {
+    // Project directly into outer Left Sleeve (-X side of model)
+    decalPosition = [-0.34 / 1.28, mappedY / 1.03, (xOffset / 100) * 0.10];
+    decalRotation = [0, -Math.PI / 2, mappedRotation];
+  } else if (isRightSleeve) {
+    // Project directly into outer Right Sleeve (+X side of model)
+    decalPosition = [0.34 / 1.28, mappedY / 1.03, -(xOffset / 100) * 0.10];
+    decalRotation = [0, Math.PI / 2, -mappedRotation];
+  } else if (isBack) {
+    // Project onto Back of shirt
+    decalPosition = [-mappedX / 1.28, mappedY / 1.03, -0.16];
+    decalRotation = [0, Math.PI, -mappedRotation];
+  } else {
+    // Project onto Front Chest of shirt
+    decalPosition = [mappedX / 1.28, mappedY / 1.03, 0.16];
+    decalRotation = [0, 0, mappedRotation];
+  }
 
   return (
     <Decal
-      position={[adjustedX / 1.28, mappedY / 1.03, decalZ]}
-      rotation={[0, decalRotY, adjustedRotZ]}
+      position={decalPosition}
+      rotation={decalRotation}
       scale={[mappedScale / 1.28, mappedScale / 1.03, projectionDepth]}
       map={decalTexture}
       polygonOffsetFactor={-2}
@@ -91,7 +110,7 @@ function Shirt({
   legacyRotate?: number;
   legacyX?: number;
   legacyY?: number;
-  legacySide?: 'front' | 'back';
+  legacySide?: 'front' | 'back' | 'sleeve-left' | 'sleeve-right';
   typographyTexture?: string | null;
   typographyOptions?: {
     x: number;
@@ -150,7 +169,7 @@ function Shirt({
           </Suspense>
         )}
 
-        {/* 3. Multi-Graphic Decal Layers (Front AND Back simultaneous) */}
+        {/* 3. Multi-Graphic Decal Layers (Front, Back, L-Sleeve, R-Sleeve simultaneous) */}
         {!wireframe && graphics.map((g, idx) => (
           (g.processedUrl || g.url) ? (
             <Suspense key={g.id || `graphic-${idx}`} fallback={null}>
@@ -189,14 +208,14 @@ function CameraRig({
     if (controlsRef.current) {
       if (activeView === 'back') {
         controlsRef.current.setAzimuthalAngle(Math.PI);
+      } else if (activeView === 'sleeve-left' || activeView === 'side-left') {
+        controlsRef.current.setAzimuthalAngle(-Math.PI / 2);
+      } else if (activeView === 'sleeve-right' || activeView === 'side-right') {
+        controlsRef.current.setAzimuthalAngle(Math.PI / 2);
       } else if (activeView === 'angle-left' || activeView === '3quarter') {
         controlsRef.current.setAzimuthalAngle(-Math.PI / 4);
       } else if (activeView === 'angle-right') {
         controlsRef.current.setAzimuthalAngle(Math.PI / 4);
-      } else if (activeView === 'side-left') {
-        controlsRef.current.setAzimuthalAngle(-Math.PI / 2);
-      } else if (activeView === 'side-right') {
-        controlsRef.current.setAzimuthalAngle(Math.PI / 2);
       } else {
         controlsRef.current.setAzimuthalAngle(0);
       }
@@ -241,7 +260,7 @@ export interface CustomPrintCanvasProps {
     scale: number;
     rotate: number;
   };
-  activeView?: 'front' | 'back' | 'angle-left' | 'angle-right' | 'side-left' | 'side-right' | string;
+  activeView?: 'front' | 'back' | 'sleeve-left' | 'sleeve-right' | 'angle-left' | 'angle-right' | 'side-left' | 'side-right' | string;
   
   // Legacy backward-compatible props
   textureUrl?: string | null;
@@ -249,7 +268,7 @@ export interface CustomPrintCanvasProps {
   rotateValue?: number;
   xPosition?: number;
   yPosition?: number;
-  printSide?: 'front' | 'back';
+  printSide?: 'front' | 'back' | 'sleeve-left' | 'sleeve-right';
 }
 
 /* ── Main R3F Canvas Export ────────────────────────────────────────────── */

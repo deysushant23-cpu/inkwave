@@ -45,6 +45,7 @@ import {
   STREETWEAR_FONTS, 
   INK_COLORS,
   STREETWEAR_STICKERS,
+  StreetwearSticker,
   DESIGN_RECIPES,
   DesignRecipe,
   SIZING_PRESETS,
@@ -85,7 +86,7 @@ const CustomPrintCanvas = dynamic(
 
 export default function CustomPrintStudio() {
   const [activeTab, setActiveTab] = useState<'art' | 'size' | 'garment' | 'recipes'>('art');
-  const [cameraView, setCameraView] = useState<'front' | 'back' | 'angle-left'>('front');
+  const [cameraView, setCameraView] = useState<'front' | 'back' | 'sleeve-left' | 'sleeve-right' | 'angle-left'>('front');
   const [interactionMode, setInteractionMode] = useState<'move' | 'rotate'>('move');
   const [autoRotate, setAutoRotate] = useState<boolean>(false);
   const [fabricWash, setFabricWash] = useState<FabricWashStyle>('solid');
@@ -95,13 +96,18 @@ export default function CustomPrintStudio() {
   const [selectedSize, setSelectedSize] = useState<string>('L');
   const [customLabel, setCustomLabel] = useState('INKWAVE // STUDIO SPEC');
 
+  // Dynamic stickers and recipes state from database
+  const [stickers, setStickers] = useState<StreetwearSticker[]>(STREETWEAR_STICKERS);
+  const [recipes, setRecipes] = useState<DesignRecipe[]>(DESIGN_RECIPES);
+
   // Multi-Design Graphic layers
   const [graphics, setGraphics] = useState<GraphicLayer[]>([
     {
       id: 'layer-1',
       name: 'Cyber Star',
-      url: STREETWEAR_STICKERS[0].url,
-      processedUrl: STREETWEAR_STICKERS[0].url,
+      url: STREETWEAR_STICKERS[3].url,
+      processedUrl: STREETWEAR_STICKERS[3].url,
+      rawUrl: STREETWEAR_STICKERS[3].url,
       side: 'front',
       x: 0,
       y: 38,
@@ -132,7 +138,7 @@ export default function CustomPrintStudio() {
   const [adding, setAdding] = useState(false);
   const [isSnapping, setIsSnapping] = useState(false);
   const [lookbookModalOpen, setLookbookModalOpen] = useState(false);
-  const [lookbookSnapshots, setLookbookSnapshots] = useState<{ front?: string; back?: string; angle?: string }>({});
+  const [lookbookSnapshots, setLookbookSnapshots] = useState<{ front?: string; back?: string; sleeve?: string; angle?: string }>({});
 
   const [isPrintLabEnabled, setIsPrintLabEnabled] = useState<boolean>(true);
   const [isConfigLoading, setIsConfigLoading] = useState<boolean>(true);
@@ -159,6 +165,14 @@ export default function CustomPrintStudio() {
 
         if (configRes.data?.json_content?.colors && configRes.data.json_content.colors.length > 0) {
           setColors(configRes.data.json_content.colors);
+        }
+
+        if (configRes.data?.json_content?.stickers && Array.isArray(configRes.data.json_content.stickers) && configRes.data.json_content.stickers.length > 0) {
+          setStickers(configRes.data.json_content.stickers);
+        }
+
+        if (configRes.data?.json_content?.recipes && Array.isArray(configRes.data.json_content.recipes) && configRes.data.json_content.recipes.length > 0) {
+          setRecipes(configRes.data.json_content.recipes);
         }
 
         if (settingsRes.data?.json_content) {
@@ -213,11 +227,17 @@ export default function CustomPrintStudio() {
   const handleDirectDragDecal = (dx: number, dy: number) => {
     if (!activeGraphic) return;
     const factor = 0.22;
-    const xDelta = (activeGraphic.side === 'back' ? -dx : dx) * factor;
-    const yDelta = dy * factor;
+    let xDelta = dx * factor;
+    let yDelta = dy * factor;
 
-    // Full garment freedom: chest, shoulders, lower hem, ribs, pocket zones
-    const newX = Math.max(-46, Math.min(46, activeGraphic.x + xDelta));
+    if (activeGraphic.side === 'back' || activeGraphic.side === 'sleeve-left') {
+      xDelta = -dx * factor;
+    } else if (activeGraphic.side === 'sleeve-right') {
+      xDelta = dx * factor;
+    }
+
+    // Full garment freedom: chest, shoulders, lower hem, ribs, and sleeves
+    const newX = Math.max(-48, Math.min(48, activeGraphic.x + xDelta));
     const newY = Math.max(4, Math.min(80, activeGraphic.y + yDelta));
 
     updateActiveLayer({ x: newX, y: newY });
@@ -248,7 +268,8 @@ export default function CustomPrintStudio() {
         name: file.name.slice(0, 16),
         url: rawBase64,
         processedUrl: cleanUrl,
-        side: cameraView === 'back' ? 'back' : 'front',
+        rawUrl: rawBase64,
+        side: cameraView === 'back' ? 'back' : cameraView === 'sleeve-left' ? 'sleeve-left' : cameraView === 'sleeve-right' ? 'sleeve-right' : 'front',
         x: 0,
         y: 38,
         scale: 48,
@@ -284,16 +305,20 @@ export default function CustomPrintStudio() {
   };
 
   // Add stock sticker artwork
-  const handleAddSticker = (sticker: typeof STREETWEAR_STICKERS[0]) => {
+  const handleAddSticker = (sticker: StreetwearSticker) => {
+    const isSleeve = sticker.category === 'sleeve';
+    const initialSide = isSleeve ? 'sleeve-left' : (cameraView === 'back' ? 'back' : cameraView === 'sleeve-left' ? 'sleeve-left' : cameraView === 'sleeve-right' ? 'sleeve-right' : 'front');
+
     const newLayer: GraphicLayer = {
       id: `layer-${Date.now()}`,
       name: sticker.name,
       url: sticker.url,
       processedUrl: sticker.url,
-      side: cameraView === 'back' ? 'back' : 'front',
+      rawUrl: sticker.url,
+      side: initialSide,
       x: 0,
-      y: 38,
-      scale: 48,
+      y: isSleeve ? 34 : 38,
+      scale: isSleeve ? 26 : 48,
       rotate: 0,
       finish: 'matte',
       removeBg: false,
@@ -301,6 +326,7 @@ export default function CustomPrintStudio() {
     };
     setGraphics(prev => [...prev, newLayer]);
     setSelectedLayerId(newLayer.id);
+    if (isSleeve) setCameraView('sleeve-left');
     setInteractionMode('move');
     toast.success(`Added "${sticker.name}" to shirt. Drag to move it!`);
   };
@@ -359,6 +385,7 @@ export default function CustomPrintStudio() {
       name: recipe.sticker.name,
       url: recipe.sticker.url,
       processedUrl: recipe.sticker.url,
+      rawUrl: recipe.sticker.url,
       side: recipe.stickerPlacement.side,
       x: recipe.stickerPlacement.x,
       y: recipe.stickerPlacement.y,
@@ -385,27 +412,32 @@ export default function CustomPrintStudio() {
     toast.success(`Applied "${recipe.name}" Preset!`);
   };
 
-  // Multi-Angle Lookbook Generator
+  // Multi-Angle Lookbook Generator (Front, Back, Sleeve, 3/4)
   const handleGenerateLookbook = async () => {
     setIsSnapping(true);
-    toast.info('Generating 3-angle lookbook...');
+    toast.info('Generating 4-angle lookbook...');
 
     setCameraView('front');
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 450));
     const canvas1 = canvasContainerRef.current?.querySelector('canvas');
     const frontSnap = canvas1 ? canvas1.toDataURL('image/png') : '';
 
     setCameraView('back');
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 450));
     const canvas2 = canvasContainerRef.current?.querySelector('canvas');
     const backSnap = canvas2 ? canvas2.toDataURL('image/png') : '';
 
+    setCameraView('sleeve-left');
+    await new Promise(r => setTimeout(r, 450));
+    const canvasSleeve = canvasContainerRef.current?.querySelector('canvas');
+    const sleeveSnap = canvasSleeve ? canvasSleeve.toDataURL('image/png') : '';
+
     setCameraView('angle-left');
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 450));
     const canvas3 = canvasContainerRef.current?.querySelector('canvas');
     const angleSnap = canvas3 ? canvas3.toDataURL('image/png') : '';
 
-    setLookbookSnapshots({ front: frontSnap, back: backSnap, angle: angleSnap });
+    setLookbookSnapshots({ front: frontSnap, back: backSnap, sleeve: sleeveSnap, angle: angleSnap });
     setIsSnapping(false);
     setLookbookModalOpen(true);
   };
@@ -540,23 +572,35 @@ export default function CustomPrintStudio() {
             {/* ─── Top Bar: Camera Angles & Lookbook ─── */}
             <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center pointer-events-none">
               
-              {/* Front / Back View Buttons */}
-              <div className="flex bg-black/85 backdrop-blur-md border border-white/10 p-1 rounded-2xl pointer-events-auto shadow-lg">
+              {/* Front / Back / L-Sleeve / R-Sleeve / 3/4 View Buttons */}
+              <div className="flex bg-black/85 backdrop-blur-md border border-white/10 p-1 rounded-2xl pointer-events-auto shadow-lg overflow-x-auto max-w-[310px] sm:max-w-none">
                 <button
                   onClick={() => setCameraView('front')}
-                  className={`px-3.5 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'front' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                  className={`px-3 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'front' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
                   Front
                 </button>
                 <button
                   onClick={() => setCameraView('back')}
-                  className={`px-3.5 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'back' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                  className={`px-3 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'back' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
                   Back
                 </button>
                 <button
+                  onClick={() => setCameraView('sleeve-left')}
+                  className={`px-2.5 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'sleeve-left' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                >
+                  L-Sleeve
+                </button>
+                <button
+                  onClick={() => setCameraView('sleeve-right')}
+                  className={`px-2.5 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'sleeve-right' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                >
+                  R-Sleeve
+                </button>
+                <button
                   onClick={() => setCameraView('angle-left')}
-                  className={`px-3 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'angle-left' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                  className={`px-2.5 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'angle-left' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
                   3/4
                 </button>
@@ -800,7 +844,8 @@ export default function CustomPrintStudio() {
                     { id: 'gothic', label: '⚡ Gothic' },
                     { id: 'tokyo', label: '🎌 Tokyo' },
                     { id: 'minimal', label: '💎 Minimal' },
-                    { id: 'skulls', label: '💀 Skulls' }
+                    { id: 'skulls', label: '💀 Skulls' },
+                    { id: 'sleeve', label: '🦾 Sleeves' }
                   ].map((cat) => (
                     <button
                       key={cat.id}
@@ -894,7 +939,7 @@ export default function CustomPrintStudio() {
           {activeTab === 'size' && (
             <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-4 animate-in fade-in duration-200">
               
-              {/* Front / Back Toggle */}
+              {/* Front / Back / L-Sleeve / R-Sleeve Toggle */}
               <div className="flex justify-between items-center">
                 <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)]">
                   Print Placement Side
@@ -903,15 +948,27 @@ export default function CustomPrintStudio() {
                 <div className="flex bg-[var(--bg)] p-0.5 rounded-xl border border-[var(--line)]">
                   <button
                     onClick={() => { updateActiveLayer({ side: 'front' }); setCameraView('front'); }}
-                    className={`px-3 py-1 text-xs font-mono uppercase rounded-lg cursor-pointer ${activeGraphic?.side === 'front' ? 'bg-[var(--accent)] text-black font-bold' : 'text-[var(--text-dim)]'}`}
+                    className={`px-2.5 py-1 text-xs font-mono uppercase rounded-lg cursor-pointer transition-all ${activeGraphic?.side === 'front' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)]'}`}
                   >
-                    Front Chest
+                    Front
                   </button>
                   <button
                     onClick={() => { updateActiveLayer({ side: 'back' }); setCameraView('back'); }}
-                    className={`px-3 py-1 text-xs font-mono uppercase rounded-lg cursor-pointer ${activeGraphic?.side === 'back' ? 'bg-[var(--accent)] text-black font-bold' : 'text-[var(--text-dim)]'}`}
+                    className={`px-2.5 py-1 text-xs font-mono uppercase rounded-lg cursor-pointer transition-all ${activeGraphic?.side === 'back' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)]'}`}
                   >
-                    Back Print
+                    Back
+                  </button>
+                  <button
+                    onClick={() => { updateActiveLayer({ side: 'sleeve-left' }); setCameraView('sleeve-left'); }}
+                    className={`px-2.5 py-1 text-xs font-mono uppercase rounded-lg cursor-pointer transition-all ${activeGraphic?.side === 'sleeve-left' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)]'}`}
+                  >
+                    L-Sleeve
+                  </button>
+                  <button
+                    onClick={() => { updateActiveLayer({ side: 'sleeve-right' }); setCameraView('sleeve-right'); }}
+                    className={`px-2.5 py-1 text-xs font-mono uppercase rounded-lg cursor-pointer transition-all ${activeGraphic?.side === 'sleeve-right' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-[var(--text-dim)]'}`}
+                  >
+                    R-Sleeve
                   </button>
                 </div>
               </div>
@@ -1089,7 +1146,7 @@ export default function CustomPrintStudio() {
               </span>
 
               <div className="grid grid-cols-1 gap-2">
-                {DESIGN_RECIPES.map((rec) => (
+                {recipes.map((rec) => (
                   <button
                     key={rec.id}
                     onClick={() => handleApplyRecipe(rec)}
@@ -1160,8 +1217,8 @@ export default function CustomPrintStudio() {
               </button>
             </div>
 
-            {/* 3 Snapshot Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* 4 Multi-Angle Snapshot Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
               {/* Front Card */}
               <div className="bg-black/60 rounded-2xl border border-white/10 p-3 flex flex-col space-y-3">
                 <div className="w-full aspect-[4/5] bg-black rounded-xl overflow-hidden flex items-center justify-center border border-white/5">
@@ -1208,6 +1265,29 @@ export default function CustomPrintStudio() {
                 </div>
               </div>
 
+              {/* Sleeve Card */}
+              <div className="bg-black/60 rounded-2xl border border-white/10 p-3 flex flex-col space-y-3">
+                <div className="w-full aspect-[4/5] bg-black rounded-xl overflow-hidden flex items-center justify-center border border-white/5">
+                  {lookbookSnapshots.sleeve ? (
+                    <img src={lookbookSnapshots.sleeve} alt="Sleeve lookbook" className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="text-xs font-mono text-white/40">Sleeve Detail</div>
+                  )}
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-mono font-bold text-white uppercase">Sleeve Detail</span>
+                  {lookbookSnapshots.sleeve && (
+                    <button 
+                      onClick={() => downloadSnapshot(lookbookSnapshots.sleeve!, 'sleeve')}
+                      className="p-1.5 bg-white/10 hover:bg-[var(--accent)] hover:text-black rounded-lg text-white transition-all cursor-pointer"
+                      title="Download Sleeve"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
               {/* 3/4 Angle Card */}
               <div className="bg-black/60 rounded-2xl border border-white/10 p-3 flex flex-col space-y-3">
                 <div className="w-full aspect-[4/5] bg-black rounded-xl overflow-hidden flex items-center justify-center border border-white/5">
@@ -1218,7 +1298,7 @@ export default function CustomPrintStudio() {
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-mono font-bold text-white uppercase">3/4 Dynamic Angle</span>
+                  <span className="text-xs font-mono font-bold text-white uppercase">3/4 Dynamic</span>
                   {lookbookSnapshots.angle && (
                     <button 
                       onClick={() => downloadSnapshot(lookbookSnapshots.angle!, '3quarter')}

@@ -12,6 +12,12 @@ import {
 import { toast } from 'sonner';
 import MediaUploader from '@/components/admin/MediaUploader';
 import { saveCmsSectionAction } from '@/app/actions/cms';
+import { 
+  STREETWEAR_STICKERS, 
+  DESIGN_RECIPES, 
+  type StreetwearSticker, 
+  type StickerCategory 
+} from '@/lib/customPrintHelpers';
 
 /* ── Interfaces ─────────────────────────────────────────────────────────── */
 interface FitItem {
@@ -271,6 +277,13 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
 
   // ── Tab 7: Custom Print Studio Config State
   const [printColors, setPrintColors] = useState<any[]>([]);
+  const [printStickers, setPrintStickers] = useState<StreetwearSticker[]>(STREETWEAR_STICKERS);
+  const [printRecipes, setPrintRecipes] = useState<any[]>(DESIGN_RECIPES);
+  const [stickerFilterCat, setStickerFilterCat] = useState<string>('all');
+  const [newStickerName, setNewStickerName] = useState('');
+  const [newStickerCategory, setNewStickerCategory] = useState<StickerCategory>('sleeve');
+  const [newStickerDesc, setNewStickerDesc] = useState('');
+  const [newStickerUrl, setNewStickerUrl] = useState('');
 
   // ── Tab 8: Dynamic Theme Colors Config State
   const [themePreset, setThemePreset] = useState('ink');
@@ -510,7 +523,7 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
 
       // 8. Process Custom Print Config
       const printData = sectionMap.get('custom_print_config');
-      if (printData?.colors) {
+      if (printData?.colors && Array.isArray(printData.colors)) {
         setPrintColors(printData.colors);
       } else {
         setPrintColors([
@@ -520,6 +533,16 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
           { name: 'Light Pink', hex: '#ffc0cb', image: 'https://images.unsplash.com/photo-1574169208507-84376144848b?q=80&w=1000&auto=format&fit=crop' },
           { name: 'Light Green', hex: '#90ee90', image: 'https://images.unsplash.com/photo-1603252109303-2751441dd157?q=80&w=1000&auto=format&fit=crop' }
         ]);
+      }
+      if (printData?.stickers && Array.isArray(printData.stickers) && printData.stickers.length > 0) {
+        setPrintStickers(printData.stickers);
+      } else {
+        setPrintStickers(STREETWEAR_STICKERS);
+      }
+      if (printData?.recipes && Array.isArray(printData.recipes) && printData.recipes.length > 0) {
+        setPrintRecipes(printData.recipes);
+      } else {
+        setPrintRecipes(DESIGN_RECIPES);
       }
 
       // 9. Process Theme Colors Config
@@ -966,7 +989,47 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
 
   /* ── Tab 7: Custom Print Studio Actions ────────────────────────────────── */
   const handleSavePrintColors = () => {
-    saveSectionKey('custom_print_config', { colors: printColors }, 'Custom Print color options updated!');
+    saveSectionKey('custom_print_config', { 
+      colors: printColors,
+      stickers: printStickers,
+      recipes: printRecipes
+    }, 'Custom Print Lab (Blank Tees, Preset Stickers & Templates) saved live!');
+  };
+
+  const handleAddPresetSticker = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStickerName.trim()) {
+      toast.error('Please enter a sticker name');
+      return;
+    }
+    if (!newStickerUrl.trim()) {
+      toast.error('Please upload or provide an image/SVG URL for the sticker');
+      return;
+    }
+
+    const newSticker: StreetwearSticker = {
+      id: `custom-sticker-${Date.now()}`,
+      name: newStickerName.trim(),
+      category: newStickerCategory,
+      description: newStickerDesc.trim() || `${newStickerCategory.toUpperCase()} preset graphic`,
+      url: newStickerUrl.trim(),
+    };
+
+    setPrintStickers([newSticker, ...printStickers]);
+    setNewStickerName('');
+    setNewStickerDesc('');
+    setNewStickerUrl('');
+    toast.success(`Added "${newSticker.name}" to preset graphics! Remember to click Save.`);
+  };
+
+  const handleDeletePresetSticker = (id: string) => {
+    setPrintStickers(prev => prev.filter(s => s.id !== id));
+    toast.success('Removed sticker from preset library. Remember to click Save.');
+  };
+
+  const handleResetPresetStickers = () => {
+    setPrintStickers(STREETWEAR_STICKERS);
+    toast.success('Reset stickers to default curated library. Remember to click Save.');
   };
 
   /* ── Tab 10: Reels Actions ────────────────────────────────────────────── */
@@ -1010,7 +1073,7 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
           { id: 'grid', label: 'Categories Grid', icon: LayoutGrid },
           { id: 'offers', label: 'Promo Offers', icon: Tag },
           { id: 'footer', label: 'Footer Links', icon: Columns3 },
-          { id: 'print', label: 'Custom Print Lab', icon: Sparkles },
+          { id: 'print', label: 'Print Lab & Presets', icon: Sparkles },
           { id: 'theme', label: 'Theme Colors', icon: Palette }
         ].map(t => {
           const Icon = t.icon;
@@ -2714,67 +2777,391 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
           </div>
         )}
 
-        {/* ══ Tab 7: Custom Print Lab ═══════════════════════════════════ */}
+        {/* ══ Tab 7: Custom Print Lab & Preset Designs ═════════════════ */}
         {activeTab === 'print' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center bg-[var(--bg-card)] border border-[var(--line)] p-6">
+          <div className="space-y-10">
+            {/* Top Header Card */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--bg-card)] border border-[var(--line)] p-6 rounded-2xl shadow-sm">
               <div>
-                <h3 className="font-display text-xl font-bold uppercase text-[var(--text)]">Custom Print Blank Tees</h3>
-                <p className="text-xs text-[var(--text-dim)]">Add available colors, hex values, and high-quality blank t-shirt mockup images.</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 rounded-full">
+                    Dynamic 3D Studio Config
+                  </span>
+                  <span className="text-[11px] font-mono text-[var(--text-dim)]">
+                    {printColors.length} Colors • {printStickers.length} Preset Graphics • {printRecipes.length} Templates
+                  </span>
+                </div>
+                <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-[var(--text)]">
+                  Custom 3D Print Lab & Presets
+                </h3>
+                <p className="text-xs text-[var(--text-dim)] max-w-2xl mt-1">
+                  Manage blank t-shirt mockups, preset streetwear stickers, sleeve emblems, and 1-tap outfit recipes. Changes persist dynamically to the storefront 3D studio.
+                </p>
               </div>
-              <button onClick={handleSavePrintColors} disabled={savingTab} className="bg-[var(--accent)] text-[var(--bg)] font-bold px-6 py-3 text-xs uppercase tracking-wider hover:opacity-90 flex items-center gap-1.5">
-                <Save className="w-4 h-4" /> Save Lab Options
+              <button 
+                onClick={handleSavePrintColors} 
+                disabled={savingTab} 
+                className="bg-[var(--accent)] text-[var(--bg)] font-bold px-6 py-3.5 rounded-xl text-xs uppercase tracking-wider hover:opacity-90 transition-all flex items-center gap-2 shadow-lg shadow-[var(--accent)]/20 cursor-pointer shrink-0"
+              >
+                {savingTab ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 
+                Save Lab Settings
               </button>
             </div>
 
+            {/* ── Sub-Section 1: Blank T-Shirt Color Variants ── */}
             <div className="space-y-4">
-              {printColors.map((color, idx) => (
-                <div key={idx} className="bg-[var(--bg-card)] border border-[var(--line)] p-6 relative space-y-4">
-                  <button onClick={() => setPrintColors(printColors.filter((_, i) => i !== idx))} className="absolute top-4 right-4 text-[var(--text-dim)] hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                    <div>
-                      <label className="block text-[9px] text-[var(--text-dim)] uppercase tracking-wider mb-1">Color Name</label>
-                      <input type="text" value={color.name} onChange={e => {
-                        const n = [...printColors];
-                        n[idx].name = e.target.value;
-                        setPrintColors(n);
-                      }} className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs" placeholder="e.g. Ink Black" />
-                    </div>
-                    <div>
-                      <label className="block text-[9px] text-[var(--text-dim)] uppercase tracking-wider mb-1">Color Hex Code</label>
-                      <div className="flex gap-2 items-center">
-                        <input type="color" value={color.hex} onChange={e => {
-                          const n = [...printColors];
-                          n[idx].hex = e.target.value;
-                          setPrintColors(n);
-                        }} className="w-8 h-8 bg-transparent border-0 cursor-pointer shrink-0" />
-                        <input type="text" value={color.hex} onChange={e => {
-                          const n = [...printColors];
-                          n[idx].hex = e.target.value;
-                          setPrintColors(n);
-                        }} className="flex-1 bg-[var(--bg)] border border-[var(--line)] p-2 text-xs font-mono" placeholder="#000000" />
+              <div className="flex justify-between items-center">
+                <div>
+                  <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--text)] flex items-center gap-2">
+                    <Palette className="w-4 h-4 text-[var(--accent)]" /> Blank T-Shirt Color Mockups ({printColors.length})
+                  </h4>
+                  <p className="text-[11px] text-[var(--text-dim)]">These colors define the garment options available in the 3D customizer.</p>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setPrintColors([...printColors, { name: 'New Blank Tee', hex: '#111111', image: '' }])} 
+                  className="bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] hover:text-[var(--accent)] px-3.5 py-2 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Blank Color
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {printColors.map((color, idx) => (
+                  <div key={idx} className="bg-[var(--bg-card)] border border-[var(--line)] p-5 rounded-2xl relative space-y-4 hover:border-[var(--accent)]/40 transition-all shadow-xs group">
+                    <button 
+                      type="button"
+                      onClick={() => setPrintColors(printColors.filter((_, i) => i !== idx))} 
+                      className="absolute top-4 right-4 text-[var(--text-dim)] hover:text-red-400 p-1 rounded-lg hover:bg-red-400/10 transition-all cursor-pointer"
+                      title="Delete Color Variant"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    
+                    <div className="flex items-center gap-3 pr-8">
+                      <div 
+                        className="w-10 h-10 rounded-xl border border-white/20 shadow-inner shrink-0" 
+                        style={{ backgroundColor: color.hex }} 
+                      />
+                      <div className="flex-1 min-w-0">
+                        <input 
+                          type="text" 
+                          value={color.name} 
+                          onChange={e => {
+                            const n = [...printColors];
+                            n[idx].name = e.target.value;
+                            setPrintColors(n);
+                          }} 
+                          className="w-full bg-transparent border-b border-transparent hover:border-[var(--line)] focus:border-[var(--accent)] text-sm font-bold text-[var(--text)] outline-none transition-colors" 
+                          placeholder="e.g. Ink Black" 
+                        />
+                        <span className="text-[10px] font-mono text-[var(--text-dim)] uppercase">Slot #{idx + 1}</span>
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-[9px] text-[var(--text-dim)] uppercase tracking-wider mb-1">Mockup Image URL</label>
-                      <div className="flex gap-2 items-center">
-                        <input type="text" value={color.image} onChange={e => {
-                          const n = [...printColors];
-                          n[idx].image = e.target.value;
-                          setPrintColors(n);
-                        }} className="flex-1 bg-[var(--bg)] border border-[var(--line)] p-2 text-xs" />
-                        <MediaUploader onUploadSuccess={url => {
-                          const n = [...printColors];
-                          n[idx].image = url;
-                          setPrintColors(n);
-                        }} label="Upload" />
+
+                    <div className="grid grid-cols-1 gap-3 pt-2 border-t border-[var(--line)]/60">
+                      <div>
+                        <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">Color Hex</label>
+                        <div className="flex gap-2 items-center">
+                          <input 
+                            type="color" 
+                            value={color.hex} 
+                            onChange={e => {
+                              const n = [...printColors];
+                              n[idx].hex = e.target.value;
+                              setPrintColors(n);
+                            }} 
+                            className="w-8 h-8 rounded-lg bg-transparent border-0 cursor-pointer shrink-0" 
+                          />
+                          <input 
+                            type="text" 
+                            value={color.hex} 
+                            onChange={e => {
+                              const n = [...printColors];
+                              n[idx].hex = e.target.value;
+                              setPrintColors(n);
+                            }} 
+                            className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg p-2 text-xs font-mono uppercase text-[var(--text)] outline-none" 
+                            placeholder="#000000" 
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">3D / 2D Mockup Image URL</label>
+                        <div className="flex gap-2 items-center">
+                          <input 
+                            type="text" 
+                            value={color.image} 
+                            onChange={e => {
+                              const n = [...printColors];
+                              n[idx].image = e.target.value;
+                              setPrintColors(n);
+                            }} 
+                            className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg p-2 text-xs text-[var(--text)] outline-none font-mono" 
+                            placeholder="https://..." 
+                          />
+                          <MediaUploader 
+                            onUploadSuccess={url => {
+                              const n = [...printColors];
+                              n[idx].image = url;
+                              setPrintColors(n);
+                            }} 
+                            label="Upload" 
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Sub-Section 2: Streetwear Preset Stickers & Graphics Library ── */}
+            <div className="space-y-6 pt-6 border-t border-[var(--line)]">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                  <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--text)] flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[var(--accent)]" /> Streetwear Preset Stickers & Sleeve Graphics ({printStickers.length})
+                  </h4>
+                  <p className="text-[11px] text-[var(--text-dim)]">
+                    Preset decals and arm graphics that shoppers can instantly pick and slap onto Chest, Back, or Sleeves.
+                  </p>
                 </div>
-              ))}
-              <button onClick={() => setPrintColors([...printColors, { name: 'New Color', hex: '#ffffff', image: '' }])} className="w-full border border-dashed border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)] p-4 text-xs uppercase tracking-wider font-bold">+ Add Color Option</button>
+                <button
+                  type="button"
+                  onClick={handleResetPresetStickers}
+                  className="text-xs font-mono text-[var(--text-dim)] hover:text-[var(--text)] border border-[var(--line)] px-3 py-1.5 rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <RotateCw className="w-3.5 h-3.5" /> Reset to Inkwave Curated Graphics
+                </button>
+              </div>
+
+              {/* Add New Preset Sticker Form */}
+              <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 rounded-2xl space-y-4 shadow-sm">
+                <div className="border-b border-[var(--line)] pb-3">
+                  <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--accent)] flex items-center gap-2">
+                    <Plus className="w-4 h-4" /> Add New Preset Graphic / Decal
+                  </h5>
+                </div>
+
+                <form onSubmit={handleAddPresetSticker} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                  <div className="md:col-span-4 space-y-3">
+                    <div>
+                      <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                        Graphic Name *
+                      </label>
+                      <input 
+                        type="text" 
+                        value={newStickerName} 
+                        onChange={e => setNewStickerName(e.target.value)} 
+                        placeholder="e.g. Tokyo Shibuya Sleeve Banner" 
+                        className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl p-2.5 text-xs text-[var(--text)] outline-none focus:border-[var(--accent)]" 
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                        Placement & Category Tag
+                      </label>
+                      <select 
+                        value={newStickerCategory} 
+                        onChange={e => setNewStickerCategory(e.target.value as StickerCategory)}
+                        className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl p-2.5 text-xs font-mono text-[var(--text)] outline-none cursor-pointer focus:border-[var(--accent)]"
+                      >
+                        <option value="sleeve">🦾 Sleeve Badges & Armbands</option>
+                        <option value="y2k">🔥 Y2K & Cyber Chrome</option>
+                        <option value="gothic">⚡ Gothic & Metal Cross</option>
+                        <option value="tokyo">🎌 Tokyo & Anime Graphics</option>
+                        <option value="minimal">📐 Minimal & Spec Badges</option>
+                        <option value="skulls">💀 Skulls & Heavy Metal</option>
+                        <option value="custom">🎨 Custom Graphic Art</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                        Description / Subtext (Optional)
+                      </label>
+                      <input 
+                        type="text" 
+                        value={newStickerDesc} 
+                        onChange={e => setNewStickerDesc(e.target.value)} 
+                        placeholder="e.g. High-density arm wrap emblem" 
+                        className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl p-2.5 text-xs text-[var(--text)] outline-none focus:border-[var(--accent)]" 
+                      />
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-5 space-y-3">
+                    <div>
+                      <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                        Artwork Asset (PNG, WebP, or SVG URL) *
+                      </label>
+                      <div className="flex gap-2 items-center">
+                        <input 
+                          type="text" 
+                          value={newStickerUrl} 
+                          onChange={e => setNewStickerUrl(e.target.value)} 
+                          placeholder="data:image/svg+xml;utf8,... or https://..." 
+                          className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-xl p-2.5 text-xs font-mono text-[var(--text)] outline-none focus:border-[var(--accent)]" 
+                        />
+                        <MediaUploader 
+                          onUploadSuccess={url => setNewStickerUrl(url)} 
+                          label="Upload Image" 
+                        />
+                      </div>
+                      <p className="text-[10px] text-[var(--text-dim)] mt-1">
+                        Transparent PNGs or vector SVGs produce the crispest 3D decals.
+                      </p>
+                    </div>
+
+                    <div className="pt-2">
+                      <button 
+                        type="submit" 
+                        className="w-full bg-[var(--accent)] text-[var(--bg)] font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider hover:opacity-90 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                      >
+                        <Plus className="w-4 h-4" /> Add Sticker to Library
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Artwork Live Preview Box */}
+                  <div className="md:col-span-3">
+                    <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                      Artwork Preview
+                    </label>
+                    <div className="w-full h-[140px] bg-[#0c0d12] border border-[var(--line)] rounded-xl flex flex-col items-center justify-center p-3 relative overflow-hidden group">
+                      {newStickerUrl ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img 
+                          src={newStickerUrl} 
+                          alt="Preview" 
+                          className="max-h-full max-w-full object-contain filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.15)] transition-transform group-hover:scale-110" 
+                        />
+                      ) : (
+                        <div className="text-center text-[var(--text-dim)]">
+                          <ImageIcon className="w-8 h-8 mx-auto opacity-30 mb-1" />
+                          <span className="text-[10px] font-mono">No artwork loaded</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              {/* Category Filter Chips */}
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-[10px] font-mono font-bold uppercase text-[var(--text-dim)] mr-2 flex items-center gap-1">
+                  <Filter className="w-3 h-3" /> Filter:
+                </span>
+                {[
+                  { id: 'all', label: 'All Graphics' },
+                  { id: 'sleeve', label: '🦾 Sleeve Badges' },
+                  { id: 'y2k', label: '🔥 Y2K & Cyber' },
+                  { id: 'gothic', label: '⚡ Gothic Crosses' },
+                  { id: 'tokyo', label: '🎌 Tokyo Kanji' },
+                  { id: 'minimal', label: '📐 Minimal Specs' },
+                  { id: 'skulls', label: '💀 Heavy Skulls' },
+                  { id: 'custom', label: '🎨 Custom' },
+                ].map(cat => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setStickerFilterCat(cat.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer ${
+                      stickerFilterCat === cat.id
+                        ? 'bg-[var(--accent)] text-[var(--bg)] shadow-sm'
+                        : 'bg-[var(--bg-card)] border border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)] hover:border-[var(--text-dim)]'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Grid of Preset Stickers */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {printStickers
+                  .filter(s => stickerFilterCat === 'all' || s.category === stickerFilterCat)
+                  .map((sticker) => (
+                    <div 
+                      key={sticker.id} 
+                      className="bg-[var(--bg-card)] border border-[var(--line)] rounded-2xl p-3 flex flex-col justify-between relative group hover:border-[var(--accent)]/50 transition-all shadow-xs"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleDeletePresetSticker(sticker.id)}
+                        className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-black/60 text-white/60 hover:text-red-400 hover:bg-red-400/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        title="Delete Preset Sticker"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+
+                      <div className="w-full h-24 bg-[#0a0b0e] rounded-xl flex items-center justify-center p-2 mb-2 relative overflow-hidden border border-white/5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={sticker.url} 
+                          alt={sticker.name} 
+                          className="max-h-full max-w-full object-contain filter drop-shadow-[0_2px_4px_rgba(255,255,255,0.1)] group-hover:scale-105 transition-transform" 
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className={`text-[8px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${
+                            sticker.category === 'sleeve' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' :
+                            sticker.category === 'y2k' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
+                            sticker.category === 'gothic' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                            sticker.category === 'tokyo' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                            'bg-white/10 text-[var(--text-dim)] border border-white/10'
+                          }`}>
+                            {sticker.category}
+                          </span>
+                        </div>
+                        <h6 className="text-[11px] font-bold text-[var(--text)] line-clamp-1 leading-tight" title={sticker.name}>
+                          {sticker.name}
+                        </h6>
+                        <p className="text-[9px] text-[var(--text-dim)] line-clamp-1 leading-tight">
+                          {sticker.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* ── Sub-Section 3: 1-Tap Outfits & Templates (Design Recipes) ── */}
+            <div className="space-y-4 pt-6 border-t border-[var(--line)]">
+              <div>
+                <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--text)] flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-[var(--accent)]" /> 1-Tap Streetwear Templates ({printRecipes.length})
+                </h4>
+                <p className="text-[11px] text-[var(--text-dim)]">
+                  Pre-configured layout combinations (Chest + Back + Sleeve) that users can trigger with a single click.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {printRecipes.map((recipe, idx) => (
+                  <div key={recipe.id || idx} className="bg-[var(--bg-card)] border border-[var(--line)] p-4 rounded-2xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg">{recipe.icon || '👕'}</span>
+                      <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)]">
+                        {recipe.layers?.length || 0} Layers
+                      </span>
+                    </div>
+                    <div>
+                      <h5 className="text-xs font-bold text-[var(--text)]">{recipe.name}</h5>
+                      <p className="text-[10px] text-[var(--text-dim)] mt-0.5">{recipe.description}</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 pt-2 border-t border-[var(--line)] text-[10px] font-mono text-[var(--text-dim)]">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: recipe.color?.hex || '#111' }} />
+                      <span>{recipe.color?.name || 'Base Tee'}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

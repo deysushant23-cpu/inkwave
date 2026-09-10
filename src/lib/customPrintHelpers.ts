@@ -18,7 +18,8 @@ export interface GraphicLayer {
   name: string;
   url: string;
   processedUrl: string;
-  side: 'front' | 'back';
+  rawUrl?: string;
+  side: 'front' | 'back' | 'sleeve-left' | 'sleeve-right';
   x: number;
   y: number;
   scale: number;
@@ -31,7 +32,7 @@ export interface GraphicLayer {
 export interface PrintPlacementPreset {
   name: string;
   icon: string;
-  side: 'front' | 'back';
+  side: 'front' | 'back' | 'sleeve-left' | 'sleeve-right';
   x: number;
   y: number;
   scale: number;
@@ -41,6 +42,8 @@ export const PLACEMENT_PRESETS: PrintPlacementPreset[] = [
   { name: 'Center Chest', icon: '🎯', side: 'front', x: 0, y: 38, scale: 48 },
   { name: 'Pocket Left', icon: '📍', side: 'front', x: -22, y: 30, scale: 22 },
   { name: 'Right Chest', icon: '🏷️', side: 'front', x: 22, y: 30, scale: 22 },
+  { name: 'Left Sleeve Badge', icon: '🦾', side: 'sleeve-left', x: 0, y: 34, scale: 24 },
+  { name: 'Right Sleeve Badge', icon: '🦾', side: 'sleeve-right', x: 0, y: 34, scale: 24 },
   { name: 'Left Shoulder', icon: '🦾', side: 'front', x: -32, y: 16, scale: 22 },
   { name: 'Lower Hem', icon: '📐', side: 'front', x: -20, y: 66, scale: 25 },
   { name: 'Oversized Back', icon: '🔥', side: 'back', x: 0, y: 38, scale: 65 },
@@ -74,7 +77,7 @@ export const INK_COLORS = [
 ];
 
 /* ── Streetwear Graphic Categories & Vector Stickers ──────────────────── */
-export type StickerCategory = 'y2k' | 'gothic' | 'tokyo' | 'minimal' | 'skulls';
+export type StickerCategory = 'y2k' | 'gothic' | 'tokyo' | 'minimal' | 'skulls' | 'sleeve' | 'custom';
 
 export interface StreetwearSticker {
   id: string;
@@ -85,6 +88,29 @@ export interface StreetwearSticker {
 }
 
 export const STREETWEAR_STICKERS: StreetwearSticker[] = [
+  // 🦾 Sleeve Badges & Arm Emblems
+  {
+    id: 'sleeve-barbed',
+    name: 'Sleeve Barbed Armband',
+    category: 'sleeve',
+    description: 'Bicep/tricep wrap barbed vector',
+    url: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 100 100"><rect x="10" y="44" width="80" height="12" fill="none" stroke="white" stroke-width="2"/><polygon points="30,40 34,48 26,48" fill="white"/><polygon points="70,40 74,48 66,48" fill="white"/><polygon points="50,60 54,52 46,52" fill="white"/><text x="50" y="53" font-family="monospace" font-size="5" fill="white" font-weight="900" text-anchor="middle">INK // SLEEVE</text></svg>`
+  },
+  {
+    id: 'sleeve-vertical-kanji',
+    name: 'Tokyo Vertical Sleeve Banner',
+    category: 'sleeve',
+    description: 'Vertical Shibuya sleeve typography',
+    url: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 100 100"><rect x="35" y="10" width="30" height="80" fill="white"/><text x="50" y="30" font-family="sans-serif" font-weight="900" font-size="14" fill="black" text-anchor="middle">東京</text><text x="50" y="52" font-family="sans-serif" font-weight="900" font-size="12" fill="black" text-anchor="middle">渋谷</text><text x="50" y="72" font-family="monospace" font-weight="bold" font-size="7" fill="black" text-anchor="middle">2026</text></svg>`
+  },
+  {
+    id: 'sleeve-spec-patch',
+    name: 'Tactical Sleeve Patch',
+    category: 'sleeve',
+    description: 'Arm velcro tactical spec patch',
+    url: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" rx="6" fill="none" stroke="white" stroke-width="2" stroke-dasharray="3,3"/><text x="50" y="44" font-family="monospace" font-weight="bold" font-size="8" fill="white" text-anchor="middle">ARM-01</text><line x1="28" y1="52" x2="72" y2="52" stroke="white" stroke-width="1.5"/><text x="50" y="66" font-family="monospace" font-size="5" fill="white" text-anchor="middle">INKWAVE SPEC</text></svg>`
+  },
+
   // 🔥 Y2K & Cyber
   {
     id: 'y2k-star',
