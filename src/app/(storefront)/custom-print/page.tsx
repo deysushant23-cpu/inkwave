@@ -305,6 +305,7 @@ export default function CustomPrintStudio() {
       
       // Auto-clean background with AI
       const { cleanUrl, hasRemovedBg } = await processImageWithAI(rawBase64);
+      const targetSide = cameraView === 'back' ? 'back' : cameraView === 'sleeve-left' ? 'sleeve-left' : cameraView === 'sleeve-right' ? 'sleeve-right' : 'front';
 
       const newLayer: GraphicLayer = {
         id: `layer-${Date.now()}`,
@@ -312,7 +313,7 @@ export default function CustomPrintStudio() {
         url: rawBase64,
         processedUrl: cleanUrl,
         rawUrl: rawBase64,
-        side: cameraView === 'back' ? 'back' : cameraView === 'sleeve-left' ? 'sleeve-left' : cameraView === 'sleeve-right' ? 'sleeve-right' : 'front',
+        side: targetSide,
         x: 0,
         y: 38,
         scale: 48,
@@ -324,13 +325,14 @@ export default function CustomPrintStudio() {
 
       setGraphics(prev => [...prev, newLayer]);
       setSelectedLayerId(newLayer.id);
+      setCameraView(targetSide);
       setInteractionMode('move');
       setIsProcessingAI(false);
 
       if (hasRemovedBg) {
-        toast.success('✨ AI stripped background & centered on shirt!');
+        toast.success(`✨ AI cleaned background & placed on ${targetSide.toUpperCase()}!`);
       } else {
-        toast.success('Artwork placed on t-shirt!');
+        toast.success(`Artwork placed on ${targetSide.toUpperCase()}!`);
       }
     };
     reader.readAsDataURL(file);
@@ -946,40 +948,79 @@ export default function CustomPrintStudio() {
                 />
               </label>
 
-              {/* Active Graphic Card with AI Clean Button */}
+              {/* Active Graphic Card with AI Clean & Quick Side Switcher */}
               {activeGraphic && (
-                <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] flex items-center justify-between gap-3 shadow">
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <div className="w-12 h-12 rounded-xl bg-black border border-white/10 flex items-center justify-center p-1 shrink-0">
-                      <img src={activeGraphic.processedUrl || activeGraphic.url} alt="Preview" className="w-full h-full object-contain" />
-                    </div>
-                    <div className="overflow-hidden">
-                      <div className="text-xs font-mono font-bold text-[var(--text)] truncate">{activeGraphic.name}</div>
-                      <div className="text-[10px] font-mono text-[var(--accent)] capitalize">
-                        {activeGraphic.side === 'sleeve-left' ? 'Left Sleeve' : activeGraphic.side === 'sleeve-right' ? 'Right Sleeve' : activeGraphic.side} View • Drag on 3D shirt to move
+                <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3 shadow">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <div className="w-12 h-12 rounded-xl bg-black border border-white/10 flex items-center justify-center p-1 shrink-0">
+                        <img src={activeGraphic.processedUrl || activeGraphic.url} alt="Preview" className="w-full h-full object-contain" />
                       </div>
+                      <div className="overflow-hidden">
+                        <div className="text-xs font-mono font-bold text-[var(--text)] truncate">{activeGraphic.name}</div>
+                        <div className="text-[10px] font-mono text-[var(--accent)] font-semibold">
+                          Placed on: <span className="uppercase">{activeGraphic.side === 'sleeve-left' ? 'Left Sleeve' : activeGraphic.side === 'sleeve-right' ? 'Right Sleeve' : activeGraphic.side}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={handleReRunAIClean}
+                        disabled={isProcessingAI}
+                        className="px-2.5 py-1.5 rounded-xl bg-[var(--accent)]/10 hover:bg-[var(--accent)]/20 border border-[var(--accent)]/30 text-[10px] font-mono text-[var(--accent)] font-bold flex items-center gap-1 cursor-pointer transition-all"
+                        title="AI Background Cleaner"
+                      >
+                        <Wand2 className="w-3 h-3" />
+                        <span>{isProcessingAI ? 'Cleaning...' : 'AI Clean'}</span>
+                      </button>
+                      {graphics.length > 1 && (
+                        <button
+                          onClick={() => handleRemoveLayer(activeGraphic.id)}
+                          className="p-1.5 text-[var(--text-dim)] hover:text-red-400 cursor-pointer"
+                          title="Remove"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      onClick={handleReRunAIClean}
-                      disabled={isProcessingAI}
-                      className="px-2.5 py-1.5 rounded-xl bg-[var(--accent)]/10 hover:bg-[var(--accent)]/20 border border-[var(--accent)]/30 text-[10px] font-mono text-[var(--accent)] font-bold flex items-center gap-1 cursor-pointer transition-all"
-                      title="AI Background Cleaner"
-                    >
-                      <Wand2 className="w-3 h-3" />
-                      <span>{isProcessingAI ? 'Cleaning...' : 'AI Clean'}</span>
-                    </button>
-                    {graphics.length > 1 && (
-                      <button
-                        onClick={() => handleRemoveLayer(activeGraphic.id)}
-                        className="p-1.5 text-[var(--text-dim)] hover:text-red-400"
-                        title="Remove"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
+                  {/* 1-Tap Side Switcher */}
+                  <div className="pt-2 border-t border-[var(--line)] flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-mono uppercase text-[var(--text-dim)] font-bold shrink-0">
+                      Print Side:
+                    </span>
+                    <div className="grid grid-cols-4 gap-1 flex-1">
+                      {[
+                        { id: 'front', label: 'Front' },
+                        { id: 'back', label: 'Back' },
+                        { id: 'sleeve-left', label: 'L-Sleeve' },
+                        { id: 'sleeve-right', label: 'R-Sleeve' }
+                      ].map((s) => (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => {
+                            updateActiveLayer({ side: s.id as any });
+                            setCameraView(s.id as any);
+                          }}
+                          className={`py-1.5 text-[10px] font-mono uppercase rounded-lg border transition-all cursor-pointer text-center font-bold ${
+                            activeGraphic.side === s.id
+                              ? 'border-[var(--accent)] bg-[var(--accent)] text-black shadow-xs'
+                              : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Touch & Drag Helper */}
+                  <div className="text-[10px] font-mono text-[var(--text-dim)] bg-[var(--bg)] px-2.5 py-1.5 rounded-lg border border-[var(--line)]/60 flex items-center gap-1.5">
+                    <span className="text-[var(--accent)] font-bold">💡 Tip:</span>
+                    <span>Touch & drag directly on the 3D t-shirt to freely move this design!</span>
                   </div>
                 </div>
               )}

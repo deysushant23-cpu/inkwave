@@ -58,26 +58,24 @@ function DecalItem({
     // Outer surface of the left arm sleeve mesh (-X side)
     decalPosition = [-0.265 / 1.28, (mappedY + 0.015) / 1.03, (xOffset / 100) * 0.07];
     decalRotation = [0, -Math.PI / 2, mappedRotation];
-    // Controlled projection depth (0.12) ensures clean wrap around outer bicep without bleeding into torso
-    decalScale = [mappedScale / 1.25, mappedScale / 1.03, 0.12];
+    // Controlled projection depth (0.11) ensures clean wrap around outer bicep without bleeding into torso
+    decalScale = [mappedScale / 1.25, mappedScale / 1.03, 0.11];
   } else if (isRightSleeve) {
     // Outer Right Sleeve:
     // Outer surface of the right arm sleeve mesh (+X side)
     decalPosition = [0.265 / 1.28, (mappedY + 0.015) / 1.03, -(xOffset / 100) * 0.07];
     decalRotation = [0, Math.PI / 2, -mappedRotation];
-    decalScale = [mappedScale / 1.25, mappedScale / 1.03, 0.12];
+    decalScale = [mappedScale / 1.25, mappedScale / 1.03, 0.11];
   } else if (isBack) {
-    // Project onto Back of shirt
-    const projectionDepth = Math.max(0.38, (mappedScale / 1.25) * 2.5);
-    decalPosition = [-mappedX / 1.28, mappedY / 1.03, -0.16];
+    // Project onto Back of shirt only (shallow depth 0.11 prevents reverse projection onto front)
+    decalPosition = [-mappedX / 1.28, mappedY / 1.03, -0.15];
     decalRotation = [0, Math.PI, -mappedRotation];
-    decalScale = [mappedScale / 1.28, mappedScale / 1.03, projectionDepth];
+    decalScale = [mappedScale / 1.28, mappedScale / 1.03, 0.11];
   } else {
-    // Project onto Front Chest of shirt
-    const projectionDepth = Math.max(0.38, (mappedScale / 1.25) * 2.5);
-    decalPosition = [mappedX / 1.28, mappedY / 1.03, 0.16];
+    // Project onto Front Chest of shirt only (shallow depth 0.11 prevents bleed-through onto back)
+    decalPosition = [mappedX / 1.28, mappedY / 1.03, 0.15];
     decalRotation = [0, 0, mappedRotation];
-    decalScale = [mappedScale / 1.28, mappedScale / 1.03, projectionDepth];
+    decalScale = [mappedScale / 1.28, mappedScale / 1.03, 0.11];
   }
 
   return (
