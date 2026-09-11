@@ -25,7 +25,7 @@ export default function WhatsAppWidget() {
       rel="noopener noreferrer"
       whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.95 }}
-      className="fixed bottom-6 left-4 sm:left-6 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center z-[98] border border-emerald-500/20 bg-[#25D366] text-white transition-shadow duration-300 hover:shadow-[0_0_20px_rgba(37,211,102,0.6)] cursor-pointer group"
+      className="fixed bottom-20 md:bottom-6 left-4 sm:left-6 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center z-[98] border border-emerald-500/20 bg-[#25D366] text-white transition-shadow duration-300 hover:shadow-[0_0_20px_rgba(37,211,102,0.6)] cursor-pointer group"
       aria-label="Chat on WhatsApp"
     >
       {/* Pulse effect */}

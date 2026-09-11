@@ -182,7 +182,7 @@ export default function StorefrontBot() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-4 sm:right-6 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center z-[98] transition-colors border border-[var(--line)]"
+        className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center z-[98] transition-colors border border-[var(--line)]"
         style={{ background: 'var(--accent)', color: 'var(--bg)' }}
         aria-label="Toggle AI Assistant"
       >

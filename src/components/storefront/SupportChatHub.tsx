@@ -96,7 +96,7 @@ export default function SupportChatHub() {
   };
 
   return (
-    <div className="fixed bottom-6 right-4 sm:right-6 z-[98] flex flex-col items-end gap-3.5">
+    <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-[98] flex flex-col items-end gap-3.5">
       
       {/* Mode Switcher Pill Slider (Only show when chat panel is closed) */}
       <AnimatePresence>
@@ -149,7 +149,7 @@ export default function SupportChatHub() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="w-[calc(100vw-2rem)] sm:w-[400px] h-[550px] max-h-[80vh] rounded-3xl flex flex-col overflow-hidden shadow-2xl border border-[var(--line)] mb-2"
+            className="w-[calc(100vw-2rem)] sm:w-[400px] h-[520px] max-h-[70vh] rounded-3xl flex flex-col overflow-hidden shadow-2xl border border-[var(--line)] mb-2"
             style={{ 
               background: 'var(--bg-card)',
               backdropFilter: 'blur(20px)',
