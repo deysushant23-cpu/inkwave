@@ -1,13 +1,20 @@
 export interface TextPrintOptions {
   text: string;
   fontFamily: string;
-  fontSize?: number; // Custom font sizing (30 - 150)
+  fontSize?: number; // Custom font sizing (20 - 180)
   color: string;
-  letterSpacing: number;
-  isCurved: boolean;
+  letterSpacing?: number;
+  isCurved?: boolean;
   curveRadius?: number;
-  isOutline: boolean;
+  isOutline?: boolean;
+  outlineWidth?: number;
+  outlineColor?: string;
   subtext?: string;
+  stretchX?: number; // Text width expansion % (50 - 200)
+  isGradient?: boolean;
+  gradientColor?: string;
+  shadow?: boolean;
+  shadowColor?: string;
 }
 
 export type PrintFinish = 'matte' | 'puff' | 'vintage' | 'chrome';
@@ -23,6 +30,12 @@ export interface GraphicLayer {
   x: number;
   y: number;
   scale: number;
+  scaleX?: number; // Horizontal stretch % (30 - 200, default 100)
+  scaleY?: number; // Vertical stretch % (30 - 200, default 100)
+  aspectRatioLocked?: boolean; // Locked 1:1 scale vs freeform stretch
+  flipX?: boolean; // Mirror horizontal
+  flipY?: boolean; // Mirror vertical
+  opacity?: number; // Layer transparency % (20 - 100)
   rotate: number;
   finish: PrintFinish;
   removeBg: boolean;
@@ -37,34 +50,89 @@ export interface PrintPlacementPreset {
   x: number;
   y: number;
   scale: number;
+  scaleX?: number;
+  scaleY?: number;
 }
 
 export const PLACEMENT_PRESETS: PrintPlacementPreset[] = [
-  { name: 'Center Chest', icon: '🎯', side: 'front', x: 0, y: 38, scale: 48 },
-  { name: 'Pocket Left', icon: '📍', side: 'front', x: -22, y: 30, scale: 22 },
-  { name: 'Right Chest', icon: '🏷️', side: 'front', x: 22, y: 30, scale: 22 },
-  { name: 'L-Sleeve Bicep', icon: '🦾', side: 'sleeve-left', x: 0, y: 30, scale: 24 },
-  { name: 'L-Sleeve Band', icon: '⛓️', side: 'sleeve-left', x: 0, y: 44, scale: 28 },
-  { name: 'R-Sleeve Bicep', icon: '🦾', side: 'sleeve-right', x: 0, y: 30, scale: 24 },
-  { name: 'R-Sleeve Band', icon: '⛓️', side: 'sleeve-right', x: 0, y: 44, scale: 28 },
-  { name: 'Oversized Back', icon: '🔥', side: 'back', x: 0, y: 38, scale: 62 },
-  { name: 'Nape Collar', icon: '🏷️', side: 'back', x: 0, y: 18, scale: 18 },
-  { name: 'Lower Hem', icon: '📐', side: 'front', x: -20, y: 66, scale: 25 },
+  { name: 'Center Chest', icon: '🎯', side: 'front', x: 0, y: 38, scale: 48, scaleX: 100, scaleY: 100 },
+  { name: 'Wide Chest Banner', icon: '↔️', side: 'front', x: 0, y: 32, scale: 54, scaleX: 145, scaleY: 85 },
+  { name: 'Pocket Left', icon: '📍', side: 'front', x: -22, y: 30, scale: 22, scaleX: 100, scaleY: 100 },
+  { name: 'Right Chest', icon: '🏷️', side: 'front', x: 22, y: 30, scale: 22, scaleX: 100, scaleY: 100 },
+  { name: 'L-Sleeve Bicep', icon: '🦾', side: 'sleeve-left', x: 0, y: 30, scale: 24, scaleX: 100, scaleY: 100 },
+  { name: 'L-Sleeve Band', icon: '⛓️', side: 'sleeve-left', x: 0, y: 44, scale: 28, scaleX: 130, scaleY: 90 },
+  { name: 'R-Sleeve Bicep', icon: '🦾', side: 'sleeve-right', x: 0, y: 30, scale: 24, scaleX: 100, scaleY: 100 },
+  { name: 'R-Sleeve Band', icon: '⛓️', side: 'sleeve-right', x: 0, y: 44, scale: 28, scaleX: 130, scaleY: 90 },
+  { name: 'Oversized Back', icon: '🔥', side: 'back', x: 0, y: 38, scale: 62, scaleX: 100, scaleY: 100 },
+  { name: 'Tall Spine Back', icon: '↕️', side: 'back', x: 0, y: 42, scale: 55, scaleX: 85, scaleY: 155 },
+  { name: 'Nape Collar', icon: '🏷️', side: 'back', x: 0, y: 18, scale: 18, scaleX: 100, scaleY: 100 },
+  { name: 'Lower Hem', icon: '📐', side: 'front', x: -20, y: 66, scale: 25, scaleX: 100, scaleY: 100 },
 ];
 
-export const STREETWEAR_FONTS = [
-  { id: 'gothic', name: 'Gothic Metal Blackletter', family: "'UnifrakturMaguntia', cursive", viral: true },
-  { id: 'graffiti', name: 'Stussy Handstyle / Marker', family: "'Permanent Marker', cursive", viral: true },
-  { id: 'dela', name: 'Tokyo Heavy Graphic', family: "'Dela Gothic One', sans-serif", viral: true },
-  { id: 'orbitron', name: 'Y2K Cyber Chrome', family: "'Orbitron', sans-serif", viral: true },
-  { id: 'glitch', name: 'Acid Cyber Glitch', family: "'Rubik Glitch', cursive", viral: true },
-  { id: 'bebas', name: 'Bebas Street Poster', family: "'Bebas Neue', sans-serif", viral: true },
-  { id: 'anton', name: 'Heavy Brutalist Anton', family: "'Anton', sans-serif", viral: false },
-  { id: 'syne', name: 'High-Fashion Syne 900', family: "'Syne', sans-serif", viral: true },
-  { id: 'bubble', name: 'Y2K Acid Bubble', family: "'Rubik Bubbles', cursive", viral: false },
-  { id: 'cinzel', name: 'Cinzel Imperial Gothic', family: "'Cinzel Decorative', serif", viral: false },
-  { id: 'mono', name: 'Cyber Monospace', family: "'JetBrains Mono', monospace", viral: false },
-  { id: 'space', name: 'Space Grotesk Brutal', family: "'Space Grotesk', sans-serif", viral: false },
+export type FontCategory = 'all' | 'gothic' | 'graffiti' | 'tokyo' | 'luxury' | 'varsity' | 'bubble' | 'script' | 'custom';
+
+export interface StreetwearFont {
+  id: string;
+  name: string;
+  family: string;
+  category: FontCategory;
+  description: string;
+  viral?: boolean;
+}
+
+export const STREETWEAR_FONTS: StreetwearFont[] = [
+  // ⚡ Gothic & Dark Metal
+  { id: 'unifraktur', name: 'Gothic Blackletter', family: "'UnifrakturMaguntia', cursive", category: 'gothic', description: 'Dark metal blackletter style', viral: true },
+  { id: 'pirata', name: 'Pirata Corsair', family: "'Pirata One', cursive", category: 'gothic', description: 'Heavy pirate medieval gothic', viral: true },
+  { id: 'medieval', name: 'Iron Fortress', family: "'MedievalSharp', cursive", category: 'gothic', description: 'Sharp medieval stone-cut' },
+  { id: 'new-rocker', name: 'Black Sabbath Metal', family: "'New Rocker', cursive", category: 'gothic', description: 'Heavy metal band typography' },
+  { id: 'germania', name: 'Prussian Gothic', family: "'Germania One', cursive", category: 'gothic', description: 'Industrial German blackletter' },
+  { id: 'metal-mania', name: 'Metal Mania Thrash', family: "'Metal Mania', cursive", category: 'gothic', description: 'Underground thrash metal' },
+
+  // 🔥 Streetwear & Graffiti
+  { id: 'permanent-marker', name: 'Stussy Marker', family: "'Permanent Marker', cursive", category: 'graffiti', description: 'Classic streetwear marker handstyle', viral: true },
+  { id: 'sedgwick', name: 'Shibuya Tag', family: "'Sedgwick Ave', cursive", category: 'graffiti', description: 'New York / Tokyo spray tag', viral: true },
+  { id: 'rock-salt', name: 'Grunge Chalk', family: "'Rock Salt', cursive", category: 'graffiti', description: 'Distressed raw grunge handstyle' },
+  { id: 'creepster', name: 'Tokyo Street Punk', family: "'Creepster', cursive", category: 'graffiti', description: 'Aggressive street punk typography' },
+  { id: 'faster-one', name: 'Speed Racer Tag', family: "'Faster One', cursive", category: 'graffiti', description: 'Horizontal aero speed lines' },
+  { id: 'covered-grace', name: 'Underground Marker', family: "'Covered By Your Grace', cursive", category: 'graffiti', description: 'Quick raw Sharpie handstyle' },
+
+  // 🎌 Tokyo & Cyber Y2K
+  { id: 'dela-gothic', name: 'Tokyo Heavy Graphic', family: "'Dela Gothic One', sans-serif", category: 'tokyo', description: 'Ultra heavy Shibuya streetwear', viral: true },
+  { id: 'orbitron', name: 'Y2K Cyber Chrome', family: "'Orbitron', sans-serif", category: 'tokyo', description: 'Neo-Tokyo cybernetic grid', viral: true },
+  { id: 'bruno-ace', name: 'Cyber Monolith', family: "'Bruno Ace SC', sans-serif", category: 'tokyo', description: 'Futuristic mecha typography' },
+  { id: 'press-start', name: 'Retro 8-Bit Arcade', family: "'Press Start 2P', monospace", category: 'tokyo', description: 'Y2K gaming pixel typography' },
+  { id: 'audiowide', name: 'Neo-Tokyo Mecha', family: "'Audiowide', sans-serif", category: 'tokyo', description: 'Sci-fi wide techno font' },
+  { id: 'michroma', name: 'Orbital Station', family: "'Michroma', sans-serif", category: 'tokyo', description: 'Ultra-wide aerospace typography' },
+  { id: 'russo-one', name: 'Brutal Block', family: "'Russo One', sans-serif", category: 'tokyo', description: 'Heavy rounded brutalist font' },
+
+  // 💎 Luxury & High Fashion
+  { id: 'syne', name: 'High-Fashion Syne', family: "'Syne', sans-serif", category: 'luxury', description: 'Runway editorial display typography', viral: true },
+  { id: 'cinzel-dec', name: 'Imperial Crest', family: "'Cinzel Decorative', serif", category: 'luxury', description: 'Luxury imperial fashion serif', viral: true },
+  { id: 'playfair', name: 'Vogue Editorial Serif', family: "'Playfair Display', serif", category: 'luxury', description: 'High-contrast luxury serif' },
+  { id: 'bodoni', name: 'Milan Runway Bodoni', family: "'Bodoni Moda', serif", category: 'luxury', description: 'Haute couture fashion display' },
+  { id: 'italiana', name: 'Italian Renaissance', family: "'Italiana', serif", category: 'luxury', description: 'Ultra-refined Italian luxury' },
+
+  // 🏀 Athletic Varsity & Heavy Brutalist
+  { id: 'bebas', name: 'Bebas Brutal Poster', family: "'Bebas Neue', sans-serif", category: 'varsity', description: 'Bold condensed street poster', viral: true },
+  { id: 'anton', name: 'Heavyweight Anton', family: "'Anton', sans-serif", category: 'varsity', description: 'Massive impact brutalist sans', viral: true },
+  { id: 'black-han', name: 'Seoul Heavy Block', family: "'Black Han Sans', sans-serif", category: 'varsity', description: 'Solid monolithic heavy block' },
+  { id: 'space-grotesk', name: 'Brutalist Space', family: "'Space Grotesk', sans-serif", category: 'varsity', description: 'Tech streetwear monospace brutalist' },
+  { id: 'righteous', name: 'Varsity Championship', family: "'Righteous', cursive", category: 'varsity', description: 'Retro athletic jersey varsity' },
+  { id: 'archivo-black', name: 'Heavy Archivo', family: "'Archivo Black', sans-serif", category: 'varsity', description: 'Maximum density heavy sans' },
+
+  // 🫧 Acid Bubble & Glitch
+  { id: 'rubik-glitch', name: 'Acid Cyber Glitch', family: "'Rubik Glitch', cursive", category: 'bubble', description: 'Distorted matrix digital glitch', viral: true },
+  { id: 'rubik-bubbles', name: 'Y2K Puffer Bubble', family: "'Rubik Bubbles', cursive", category: 'bubble', description: 'Inflatable puffy 3D streetwear' },
+  { id: 'monoton', name: 'Retro Disco Neon', family: "'Monoton', cursive", category: 'bubble', description: 'Multi-line neon optical art' },
+  { id: 'megrim', name: 'Cyber Wireframe', family: "'Megrim', cursive", category: 'bubble', description: 'Futuristic geometric minimalist' },
+  { id: 'bungee', name: 'Heavy 3D Bungee', family: "'Bungee', cursive", category: 'bubble', description: 'Heavy street sign typography' },
+
+  // ✍️ Signature Script & Calligraphy
+  { id: 'satisfy', name: 'Neon Signature', family: "'Satisfy', cursive", category: 'script', description: 'Smooth fluid signature script' },
+  { id: 'caveat', name: 'Raw Handscript', family: "'Caveat', cursive", category: 'script', description: 'Spontaneous streetwear handwriting' },
+  { id: 'sacramento', name: 'Luxury Monoline Script', family: "'Sacramento', cursive", category: 'script', description: 'Elegant thin monoline cursive' },
+  { id: 'great-vibes', name: 'Vintage Royal Script', family: "'Great Vibes', cursive", category: 'script', description: 'Flourished cursive luxury script' },
 ];
 
 export const INK_COLORS = [
@@ -76,6 +144,8 @@ export const INK_COLORS = [
   { name: 'Vintage Ochre', hex: '#EAB308' },
   { name: 'Blood Crimson', hex: '#DC2626' },
   { name: 'Chrome Silver', hex: '#D4D4D8' },
+  { name: 'Sunset Purple', hex: '#A855F7' },
+  { name: 'Flame Orange', hex: '#F97316' },
 ];
 
 /* ── Streetwear Graphic Categories & Vector Stickers ──────────────────── */
@@ -352,12 +422,13 @@ export const DESIGN_RECIPES: DesignRecipe[] = [
 
 /**
  * Dynamically rasterizes customizable streetwear text into a high-res transparent PNG data URL
+ * Supports font width stretching, cyber neon gradients, outline strokes, curved arcs, and drop glow.
  */
 export function generateTextDecal(options: TextPrintOptions): Promise<string> {
   return new Promise((resolve) => {
     const canvas = document.createElement('canvas');
-    canvas.width = 1200;
-    canvas.height = 1200;
+    canvas.width = 1400;
+    canvas.height = 1400;
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       resolve('');
@@ -366,26 +437,67 @@ export function generateTextDecal(options: TextPrintOptions): Promise<string> {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const { text, fontFamily, fontSize = 72, color, letterSpacing, isCurved, isOutline, subtext } = options;
+    const { 
+      text, 
+      fontFamily, 
+      fontSize = 72, 
+      color, 
+      letterSpacing = 4, 
+      isCurved = false, 
+      curveRadius = 340,
+      isOutline = false, 
+      outlineWidth = 4,
+      outlineColor = '#ffffff',
+      subtext,
+      stretchX = 100,
+      isGradient = false,
+      gradientColor = '#00F0FF',
+      shadow = false,
+      shadowColor = 'rgba(0,0,0,0.7)'
+    } = options;
+
     if (!text.trim()) {
       resolve('');
       return;
     }
 
     const cleanText = text.toUpperCase();
+    const stretchFactor = Math.max(0.4, Math.min(2.5, stretchX / 100));
+
+    // Configure text fill style (solid vs gradient)
+    let fillStyle: string | CanvasGradient = color;
+    if (isGradient) {
+      const grad = ctx.createLinearGradient(200, 200, 1200, 1200);
+      grad.addColorStop(0, color);
+      grad.addColorStop(1, gradientColor);
+      fillStyle = grad;
+    }
+
+    if (shadow) {
+      ctx.shadowColor = shadowColor;
+      ctx.shadowBlur = 12;
+      ctx.shadowOffsetX = 4;
+      ctx.shadowOffsetY = 6;
+    }
 
     if (isCurved) {
-      // Draw text along an arc/curve
+      // Draw text along an arc/curve with adjustable curvature radius
       const centerX = canvas.width / 2;
-      const centerY = 700;
-      const radius = 340;
+      const centerY = 740;
+      const radius = Math.max(180, Math.min(500, curveRadius));
       const computedFontSize = fontSize * 0.9;
+
+      ctx.save();
+      // Apply horizontal width stretch
+      ctx.translate(centerX, centerY);
+      ctx.scale(stretchFactor, 1);
+      ctx.translate(-centerX, -centerY);
 
       ctx.font = `900 ${computedFontSize}px ${fontFamily}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      const totalAngle = Math.min(Math.PI * 0.85, (cleanText.length * 0.13) + (letterSpacing * 0.02));
+      const totalAngle = Math.min(Math.PI * 0.95, (cleanText.length * 0.14) + (letterSpacing * 0.02));
       const startAngle = -Math.PI / 2 - totalAngle / 2;
       const angleStep = totalAngle / (cleanText.length - 1 || 1);
 
@@ -400,54 +512,87 @@ export function generateTextDecal(options: TextPrintOptions): Promise<string> {
         ctx.rotate(angle + Math.PI / 2);
 
         if (isOutline) {
-          ctx.strokeStyle = color;
-          ctx.lineWidth = Math.max(3, computedFontSize * 0.08);
+          ctx.strokeStyle = outlineColor || color;
+          ctx.lineWidth = Math.max(3, outlineWidth || computedFontSize * 0.08);
           ctx.strokeText(char, 0, 0);
-        } else {
-          ctx.fillStyle = color;
-          ctx.fillText(char, 0, 0);
         }
+        ctx.fillStyle = fillStyle;
+        ctx.fillText(char, 0, 0);
         ctx.restore();
       }
 
       if (subtext?.trim()) {
-        ctx.font = `700 ${Math.max(18, computedFontSize * 0.3)}px 'JetBrains Mono', monospace`;
-        ctx.fillStyle = color;
+        ctx.font = `700 ${Math.max(18, computedFontSize * 0.32)}px 'JetBrains Mono', monospace`;
+        ctx.fillStyle = fillStyle;
         ctx.textAlign = 'center';
-        ctx.letterSpacing = '4px';
-        ctx.fillText(subtext.toUpperCase(), centerX, 630);
+        ctx.letterSpacing = '5px';
+        ctx.fillText(subtext.toUpperCase(), centerX, centerY - radius + 40);
       }
+
+      ctx.restore();
     } else {
-      // Horizontal Streetwear Center Text
+      // Horizontal Streetwear Center Text with Freeform Width Stretch
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
       const computedFontSize = fontSize;
+
+      ctx.save();
+      // Stretch horizontally around center
+      ctx.translate(centerX, centerY);
+      ctx.scale(stretchFactor, 1);
+      ctx.translate(-centerX, -centerY);
 
       ctx.font = `900 ${computedFontSize}px ${fontFamily}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.letterSpacing = `${letterSpacing}px`;
 
+      const textY = centerY - (subtext ? 32 : 0);
+
       if (isOutline) {
-        ctx.strokeStyle = color;
-        ctx.lineWidth = Math.max(4, computedFontSize * 0.08);
-        ctx.strokeText(cleanText, centerX, centerY - (subtext ? 30 : 0));
-      } else {
-        ctx.fillStyle = color;
-        ctx.fillText(cleanText, centerX, centerY - (subtext ? 30 : 0));
+        ctx.strokeStyle = outlineColor || color;
+        ctx.lineWidth = Math.max(3, outlineWidth || computedFontSize * 0.08);
+        ctx.strokeText(cleanText, centerX, textY);
       }
+
+      ctx.fillStyle = fillStyle;
+      ctx.fillText(cleanText, centerX, textY);
 
       if (subtext?.trim()) {
         ctx.font = `700 ${Math.max(18, computedFontSize * 0.28)}px 'JetBrains Mono', monospace`;
-        ctx.fillStyle = color;
+        ctx.fillStyle = fillStyle;
         ctx.textAlign = 'center';
         ctx.letterSpacing = '6px';
-        ctx.fillText(subtext.toUpperCase(), centerX, centerY + (computedFontSize * 0.55));
+        ctx.fillText(subtext.toUpperCase(), centerX, centerY + (computedFontSize * 0.58));
       }
+
+      ctx.restore();
     }
 
     resolve(canvas.toDataURL('image/png'));
   });
+}
+
+/**
+ * Dynamically loads and registers a custom font file (.ttf / .otf / .woff) in the browser
+ * Allows users to upload fonts from DaFont and immediately use them on the 3D t-shirt
+ */
+export async function loadCustomFontFile(file: File): Promise<StreetwearFont> {
+  const fontName = file.name.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_');
+  const familyName = `CustomFont_${fontName}_${Date.now()}`;
+
+  const buffer = await file.arrayBuffer();
+  const fontFace = new FontFace(familyName, buffer);
+  const loadedFace = await fontFace.load();
+  document.fonts.add(loadedFace);
+
+  return {
+    id: `custom-font-${Date.now()}`,
+    name: `📁 ${file.name.slice(0, 18)}`,
+    family: `'${familyName}', sans-serif`,
+    category: 'custom',
+    description: `Custom ${file.name.split('.').pop()?.toUpperCase()} font file`
+  };
 }
 
 /**

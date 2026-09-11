@@ -118,6 +118,12 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Audiowide&family=Bebas+Neue&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Bruno+Ace+SC&family=Bungee&family=Caveat:wght@400..700&family=Cinzel+Decorative:wght@700;900&family=Covered+By+Your+Grace&family=Creepster&family=Dela+Gothic+One&family=Faster+One&family=Germania+One&family=Great+Vibes&family=Italiana&family=MedievalSharp&family=Megrim&family=Metal+Mania&family=Michroma&family=Monoton&family=New+Rocker&family=Orbitron:wght@400..900&family=Permanent+Marker&family=Pirata+One&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Press+Start+2P&family=Righteous&family=Rock+Salt&family=Rubik+Bubbles&family=Rubik+Glitch&family=Russo+One&family=Sacramento&family=Satisfy&family=Sedgwick+Ave&family=Syne:wght@400..800&family=UnifrakturMaguntia&display=swap"
+        />
         <style dangerouslySetInnerHTML={{ __html: themeVariables }} />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-6H284Z9JF7"

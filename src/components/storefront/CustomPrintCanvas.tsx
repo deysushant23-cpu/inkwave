@@ -15,14 +15,24 @@ function DecalItem({
   xOffset = 0, 
   yOffset = 38, 
   scaleValue = 45, 
+  scaleX = 100,
+  scaleY = 100,
   rotateValue = 0, 
+  flipX = false,
+  flipY = false,
+  opacity = 100,
   side = 'front' 
 }: { 
   textureUrl: string; 
   xOffset?: number; 
   yOffset?: number; 
   scaleValue?: number; 
+  scaleX?: number;
+  scaleY?: number;
   rotateValue?: number; 
+  flipX?: boolean;
+  flipY?: boolean;
+  opacity?: number;
   side?: 'front' | 'back' | 'sleeve-left' | 'sleeve-right'; 
 }) {
   const decalTexture = useTexture(
@@ -46,7 +56,9 @@ function DecalItem({
   // Decal coordinates on the oversized boxy shirt geometry
   const mappedX = (xOffset / 100) * 0.34;
   const mappedY = 0.04 + ((38 - yOffset) * 0.0056);
-  const mappedScale = (scaleValue / 100) * 0.34;
+  const baseScale = (scaleValue / 100) * 0.34;
+  const mappedScaleX = baseScale * ((scaleX || 100) / 100) * (flipX ? -1 : 1);
+  const mappedScaleY = baseScale * ((scaleY || 100) / 100) * (flipY ? -1 : 1);
   const mappedRotation = (rotateValue * Math.PI) / 180;
 
   let decalPosition: [number, number, number];
@@ -59,23 +71,23 @@ function DecalItem({
     decalPosition = [-0.265 / 1.28, (mappedY + 0.015) / 1.03, (xOffset / 100) * 0.10];
     decalRotation = [0, -Math.PI / 2, mappedRotation];
     // Controlled projection depth (0.11) ensures clean wrap around outer bicep without bleeding into torso
-    decalScale = [mappedScale / 1.25, mappedScale / 1.03, 0.11];
+    decalScale = [mappedScaleX / 1.25, mappedScaleY / 1.03, 0.11];
   } else if (isRightSleeve) {
     // Outer Right Sleeve:
     // Outer surface of the right arm sleeve mesh (+X side)
     decalPosition = [0.265 / 1.28, (mappedY + 0.015) / 1.03, -(xOffset / 100) * 0.10];
     decalRotation = [0, Math.PI / 2, -mappedRotation];
-    decalScale = [mappedScale / 1.25, mappedScale / 1.03, 0.11];
+    decalScale = [mappedScaleX / 1.25, mappedScaleY / 1.03, 0.11];
   } else if (isBack) {
     // Project onto Back of shirt only (shallow depth 0.11 prevents reverse projection onto front)
     decalPosition = [-mappedX / 1.28, mappedY / 1.03, -0.15];
     decalRotation = [0, Math.PI, -mappedRotation];
-    decalScale = [mappedScale / 1.28, mappedScale / 1.03, 0.11];
+    decalScale = [mappedScaleX / 1.28, mappedScaleY / 1.03, 0.11];
   } else {
     // Project onto Front Chest of shirt only (shallow depth 0.11 prevents bleed-through onto back)
     decalPosition = [mappedX / 1.28, mappedY / 1.03, 0.15];
     decalRotation = [0, 0, mappedRotation];
-    decalScale = [mappedScale / 1.28, mappedScale / 1.03, 0.11];
+    decalScale = [mappedScaleX / 1.28, mappedScaleY / 1.03, 0.11];
   }
 
   return (
@@ -181,7 +193,12 @@ function Shirt({
                 xOffset={g.x}
                 yOffset={g.y}
                 scaleValue={g.scale}
+                scaleX={g.scaleX ?? 100}
+                scaleY={g.scaleY ?? 100}
                 rotateValue={g.rotate || 0}
+                flipX={g.flipX ?? false}
+                flipY={g.flipY ?? false}
+                opacity={g.opacity ?? 100}
                 side={g.side || 'front'}
               />
             </Suspense>

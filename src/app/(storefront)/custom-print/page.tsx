@@ -25,6 +25,7 @@ import {
   Tag, 
   Move, 
   RotateCw, 
+  RotateCcw,
   Download, 
   Flame, 
   Sparkle,
@@ -36,7 +37,14 @@ import {
   ChevronRight,
   Maximize2,
   Scan,
-  Zap
+  Zap,
+  FlipHorizontal,
+  FlipVertical,
+  Lock,
+  Unlock,
+  Copy,
+  Sliders,
+  FileText
 } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { createClient } from '@/lib/supabase/client';
@@ -46,11 +54,14 @@ import {
   applyPrintFinishTexture, 
   processImageWithAI,
   enhanceImageWithAIUpscale,
+  loadCustomFontFile,
   GraphicLayer,
   PrintFinish, 
   FabricWashStyle,
   PLACEMENT_PRESETS, 
   STREETWEAR_FONTS, 
+  StreetwearFont,
+  FontCategory,
   INK_COLORS,
   STREETWEAR_STICKERS,
   StreetwearSticker,
@@ -121,6 +132,12 @@ export default function CustomPrintStudio() {
       x: 0,
       y: 38,
       scale: 46,
+      scaleX: 100,
+      scaleY: 100,
+      aspectRatioLocked: true,
+      flipX: false,
+      flipY: false,
+      opacity: 100,
       rotate: 0,
       finish: 'matte',
       removeBg: false,
@@ -132,14 +149,24 @@ export default function CustomPrintStudio() {
   const [isProcessingAI, setIsProcessingAI] = useState(false);
   const [isUpscalingAI, setIsUpscalingAI] = useState(false);
 
-  // Typography
+  // Streetwear Typography Studio
   const [typographyEnabled, setTypographyEnabled] = useState(false);
   const [customText, setCustomText] = useState('INKWAVE');
   const [customSubtext, setCustomSubtext] = useState('TOKYO // 2026');
   const [selectedFont, setSelectedFont] = useState(STREETWEAR_FONTS[0].family);
+  const [selectedFontCat, setSelectedFontCat] = useState<string>('all');
+  const [customFonts, setCustomFonts] = useState<typeof STREETWEAR_FONTS>([]);
   const [selectedTextColor, setSelectedTextColor] = useState(INK_COLORS[0].hex);
+  const [textStretchX, setTextStretchX] = useState(100);
   const [isCurvedText, setIsCurvedText] = useState(false);
+  const [textCurveRadius, setTextCurveRadius] = useState(260);
   const [isOutlineText, setIsOutlineText] = useState(false);
+  const [textOutlineWidth, setTextOutlineWidth] = useState(4);
+  const [textOutlineColor, setTextOutlineColor] = useState('#000000');
+  const [isTextGradient, setIsTextGradient] = useState(false);
+  const [textGradientColor, setTextGradientColor] = useState('#a855f7');
+  const [textShadow, setTextShadow] = useState(false);
+  const [textTargetSide, setTextTargetSide] = useState<'front' | 'back' | 'sleeve-left' | 'sleeve-right'>('front');
   const [typographyY, setTypographyY] = useState(25);
   const [typographyScale, setTypographyScale] = useState(42);
   const [typographyTexture, setTypographyTexture] = useState<string | null>(null);
@@ -156,6 +183,9 @@ export default function CustomPrintStudio() {
   const { addItem, setCartDrawerOpen } = useCartStore();
   const supabase = createClient();
   const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const fontFileInputRef = useRef<HTMLInputElement>(null);
+
+  const allAvailableFonts = [...customFonts, ...STREETWEAR_FONTS];
 
   const activeGraphic = graphics.find(g => g.id === selectedLayerId) || graphics[0];
 
@@ -214,6 +244,12 @@ export default function CustomPrintStudio() {
               rawUrl: g.url || '',
               side: g.side || 'front',
               scale: typeof g.scale === 'number' ? g.scale : 46,
+              scaleX: typeof g.scaleX === 'number' ? g.scaleX : 100,
+              scaleY: typeof g.scaleY === 'number' ? g.scaleY : 100,
+              aspectRatioLocked: g.aspectRatioLocked !== false,
+              flipX: !!g.flipX,
+              flipY: !!g.flipY,
+              opacity: typeof g.opacity === 'number' ? g.opacity : 100,
               x: typeof g.x === 'number' ? g.x : 0,
               y: typeof g.y === 'number' ? g.y : 38,
               rotate: g.rotate || 0,
@@ -254,8 +290,16 @@ export default function CustomPrintStudio() {
       fontSize: 72,
       color: selectedTextColor,
       letterSpacing: 4,
+      stretchX: textStretchX,
       isCurved: isCurvedText,
-      isOutline: isOutlineText
+      curveRadius: textCurveRadius,
+      isOutline: isOutlineText,
+      outlineWidth: textOutlineWidth,
+      outlineColor: textOutlineColor,
+      isGradient: isTextGradient,
+      gradientColor: textGradientColor,
+      shadow: textShadow,
+      shadowColor: '#000000'
     }).then((dataUri) => {
       if (isMounted) {
         setTypographyTexture(dataUri);
@@ -271,8 +315,15 @@ export default function CustomPrintStudio() {
     customSubtext, 
     selectedFont, 
     selectedTextColor, 
+    textStretchX,
     isCurvedText, 
-    isOutlineText
+    textCurveRadius,
+    isOutlineText, 
+    textOutlineWidth,
+    textOutlineColor,
+    isTextGradient,
+    textGradientColor,
+    textShadow
   ]);
 
   // Direct On-Garment Drag Handler (Unrestricted Slap-On Placement)
@@ -395,6 +446,125 @@ export default function CustomPrintStudio() {
     toast.success('✨ AI Cleanup applied!');
   };
 
+  // Custom Font File Upload (.ttf, .otf, .woff, .woff2)
+  const handleFontFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const customFont = await loadCustomFontFile(file);
+      setCustomFonts(prev => [customFont, ...prev.filter(f => f.family !== customFont.family)]);
+      setSelectedFont(customFont.family);
+      setSelectedFontCat('custom');
+      toast.success(`✨ Custom font "${customFont.name}" loaded into studio!`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to load font file.');
+    }
+  };
+
+  // Convert Styled Typography into an independent Graphic Layer
+  const handleAddTypographyAsGraphic = async () => {
+    if (!customText.trim()) {
+      toast.error('Please enter text first.');
+      return;
+    }
+    toast.info('Generating typography graphic decal...');
+    const dataUri = await generateTextDecal({
+      text: customText,
+      subtext: customSubtext,
+      fontFamily: selectedFont,
+      fontSize: 72,
+      color: selectedTextColor,
+      letterSpacing: 4,
+      stretchX: textStretchX,
+      isCurved: isCurvedText,
+      curveRadius: textCurveRadius,
+      isOutline: isOutlineText,
+      outlineWidth: textOutlineWidth,
+      outlineColor: textOutlineColor,
+      isGradient: isTextGradient,
+      gradientColor: textGradientColor,
+      shadow: textShadow,
+      shadowColor: '#000000'
+    });
+
+    const newLayer: GraphicLayer = {
+      id: `layer-text-${Date.now()}`,
+      name: customText.slice(0, 14),
+      url: dataUri,
+      processedUrl: dataUri,
+      rawUrl: dataUri,
+      side: textTargetSide,
+      x: 0,
+      y: 36,
+      scale: 52,
+      scaleX: 100,
+      scaleY: 100,
+      aspectRatioLocked: true,
+      flipX: false,
+      flipY: false,
+      opacity: 100,
+      rotate: 0,
+      finish: 'matte',
+      removeBg: false,
+      bgTolerance: 35
+    };
+
+    setGraphics(prev => [...prev, newLayer]);
+    setSelectedLayerId(newLayer.id);
+    setCameraView(textTargetSide);
+    setInteractionMode('move');
+    toast.success(`✨ Added "${customText}" as graphic layer on ${textTargetSide.toUpperCase()}!`);
+  };
+
+  // Duplicate Graphic Layer
+  const handleDuplicateLayer = () => {
+    if (!activeGraphic) return;
+    const duplicated: GraphicLayer = {
+      ...activeGraphic,
+      id: `layer-${Date.now()}`,
+      name: `${activeGraphic.name} (Copy)`,
+      x: Math.min(50, activeGraphic.x + 4),
+      y: Math.min(80, activeGraphic.y + 4)
+    };
+    setGraphics(prev => [...prev, duplicated]);
+    setSelectedLayerId(duplicated.id);
+    toast.success(`Duplicated layer "${activeGraphic.name}"`);
+  };
+
+  // Reset Layer Transform (1:1 standard)
+  const handleResetLayerTransform = () => {
+    if (!activeGraphic) return;
+    updateActiveLayer({
+      scaleX: 100,
+      scaleY: 100,
+      aspectRatioLocked: true,
+      flipX: false,
+      flipY: false,
+      rotate: 0,
+      opacity: 100
+    });
+    toast.info('Transform reset to standard (1:1)');
+  };
+
+  // Layer Stretch Helper
+  const handleLayerStretch = (dim: 'width' | 'height', delta: number) => {
+    if (!activeGraphic) return;
+    if (activeGraphic.aspectRatioLocked) {
+      const newScale = Math.max(15, Math.min(95, activeGraphic.scale + delta));
+      updateActiveLayer({ scale: newScale });
+    } else {
+      if (dim === 'width') {
+        const curX = activeGraphic.scaleX ?? 100;
+        const nextX = Math.max(40, Math.min(220, curX + delta));
+        updateActiveLayer({ scaleX: nextX });
+      } else {
+        const curY = activeGraphic.scaleY ?? 100;
+        const nextY = Math.max(40, Math.min(220, curY + delta));
+        updateActiveLayer({ scaleY: nextY });
+      }
+    }
+  };
+
   // Add stock sticker artwork
   const handleAddSticker = (sticker: StreetwearSticker) => {
     const isSleeve = sticker.category === 'sleeve';
@@ -410,6 +580,12 @@ export default function CustomPrintStudio() {
       x: 0,
       y: isSleeve ? 34 : 38,
       scale: isSleeve ? 26 : 48,
+      scaleX: 100,
+      scaleY: 100,
+      aspectRatioLocked: true,
+      flipX: false,
+      flipY: false,
+      opacity: 100,
       rotate: 0,
       finish: 'matte',
       removeBg: false,
@@ -481,6 +657,12 @@ export default function CustomPrintStudio() {
       x: recipe.stickerPlacement.x,
       y: recipe.stickerPlacement.y,
       scale: recipe.stickerPlacement.scale,
+      scaleX: 100,
+      scaleY: 100,
+      aspectRatioLocked: true,
+      flipX: false,
+      flipY: false,
+      opacity: 100,
       rotate: 0,
       finish: recipe.finish,
       removeBg: false,
@@ -572,8 +754,15 @@ export default function CustomPrintStudio() {
           name: g.name,
           side: g.side,
           scale: g.scale,
+          scaleX: g.scaleX ?? 100,
+          scaleY: g.scaleY ?? 100,
+          aspectRatioLocked: g.aspectRatioLocked !== false,
+          flipX: !!g.flipX,
+          flipY: !!g.flipY,
+          opacity: g.opacity ?? 100,
           x: g.x,
           y: g.y,
+          rotate: g.rotate || 0,
           finish: g.finish || 'matte',
           url: g.processedUrl || g.url,
           processedUrl: g.processedUrl || g.url,
@@ -583,8 +772,15 @@ export default function CustomPrintStudio() {
           name: g.name,
           side: g.side,
           scale: g.scale,
+          scaleX: g.scaleX ?? 100,
+          scaleY: g.scaleY ?? 100,
+          aspectRatioLocked: g.aspectRatioLocked !== false,
+          flipX: !!g.flipX,
+          flipY: !!g.flipY,
+          opacity: g.opacity ?? 100,
           x: g.x,
           y: g.y,
+          rotate: g.rotate || 0,
           finish: g.finish || 'matte',
           url: g.processedUrl || g.url,
           processedUrl: g.processedUrl || g.url,
@@ -595,8 +791,12 @@ export default function CustomPrintStudio() {
           subtext: customSubtext,
           font: selectedFont,
           textColor: selectedTextColor,
+          stretchX: textStretchX,
           isCurved: isCurvedText,
+          curveRadius: textCurveRadius,
           isOutline: isOutlineText,
+          isGradient: isTextGradient,
+          gradientColor: textGradientColor,
           y: typographyY
         } : null
       }
@@ -965,22 +1165,22 @@ export default function CustomPrintStudio() {
           )}
 
           {/* ════════════════════════════════════════════════════════════════ */}
-          {/* ─── STEP 2: 🖼️ ARTWORK & UPLOAD (WITH AI AUTO-CLEAN) ─────────── */}
+          {/* ─── STEP 2: 🖼️ ARTWORK & TYPOGRAPHY STUDIO ────────────────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
           {activeTab === 'art' && (
             <div className="space-y-4 animate-in fade-in duration-200">
               
               {/* Big AI Upload Dropzone */}
-              <label className="p-6 rounded-3xl bg-[var(--bg-card)] border-2 border-dashed border-[var(--accent)]/40 hover:border-[var(--accent)] flex flex-col items-center text-center gap-3 cursor-pointer transition-all group shadow-lg">
-                <div className="w-12 h-12 rounded-2xl bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center group-hover:scale-110 transition-all">
-                  <Upload className="w-6 h-6" />
+              <label className="p-5 rounded-3xl bg-[var(--bg-card)] border-2 border-dashed border-[var(--accent)]/40 hover:border-[var(--accent)] flex flex-col items-center text-center gap-2.5 cursor-pointer transition-all group shadow-lg">
+                <div className="w-11 h-11 rounded-2xl bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center group-hover:scale-110 transition-all">
+                  <Upload className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="text-sm font-mono font-bold text-[var(--text)] uppercase flex items-center justify-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-[var(--accent)]" /> Upload Image / Logo (JPG, PNG, WebP)
                   </div>
-                  <p className="text-[11px] font-mono text-[var(--text-dim)] mt-1">
-                    AI automatically strips the background and centers it on your t-shirt
+                  <p className="text-[11px] font-mono text-[var(--text-dim)] mt-0.5">
+                    AI automatically strips background, enhances resolution, and centers on t-shirt
                   </p>
                 </div>
                 <span className="px-4 py-1.5 rounded-full bg-[var(--accent)] text-black font-mono font-bold text-xs uppercase shadow">
@@ -1027,8 +1227,17 @@ export default function CustomPrintStudio() {
                       </div>
                     </div>
 
-                    {/* AI Buttons */}
+                    {/* AI & Layer Action Buttons */}
                     <div className="flex items-center gap-1.5 shrink-0">
+                      {/* Duplicate Button */}
+                      <button
+                        onClick={handleDuplicateLayer}
+                        className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-[var(--text-dim)] hover:text-white border border-white/10 cursor-pointer transition-all"
+                        title="Duplicate Graphic Layer"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+
                       {/* AI HD Upscale Button */}
                       <button
                         onClick={handleAIUpscale}
@@ -1099,61 +1308,46 @@ export default function CustomPrintStudio() {
                     </div>
                   </div>
 
-                  {/* Mobile Quick Nudge Controller & Placement Actions */}
-                  <div className="pt-2 border-t border-[var(--line)] flex items-center justify-between gap-2">
+                  {/* Quick Transform & Mirror Pill Row */}
+                  <div className="pt-2 border-t border-[var(--line)] flex items-center justify-between gap-1 flex-wrap">
                     <div className="flex items-center gap-1">
-                      <span className="text-[10px] font-mono uppercase text-[var(--text-dim)] mr-1">Nudge:</span>
                       <button
                         type="button"
-                        onClick={() => handleNudgePosition('left')}
-                        className="w-7 h-7 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] flex items-center justify-center cursor-pointer active:scale-95"
-                        title="Nudge Left"
+                        onClick={() => updateActiveLayer({ flipX: !activeGraphic.flipX })}
+                        className={`px-2 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all ${activeGraphic.flipX ? 'bg-[var(--accent)] text-black border-[var(--accent)]' : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+                        title="Mirror Horizontally (Flip X)"
                       >
-                        <ChevronLeft className="w-3.5 h-3.5" />
+                        <FlipHorizontal className="w-3 h-3" />
+                        <span>Flip X</span>
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleNudgePosition('up')}
-                        className="w-7 h-7 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] flex items-center justify-center cursor-pointer active:scale-95"
-                        title="Nudge Up"
+                        onClick={() => updateActiveLayer({ flipY: !activeGraphic.flipY })}
+                        className={`px-2 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all ${activeGraphic.flipY ? 'bg-[var(--accent)] text-black border-[var(--accent)]' : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+                        title="Mirror Vertically (Flip Y)"
                       >
-                        <ChevronUp className="w-3.5 h-3.5" />
+                        <FlipVertical className="w-3 h-3" />
+                        <span>Flip Y</span>
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleNudgePosition('down')}
-                        className="w-7 h-7 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] flex items-center justify-center cursor-pointer active:scale-95"
-                        title="Nudge Down"
+                        onClick={() => updateActiveLayer({ aspectRatioLocked: !activeGraphic.aspectRatioLocked })}
+                        className={`px-2 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all ${activeGraphic.aspectRatioLocked ? 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-dim)]' : 'bg-amber-500/20 border-amber-500/40 text-amber-400'}`}
+                        title="Toggle Aspect Ratio Lock for Freeform Stretch"
                       >
-                        <ChevronDown className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleNudgePosition('right')}
-                        className="w-7 h-7 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] flex items-center justify-center cursor-pointer active:scale-95"
-                        title="Nudge Right"
-                      >
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleNudgePosition('center')}
-                        className="px-2 h-7 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-[10px] font-mono font-bold text-[var(--accent)] flex items-center justify-center cursor-pointer active:scale-95 ml-0.5"
-                        title="Center on Chest"
-                      >
-                        Center
+                        {activeGraphic.aspectRatioLocked ? <Lock className="w-3 h-3 text-emerald-400" /> : <Unlock className="w-3 h-3 text-amber-400" />}
+                        <span>{activeGraphic.aspectRatioLocked ? 'Locked' : 'Stretchable'}</span>
                       </button>
                     </div>
 
-                    <div className="text-[10px] font-mono text-[var(--text-dim)] shrink-0">
-                      <span>Size: {activeGraphic.scale}%</span>
-                    </div>
-                  </div>
-
-                  {/* Touch & Drag Helper */}
-                  <div className="text-[10px] font-mono text-[var(--text-dim)] bg-[var(--bg)] px-2.5 py-1.5 rounded-lg border border-[var(--line)]/60 flex items-center gap-1.5">
-                    <span className="text-[var(--accent)] font-bold">💡 Freedom:</span>
-                    <span>Touch & drag directly on the 3D t-shirt to place this design anywhere!</span>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('size')}
+                      className="text-[10px] font-mono text-[var(--accent)] hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <Sliders className="w-3 h-3" />
+                      <span>Full Transform & Stretch Studio &rarr;</span>
+                    </button>
                   </div>
                 </div>
               )}
@@ -1162,7 +1356,7 @@ export default function CustomPrintStudio() {
               <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3 shadow-xs">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" /> Free Streetwear & Sleeve Decals ({filteredStickers.length})
+                    <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" /> Streetwear & Sleeve Graphics ({filteredStickers.length})
                   </span>
                 </div>
 
@@ -1187,7 +1381,7 @@ export default function CustomPrintStudio() {
                   ))}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1">
+                <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto pr-1">
                   {filteredStickers.map((sticker) => (
                     <button
                       key={sticker.id}
@@ -1208,56 +1402,258 @@ export default function CustomPrintStudio() {
                 </div>
               </div>
 
-              {/* Optional Custom Streetwear Text */}
-              <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3 shadow-xs">
+              {/* ════════════════════════════════════════════════════════════════ */}
+              {/* ─── 🔤 STREETWEAR TYPOGRAPHY STUDIO (35+ FONTS + UPLOADER) ────── */}
+              {/* ════════════════════════════════════════════════════════════════ */}
+              <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3.5 shadow-md">
+                
+                {/* Header */}
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
-                    <Type className="w-4 h-4 text-[var(--accent)]" /> Add Streetwear Text
-                  </span>
+                  <div>
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
+                      <Type className="w-4 h-4 text-[var(--accent)]" /> Streetwear Typography Lab
+                    </span>
+                    <p className="text-[10px] font-mono text-[var(--text-dim)] mt-0.5">
+                      35+ Streetwear Fonts • Arc Curvature • Neon Gradients • Font File Uploader
+                    </p>
+                  </div>
                   <button
                     onClick={() => setTypographyEnabled(!typographyEnabled)}
                     className={`px-3 py-1 rounded-xl text-xs font-mono uppercase transition-all cursor-pointer ${typographyEnabled ? 'bg-[var(--accent)] text-black font-bold' : 'bg-[var(--bg)] border border-[var(--line)] text-[var(--text-dim)]'}`}
                   >
-                    {typographyEnabled ? 'Enabled' : '+ Add Text'}
+                    {typographyEnabled ? '✓ Enabled' : '+ Open Lab'}
                   </button>
                 </div>
 
                 {typographyEnabled && (
-                  <div className="space-y-2.5 pt-1">
-                    <input
-                      type="text"
-                      value={customText}
-                      onChange={(e) => setCustomText(e.target.value)}
-                      placeholder="e.g. INKWAVE 2026"
-                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs font-mono text-[var(--text)] uppercase outline-none focus:border-[var(--accent)]"
-                    />
+                  <div className="space-y-3 pt-2 border-t border-[var(--line)]">
+                    
+                    {/* Text Inputs */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-mono uppercase text-[var(--text-dim)] font-bold">
+                          Main Slogan / Headline:
+                        </label>
+                        <input
+                          type="text"
+                          value={customText}
+                          onChange={(e) => setCustomText(e.target.value)}
+                          placeholder="e.g. INKWAVE"
+                          className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs font-mono text-[var(--text)] uppercase outline-none focus:border-[var(--accent)]"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-mono uppercase text-[var(--text-dim)] font-bold">
+                          Subtext / Year / City:
+                        </label>
+                        <input
+                          type="text"
+                          value={customSubtext}
+                          onChange={(e) => setCustomSubtext(e.target.value)}
+                          placeholder="e.g. TOKYO // 2026"
+                          className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs font-mono text-[var(--text)] uppercase outline-none focus:border-[var(--accent)]"
+                        />
+                      </div>
+                    </div>
 
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {STREETWEAR_FONTS.slice(0, 4).map((f) => (
+                    {/* Font Category Filter Tabs + Custom Upload Action */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-mono uppercase text-[var(--text-dim)] font-bold">
+                          Streetwear Font Packs:
+                        </label>
+                        <label className="text-[10px] font-mono text-[var(--accent)] font-bold uppercase hover:underline cursor-pointer flex items-center gap-1">
+                          <Upload className="w-3 h-3" />
+                          <span>Upload .TTF/.OTF Font</span>
+                          <input 
+                            ref={fontFileInputRef}
+                            type="file" 
+                            accept=".ttf,.otf,.woff,.woff2" 
+                            onChange={handleFontFileUpload} 
+                            className="hidden" 
+                          />
+                        </label>
+                      </div>
+
+                      {/* Filter Pills */}
+                      <div className="flex gap-1 overflow-x-auto pb-1">
+                        {[
+                          { id: 'all', label: `All (${allAvailableFonts.length})` },
+                          { id: 'gothic', label: '⚡ Gothic & Metal' },
+                          { id: 'graffiti', label: '🎨 Graffiti' },
+                          { id: 'tokyo', label: '🎌 Tokyo Y2K' },
+                          { id: 'luxury', label: '💎 Luxury Serif' },
+                          { id: 'varsity', label: '🏈 Varsity' },
+                          { id: 'bubble', label: '🫧 Acid Glitch' },
+                          { id: 'script', label: '✍️ Signature' },
+                          ...(customFonts.length > 0 ? [{ id: 'custom', label: `📁 Custom (${customFonts.length})` }] : [])
+                        ].map(fc => (
+                          <button
+                            key={fc.id}
+                            type="button"
+                            onClick={() => setSelectedFontCat(fc.id)}
+                            className={`px-2.5 py-1 text-[10px] font-mono uppercase rounded-lg border shrink-0 transition-all cursor-pointer ${
+                              selectedFontCat === fc.id 
+                                ? 'border-[var(--accent)] bg-[var(--accent)] text-black font-bold' 
+                                : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'
+                            }`}
+                          >
+                            {fc.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Visual Categorized Font Picker Grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-[220px] overflow-y-auto pr-1">
+                        {allAvailableFonts
+                          .filter(f => selectedFontCat === 'all' || f.category === selectedFontCat)
+                          .map(f => (
+                            <button
+                              key={f.name}
+                              type="button"
+                              onClick={() => setSelectedFont(f.family)}
+                              className={`p-2 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between min-h-[58px] ${
+                                selectedFont === f.family 
+                                  ? 'border-[var(--accent)] bg-[var(--accent)]/15 text-[var(--accent)] shadow-sm' 
+                                  : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:border-white/20'
+                              }`}
+                            >
+                              <div className="flex justify-between items-center gap-1">
+                                <span className="text-[10px] font-mono font-bold truncate">{f.name}</span>
+                                <span className="text-[8px] font-mono opacity-50 uppercase">{f.category}</span>
+                              </div>
+                              <div 
+                                className="text-sm truncate mt-1 text-[var(--text)]" 
+                                style={{ fontFamily: f.family }}
+                              >
+                                {customText || 'INKWAVE'}
+                              </div>
+                            </button>
+                          ))}
+                      </div>
+                    </div>
+
+                    {/* Color Palette & Neon Gradient */}
+                    <div className="space-y-2 pt-2 border-t border-[var(--line)]">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-mono uppercase text-[var(--text-dim)] font-bold">
+                          Ink Color & Gradient:
+                        </label>
                         <button
-                          key={f.name}
-                          onClick={() => setSelectedFont(f.family)}
-                          className={`p-2 rounded-xl border text-left cursor-pointer ${selectedFont === f.family ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'}`}
+                          type="button"
+                          onClick={() => setIsTextGradient(!isTextGradient)}
+                          className={`px-2 py-0.5 rounded-lg border text-[10px] font-mono uppercase cursor-pointer transition-all ${
+                            isTextGradient ? 'bg-purple-500/20 border-purple-500 text-purple-300 font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'
+                          }`}
                         >
-                          <div className="text-xs truncate" style={{ fontFamily: f.family }}>{f.name}</div>
+                          {isTextGradient ? '✓ Neon Gradient Active' : '+ Neon Gradient'}
                         </button>
-                      ))}
+                      </div>
+
+                      <div className="flex flex-wrap gap-1.5 items-center">
+                        {INK_COLORS.map(c => (
+                          <button
+                            key={c.name}
+                            type="button"
+                            onClick={() => setSelectedTextColor(c.hex)}
+                            className={`w-7 h-7 rounded-lg border-2 transition-all flex items-center justify-center cursor-pointer ${
+                              selectedTextColor === c.hex ? 'border-[var(--accent)] scale-110 shadow' : 'border-white/10 hover:border-white/40'
+                            }`}
+                            style={{ backgroundColor: c.hex }}
+                            title={c.name}
+                          >
+                            {selectedTextColor === c.hex && (
+                              <Check className={`w-3 h-3 ${c.hex.toLowerCase() === '#ffffff' || c.hex.toLowerCase() === '#d4c5b9' ? 'text-black' : 'text-white'}`} />
+                            )}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
-                    <div className="flex gap-2 pt-1">
+                    {/* Horizontal Typography Stretch Slider (50% to 200%) */}
+                    <div className="space-y-1.5 pt-2 border-t border-[var(--line)]">
+                      <div className="flex justify-between text-[10px] font-mono">
+                        <span className="text-[var(--text-dim)] font-bold uppercase">Horizontal Kerning & Stretch:</span>
+                        <span className="text-[var(--accent)] font-bold">{textStretchX}%</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setTextStretchX(prev => Math.max(50, prev - 10))}
+                          className="w-7 h-7 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-xs font-mono font-bold text-[var(--text)] flex items-center justify-center cursor-pointer"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="range"
+                          min="50"
+                          max="200"
+                          value={textStretchX}
+                          onChange={(e) => setTextStretchX(Number(e.target.value))}
+                          className="flex-1 accent-[var(--accent)] cursor-pointer"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setTextStretchX(prev => Math.min(200, prev + 10))}
+                          className="w-7 h-7 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-xs font-mono font-bold text-[var(--text)] flex items-center justify-center cursor-pointer"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Arc Curvature, Stroke Outline, and Shadow Effects */}
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--line)]">
                       <button
+                        type="button"
                         onClick={() => setIsCurvedText(!isCurvedText)}
-                        className={`flex-1 py-1.5 px-3 rounded-xl border text-xs font-mono uppercase cursor-pointer ${isCurvedText ? 'bg-[var(--accent)] text-black font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'}`}
+                        className={`py-2 px-3 rounded-xl border text-[11px] font-mono uppercase cursor-pointer transition-all text-center ${
+                          isCurvedText ? 'bg-[var(--accent)] text-black font-bold shadow-xs' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'
+                        }`}
                       >
-                        {isCurvedText ? '✓ Curved' : 'Curve Text'}
+                        {isCurvedText ? '✓ Arc Curve Active' : 'Arc Curve Text'}
                       </button>
                       <button
+                        type="button"
                         onClick={() => setIsOutlineText(!isOutlineText)}
-                        className={`flex-1 py-1.5 px-3 rounded-xl border text-xs font-mono uppercase cursor-pointer ${isOutlineText ? 'bg-[var(--accent)] text-black font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'}`}
+                        className={`py-2 px-3 rounded-xl border text-[11px] font-mono uppercase cursor-pointer transition-all text-center ${
+                          isOutlineText ? 'bg-[var(--accent)] text-black font-bold shadow-xs' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)]'
+                        }`}
                       >
-                        {isOutlineText ? '✓ Outline' : 'Outline'}
+                        {isOutlineText ? '✓ Stroke Outline Active' : 'Stroke Outline'}
                       </button>
                     </div>
+
+                    {/* Target Surface + Convert to Graphic Layer */}
+                    <div className="pt-2 border-t border-[var(--line)] space-y-2">
+                      <div className="flex justify-between items-center text-[10px] font-mono text-[var(--text-dim)] uppercase">
+                        <span className="font-bold">Add Typography to Surface:</span>
+                        <div className="flex gap-1">
+                          {(['front', 'back', 'sleeve-left', 'sleeve-right'] as const).map(side => (
+                            <button
+                              key={side}
+                              type="button"
+                              onClick={() => setTextTargetSide(side)}
+                              className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase cursor-pointer ${
+                                textTargetSide === side ? 'bg-[var(--accent)] text-black' : 'bg-[var(--bg)] border border-[var(--line)] text-[var(--text-dim)]'
+                              }`}
+                            >
+                              {side === 'sleeve-left' ? 'L-Sleeve' : side === 'sleeve-right' ? 'R-Sleeve' : side}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleAddTypographyAsGraphic}
+                        className="w-full bg-[var(--accent)] text-black hover:opacity-90 font-mono font-bold text-xs uppercase py-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>➕ Add Styled Text As Graphic Layer on {textTargetSide.toUpperCase()}</span>
+                      </button>
+                    </div>
+
                   </div>
                 )}
               </div>
@@ -1268,18 +1664,55 @@ export default function CustomPrintStudio() {
                 onClick={() => setActiveTab('size')}
                 className="w-full bg-[var(--bg)] border border-[var(--accent)]/50 text-[var(--accent)] hover:bg-[var(--accent)] hover:text-black font-mono font-bold text-xs uppercase py-3 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <span>Next: Placement & Sizing &rarr;</span>
+                <span>Next: Placement & Stretch Studio &rarr;</span>
               </button>
 
             </div>
           )}
 
           {/* ════════════════════════════════════════════════════════════════ */}
-          {/* ─── STEP 3: 📏 SIZE, SIDE & PLACEMENT ─────────────────────────── */}
+          {/* ─── STEP 3: 📐 PHOTOSHOP TRANSFORM & STRETCH STUDIO ───────────── */}
           {/* ════════════════════════════════════════════════════════════════ */}
           {activeTab === 'size' && (
-            <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-4 animate-in fade-in duration-200">
+            <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-4 animate-in fade-in duration-200 shadow-lg">
               
+              {/* Active Layer Inspector Header */}
+              <div className="flex justify-between items-center pb-2 border-b border-[var(--line)]">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-md bg-black border border-white/10 flex items-center justify-center overflow-hidden p-0.5">
+                    <img src={activeGraphic?.processedUrl || activeGraphic?.url} alt="" className="w-full h-full object-contain" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-mono font-bold text-[var(--text)] uppercase truncate">
+                      {activeGraphic?.name || 'Graphic Layer'}
+                    </div>
+                    <div className="text-[9px] font-mono text-[var(--accent)] uppercase">
+                      Surface: {activeGraphic?.side || 'front'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handleDuplicateLayer}
+                    className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[var(--text)] border border-white/10 text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all"
+                    title="Duplicate active layer"
+                  >
+                    <Copy className="w-3 h-3" />
+                    <span>Duplicate</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResetLayerTransform}
+                    className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-[var(--text-dim)] hover:text-white border border-white/10 cursor-pointer transition-all"
+                    title="Reset all transforms to 1:1 standard"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
               {/* Front / Back / L-Sleeve / R-Sleeve Toggle */}
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
@@ -1342,11 +1775,154 @@ export default function CustomPrintStudio() {
                 </div>
               </div>
 
-              {/* Design Sizing Presets */}
+              {/* ════════════════════════════════════════════════════════════════ */}
+              {/* ─── PHOTOSHOP NON-UNIFORM STRETCH & TRANSFORM CONTROLS ──────── */}
+              {/* ════════════════════════════════════════════════════════════════ */}
+              <div className="pt-2 border-t border-[var(--line)] space-y-3 bg-[var(--bg)] p-3.5 rounded-2xl border">
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
+                    <Sliders className="w-4 h-4 text-[var(--accent)]" /> Photoshop Transform & Stretch
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => updateActiveLayer({ aspectRatioLocked: !activeGraphic?.aspectRatioLocked })}
+                    className={`px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold uppercase flex items-center gap-1 cursor-pointer transition-all ${
+                      activeGraphic?.aspectRatioLocked 
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                        : 'bg-amber-500/20 border-amber-500/50 text-amber-400'
+                    }`}
+                  >
+                    {activeGraphic?.aspectRatioLocked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+                    <span>{activeGraphic?.aspectRatioLocked ? 'Lock Ratio' : 'Free Stretch'}</span>
+                  </button>
+                </div>
+
+                {/* Horizontal Stretch (scaleX) */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10px] font-mono">
+                    <span className="text-[var(--text-dim)] font-bold uppercase">Horizontal Width Stretch (X):</span>
+                    <span className="text-[var(--accent)] font-bold">{activeGraphic?.scaleX ?? 100}%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleLayerStretch('width', -5)}
+                      className="w-7 h-7 rounded-lg bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--accent)] text-xs font-mono font-bold text-[var(--text)] flex items-center justify-center cursor-pointer transition-colors"
+                      title="Shrink width 5%"
+                    >
+                      -5%
+                    </button>
+                    <input 
+                      type="range" 
+                      min="40" 
+                      max="220" 
+                      value={activeGraphic?.scaleX ?? 100} 
+                      onChange={e => updateActiveLayer({ scaleX: Number(e.target.value) })} 
+                      className="flex-1 accent-[var(--accent)] cursor-pointer"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleLayerStretch('width', 5)}
+                      className="w-7 h-7 rounded-lg bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--accent)] text-xs font-mono font-bold text-[var(--text)] flex items-center justify-center cursor-pointer transition-colors"
+                      title="Expand width 5%"
+                    >
+                      +5%
+                    </button>
+                  </div>
+                </div>
+
+                {/* Vertical Stretch (scaleY) */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10px] font-mono">
+                    <span className="text-[var(--text-dim)] font-bold uppercase">Vertical Height Stretch (Y):</span>
+                    <span className="text-[var(--accent)] font-bold">{activeGraphic?.scaleY ?? 100}%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleLayerStretch('height', -5)}
+                      className="w-7 h-7 rounded-lg bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--accent)] text-xs font-mono font-bold text-[var(--text)] flex items-center justify-center cursor-pointer transition-colors"
+                      title="Shrink height 5%"
+                    >
+                      -5%
+                    </button>
+                    <input 
+                      type="range" 
+                      min="40" 
+                      max="220" 
+                      value={activeGraphic?.scaleY ?? 100} 
+                      onChange={e => updateActiveLayer({ scaleY: Number(e.target.value) })} 
+                      className="flex-1 accent-[var(--accent)] cursor-pointer"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleLayerStretch('height', 5)}
+                      className="w-7 h-7 rounded-lg bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--accent)] text-xs font-mono font-bold text-[var(--text)] flex items-center justify-center cursor-pointer transition-colors"
+                      title="Expand height 5%"
+                    >
+                      +5%
+                    </button>
+                  </div>
+                </div>
+
+                {/* Quick Aspect & Distortion Pills */}
+                <div className="flex gap-1.5 flex-wrap items-center pt-1">
+                  <span className="text-[10px] font-mono uppercase text-[var(--text-dim)] mr-1">Aspect Presets:</span>
+                  {[
+                    { label: '1:1 Standard', sx: 100, sy: 100 },
+                    { label: 'Wide (140% X)', sx: 140, sy: 100 },
+                    { label: 'Tall (140% Y)', sx: 100, sy: 140 },
+                    { label: 'Pancake (180/70)', sx: 180, sy: 70 },
+                    { label: 'Tower (70/180)', sx: 70, sy: 180 }
+                  ].map(preset => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => updateActiveLayer({ scaleX: preset.sx, scaleY: preset.sy, aspectRatioLocked: false })}
+                      className="px-2 py-1 rounded-lg text-[9px] font-mono font-bold uppercase border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all cursor-pointer"
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Flip Mirror Buttons */}
+                <div className="flex items-center gap-2 pt-1 border-t border-[var(--line)]/50">
+                  <span className="text-[10px] font-mono uppercase text-[var(--text-dim)] font-bold">Mirroring:</span>
+                  <button
+                    type="button"
+                    onClick={() => updateActiveLayer({ flipX: !activeGraphic?.flipX })}
+                    className={`flex-1 py-1.5 rounded-xl border text-[10px] font-mono font-bold uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                      activeGraphic?.flipX 
+                        ? 'bg-[var(--accent)] text-black border-[var(--accent)] shadow' 
+                        : 'bg-[var(--bg-card)] border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'
+                    }`}
+                  >
+                    <FlipHorizontal className="w-3.5 h-3.5" />
+                    <span>Flip X (Mirror)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateActiveLayer({ flipY: !activeGraphic?.flipY })}
+                    className={`flex-1 py-1.5 rounded-xl border text-[10px] font-mono font-bold uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                      activeGraphic?.flipY 
+                        ? 'bg-[var(--accent)] text-black border-[var(--accent)] shadow' 
+                        : 'bg-[var(--bg-card)] border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'
+                    }`}
+                  >
+                    <FlipVertical className="w-3.5 h-3.5" />
+                    <span>Flip Y</span>
+                  </button>
+                </div>
+
+              </div>
+
+              {/* Overall Scaling Presets */}
               <div className="pt-2 border-t border-[var(--line)] space-y-3">
                 <div className="flex justify-between items-center">
                   <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
-                    <Move className="w-3.5 h-3.5 text-[var(--accent)]" /> Artwork Size & Scaling
+                    <Move className="w-3.5 h-3.5 text-[var(--accent)]" /> Overall Proportional Size
                   </label>
                   <span className="text-xs font-mono text-[var(--accent)] font-bold">
                     {activeGraphic?.scale || 45}% Scale
@@ -1363,30 +1939,6 @@ export default function CustomPrintStudio() {
                     >
                       <div className="text-[11px] font-mono font-bold">{sz.name}</div>
                       <div className="text-[9px] font-mono opacity-60">{sz.cmLabel} ({sz.scale}%)</div>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Quick Sizing Pills */}
-                <div className="flex gap-1.5 flex-wrap items-center pt-1">
-                  <span className="text-[10px] font-mono uppercase text-[var(--text-dim)] mr-1">Quick Sizes:</span>
-                  {[
-                    { label: 'Badge', scale: 22 },
-                    { label: 'Chest', scale: 45 },
-                    { label: 'Oversize', scale: 62 },
-                    { label: 'Statement', scale: 78 }
-                  ].map(pill => (
-                    <button
-                      key={pill.label}
-                      type="button"
-                      onClick={() => updateActiveLayer({ scale: pill.scale })}
-                      className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase transition-all cursor-pointer ${
-                        activeGraphic?.scale === pill.scale
-                          ? 'bg-[var(--accent)] text-black'
-                          : 'bg-[var(--bg)] border border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'
-                      }`}
-                    >
-                      {pill.label} ({pill.scale}%)
                     </button>
                   ))}
                 </div>
