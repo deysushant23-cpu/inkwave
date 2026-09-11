@@ -276,6 +276,7 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
   const [footerCols, setFooterCols] = useState<FooterColumn[]>([]);
 
   // ── Tab 7: Custom Print Studio Config State
+  const [printBasePrice, setPrintBasePrice] = useState<number>(699);
   const [printColors, setPrintColors] = useState<any[]>([]);
   const [printStickers, setPrintStickers] = useState<StreetwearSticker[]>(STREETWEAR_STICKERS);
   const [printRecipes, setPrintRecipes] = useState<any[]>(DESIGN_RECIPES);
@@ -284,6 +285,18 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
   const [newStickerCategory, setNewStickerCategory] = useState<StickerCategory>('sleeve');
   const [newStickerDesc, setNewStickerDesc] = useState('');
   const [newStickerUrl, setNewStickerUrl] = useState('');
+
+  // Default Starting Design State for Storefront Customizer
+  const [defaultDesignColor, setDefaultDesignColor] = useState<string>('#111111');
+  const [defaultDesignSize, setDefaultDesignSize] = useState<string>('L');
+  const [defaultDesignWash, setDefaultDesignWash] = useState<'solid' | 'acid-wash' | 'mercerized'>('solid');
+  const [defaultDesignGraphicName, setDefaultDesignGraphicName] = useState<string>('Cyber Chrome Star');
+  const [defaultDesignGraphicUrl, setDefaultDesignGraphicUrl] = useState<string>(STREETWEAR_STICKERS[3]?.url || '');
+  const [defaultDesignSide, setDefaultDesignSide] = useState<'front' | 'back' | 'sleeve-left' | 'sleeve-right'>('front');
+  const [defaultDesignScale, setDefaultDesignScale] = useState<number>(46);
+  const [defaultDesignX, setDefaultDesignX] = useState<number>(0);
+  const [defaultDesignY, setDefaultDesignY] = useState<number>(38);
+  const [defaultCustomLabel, setDefaultCustomLabel] = useState<string>('INKWAVE // STUDIO SPEC');
 
   // ── Tab 8: Dynamic Theme Colors Config State
   const [themePreset, setThemePreset] = useState('ink');
@@ -523,6 +536,12 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
 
       // 8. Process Custom Print Config
       const printData = sectionMap.get('custom_print_config');
+      if (printData?.price) {
+        setPrintBasePrice(Number(printData.price) || 699);
+      } else {
+        setPrintBasePrice(699);
+      }
+
       if (printData?.colors && Array.isArray(printData.colors)) {
         setPrintColors(printData.colors);
       } else {
@@ -543,6 +562,24 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
         setPrintRecipes(printData.recipes);
       } else {
         setPrintRecipes(DESIGN_RECIPES);
+      }
+
+      // Default Starting Design
+      if (printData?.default_design) {
+        const dd = printData.default_design;
+        if (dd.colorHex) setDefaultDesignColor(dd.colorHex);
+        if (dd.size) setDefaultDesignSize(dd.size);
+        if (dd.fabricWash) setDefaultDesignWash(dd.fabricWash);
+        if (dd.customLabel) setDefaultCustomLabel(dd.customLabel);
+        if (dd.graphics && Array.isArray(dd.graphics) && dd.graphics.length > 0) {
+          const g0 = dd.graphics[0];
+          if (g0.name) setDefaultDesignGraphicName(g0.name);
+          if (g0.url || g0.processedUrl) setDefaultDesignGraphicUrl(g0.processedUrl || g0.url);
+          if (g0.side) setDefaultDesignSide(g0.side);
+          if (typeof g0.scale === 'number') setDefaultDesignScale(g0.scale);
+          if (typeof g0.x === 'number') setDefaultDesignX(g0.x);
+          if (typeof g0.y === 'number') setDefaultDesignY(g0.y);
+        }
       }
 
       // 9. Process Theme Colors Config
@@ -989,11 +1026,38 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
 
   /* ── Tab 7: Custom Print Studio Actions ────────────────────────────────── */
   const handleSavePrintColors = () => {
+    const defaultDesignPayload = {
+      colorHex: defaultDesignColor,
+      colorName: printColors.find(c => c.hex.toLowerCase() === defaultDesignColor.toLowerCase())?.name || 'Ink Black',
+      size: defaultDesignSize,
+      fabricWash: defaultDesignWash,
+      customLabel: defaultCustomLabel,
+      graphics: [
+        {
+          id: 'default-layer-1',
+          name: defaultDesignGraphicName || 'Default Graphic',
+          url: defaultDesignGraphicUrl || STREETWEAR_STICKERS[3]?.url || '',
+          processedUrl: defaultDesignGraphicUrl || STREETWEAR_STICKERS[3]?.url || '',
+          rawUrl: defaultDesignGraphicUrl || STREETWEAR_STICKERS[3]?.url || '',
+          side: defaultDesignSide,
+          x: defaultDesignX,
+          y: defaultDesignY,
+          scale: defaultDesignScale,
+          rotate: 0,
+          finish: 'matte',
+          removeBg: false,
+          bgTolerance: 35
+        }
+      ]
+    };
+
     saveSectionKey('custom_print_config', { 
+      price: printBasePrice || 699,
       colors: printColors,
       stickers: printStickers,
-      recipes: printRecipes
-    }, 'Custom Print Lab (Blank Tees, Preset Stickers & Templates) saved live!');
+      recipes: printRecipes,
+      default_design: defaultDesignPayload
+    }, `Custom Print Lab (Price: ₹${printBasePrice || 699}, Default Design, Tees & Stickers) saved live!`);
   };
 
   const handleAddPresetSticker = (e: React.FormEvent) => {
@@ -2808,12 +2872,380 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
               </button>
             </div>
 
+            {/* ── Sub-Section 0: Base Pricing & Storefront Commercial Spec ── */}
+            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 rounded-2xl space-y-4 shadow-sm">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-[var(--line)] pb-3">
+                <div className="flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-[var(--accent)]" />
+                  <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--text)]">
+                    1. Custom T-Shirt Retail Pricing (₹)
+                  </h4>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 font-bold">
+                  All-Inclusive Flat Rate
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                <div className="md:col-span-4 space-y-2">
+                  <label className="block text-[10px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider">
+                    Custom T-Shirt Retail Base Price (₹) *
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold font-mono text-[var(--text-dim)]">₹</span>
+                    <input 
+                      type="number" 
+                      min="1"
+                      step="1"
+                      value={printBasePrice} 
+                      onChange={e => setPrintBasePrice(Math.max(1, Number(e.target.value) || 699))} 
+                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl p-3 text-lg font-bold font-mono text-[var(--text)] outline-none focus:border-[var(--accent)] transition-colors"
+                      placeholder="699"
+                    />
+                  </div>
+                  <p className="text-[10px] text-[var(--text-dim)]">
+                    Default: <span className="font-bold text-[var(--accent)]">₹699</span>. This price is applied automatically to cart & checkout for all custom bespoke tees.
+                  </p>
+                </div>
+
+                <div className="md:col-span-8 bg-[var(--bg)] border border-[var(--line)]/60 rounded-xl p-4 space-y-2">
+                  <h5 className="text-[11px] font-bold text-[var(--text)] uppercase tracking-wider flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> What&apos;s Included for the Customer at ₹{printBasePrice || 699}:
+                  </h5>
+                  <ul className="text-[11px] text-[var(--text-dim)] space-y-1 list-disc list-inside">
+                    <li><strong className="text-[var(--text)]">240 GSM</strong> 100% Super-Combed French Terry Cotton blank.</li>
+                    <li><strong className="text-[var(--text)]">Unlimited Artwork Decals</strong> across Chest, Back, Left Sleeve & Right Sleeve.</li>
+                    <li><strong className="text-[var(--text)]">Custom Interior Spec Label</strong> printed with customer initials/brand.</li>
+                    <li><strong className="text-[var(--text)]">Free Express Dispatch</strong> directly from Surat Factory + 100% Free Fit Exchanges.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Sub-Section 0.5: Default Starting Customizer Design ── */}
+            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 rounded-2xl space-y-6 shadow-sm">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[var(--line)] pb-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[var(--accent)]" />
+                    <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--text)]">
+                      2. Default Starting Design for Storefront Visitors
+                    </h4>
+                  </div>
+                  <p className="text-[11px] text-[var(--text-dim)] mt-0.5">
+                    Configure the initial garment color, size, placement, and graphic that loads when any customer visits <code className="text-[var(--accent)]">/custom-print</code>.
+                  </p>
+                </div>
+                <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Fully Dynamic
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* Left Config Controls */}
+                <div className="lg:col-span-7 space-y-4">
+                  {/* Row 1: Garment Color & Size */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1.5">
+                        Default Garment Color
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="color" 
+                          value={defaultDesignColor} 
+                          onChange={e => setDefaultDesignColor(e.target.value)} 
+                          className="w-10 h-10 rounded-xl bg-transparent border-0 cursor-pointer shrink-0" 
+                        />
+                        <select 
+                          value={defaultDesignColor} 
+                          onChange={e => setDefaultDesignColor(e.target.value)}
+                          className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-xl p-2.5 text-xs font-mono text-[var(--text)] outline-none cursor-pointer focus:border-[var(--accent)]"
+                        >
+                          {printColors.map((c, i) => (
+                            <option key={i} value={c.hex}>{c.name} ({c.hex})</option>
+                          ))}
+                          <option value="#111111">Ink Black (#111111)</option>
+                          <option value="#ffffff">Pure White (#ffffff)</option>
+                          <option value="#b31a1a">Crimson Red (#b31a1a)</option>
+                          <option value="#1e3a8a">Navy Blue (#1e3a8a)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1.5">
+                        Default Starting Size
+                      </label>
+                      <div className="flex gap-1.5 flex-wrap">
+                        {['S', 'M', 'L', 'XL', 'XXL', '3XL'].map(sz => (
+                          <button
+                            key={sz}
+                            type="button"
+                            onClick={() => setDefaultDesignSize(sz)}
+                            className={`px-3 py-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                              defaultDesignSize === sz
+                                ? 'bg-[var(--accent)] text-[var(--bg)] shadow-sm'
+                                : 'bg-[var(--bg)] border border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'
+                            }`}
+                          >
+                            {sz}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row 2: Fabric Finish & Custom Neck Spec Label */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1.5">
+                        Fabric Finish / Wash
+                      </label>
+                      <select 
+                        value={defaultDesignWash} 
+                        onChange={e => setDefaultDesignWash(e.target.value as any)}
+                        className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl p-2.5 text-xs font-mono text-[var(--text)] outline-none cursor-pointer focus:border-[var(--accent)]"
+                      >
+                        <option value="solid">Solid Heavyweight (240 GSM)</option>
+                        <option value="acid-wash">Acid Mineral Wash (Vintage)</option>
+                        <option value="mercerized">Mercerized Luster (Luxury Sheen)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1.5">
+                        Inside Collar / Spec Label Text
+                      </label>
+                      <input 
+                        type="text" 
+                        value={defaultCustomLabel} 
+                        onChange={e => setDefaultCustomLabel(e.target.value)}
+                        placeholder="e.g. INKWAVE // STUDIO SPEC 01"
+                        className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl p-2.5 text-xs font-mono text-[var(--text)] outline-none focus:border-[var(--accent)]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Row 3: Graphic Artwork Details */}
+                  <div className="space-y-3 pt-2 border-t border-[var(--line)]">
+                    <div>
+                      <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                        Default Graphic Artwork Name *
+                      </label>
+                      <input 
+                        type="text" 
+                        value={defaultDesignGraphicName} 
+                        onChange={e => setDefaultDesignGraphicName(e.target.value)}
+                        placeholder="e.g. Cyber Chrome Star"
+                        className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl p-2.5 text-xs text-[var(--text)] outline-none focus:border-[var(--accent)] font-semibold"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                        Default Graphic Artwork Image / SVG URL *
+                      </label>
+                      <div className="flex gap-2 items-center">
+                        <input 
+                          type="text" 
+                          value={defaultDesignGraphicUrl} 
+                          onChange={e => setDefaultDesignGraphicUrl(e.target.value)}
+                          placeholder="https://... or data:image/svg+xml..."
+                          className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-xl p-2.5 text-xs font-mono text-[var(--text)] outline-none focus:border-[var(--accent)]"
+                        />
+                        <MediaUploader 
+                          onUploadSuccess={url => setDefaultDesignGraphicUrl(url)} 
+                          label="Upload Image" 
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row 4: Side Placement & Scale */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1.5">
+                        Default Placement Side
+                      </label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {[
+                          { id: 'front', label: 'Front Chest' },
+                          { id: 'back', label: 'Back' },
+                          { id: 'sleeve-left', label: 'Left Sleeve 🦾' },
+                          { id: 'sleeve-right', label: 'Right Sleeve 🦾' },
+                        ].map(sd => (
+                          <button
+                            key={sd.id}
+                            type="button"
+                            onClick={() => setDefaultDesignSide(sd.id as any)}
+                            className={`px-2.5 py-2 rounded-lg text-[11px] font-mono font-semibold text-center transition-all cursor-pointer ${
+                              defaultDesignSide === sd.id
+                                ? 'bg-[var(--accent)] text-[var(--bg)] font-bold shadow-xs'
+                                : 'bg-[var(--bg)] border border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'
+                            }`}
+                          >
+                            {sd.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider">
+                          Graphic Scale ({defaultDesignScale}%)
+                        </label>
+                        <span className="text-[10px] font-mono font-bold text-[var(--accent)]">
+                          {defaultDesignScale}%
+                        </span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="15" 
+                        max="100" 
+                        value={defaultDesignScale} 
+                        onChange={e => setDefaultDesignScale(Number(e.target.value))}
+                        className="w-full accent-[var(--accent)] cursor-pointer"
+                      />
+                      <div className="flex gap-1 flex-wrap pt-1">
+                        {[
+                          { l: 'Badge', s: 24 },
+                          { l: 'Chest', s: 45 },
+                          { l: 'Oversize', s: 65 },
+                          { l: 'Statement', s: 80 }
+                        ].map(p => (
+                          <button
+                            key={p.l}
+                            type="button"
+                            onClick={() => setDefaultDesignScale(p.s)}
+                            className={`px-2 py-1 rounded text-[9px] font-mono font-bold uppercase cursor-pointer ${
+                              defaultDesignScale === p.s
+                                ? 'bg-[var(--accent)] text-[var(--bg)]'
+                                : 'bg-[var(--bg)] border border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'
+                            }`}
+                          >
+                            {p.l} ({p.s}%)
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row 5: Position Offsets (X / Y) */}
+                  <div className="grid grid-cols-2 gap-4 pt-1">
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider">
+                          Horizontal X ({defaultDesignX}%)
+                        </label>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="-50" 
+                        max="50" 
+                        value={defaultDesignX} 
+                        onChange={e => setDefaultDesignX(Number(e.target.value))}
+                        className="w-full accent-[var(--accent)] cursor-pointer"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[9px] font-mono font-bold text-[var(--text-dim)] uppercase tracking-wider">
+                          Vertical Y ({defaultDesignY}%)
+                        </label>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="10" 
+                        max="80" 
+                        value={defaultDesignY} 
+                        onChange={e => setDefaultDesignY(Number(e.target.value))}
+                        className="w-full accent-[var(--accent)] cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Visual Preview Card */}
+                <div className="lg:col-span-5 bg-[var(--bg)] border border-[var(--line)] rounded-2xl p-4 flex flex-col items-center justify-between space-y-4">
+                  <div className="w-full flex justify-between items-center text-[10px] font-mono uppercase text-[var(--text-dim)] border-b border-[var(--line)] pb-2">
+                    <span className="flex items-center gap-1 font-bold text-[var(--text)]">
+                      <Eye className="w-3.5 h-3.5 text-[var(--accent)]" /> Default Initial Mockup
+                    </span>
+                    <span>Side: <strong className="text-[var(--accent)]">{defaultDesignSide}</strong></span>
+                  </div>
+
+                  {/* Garment Preview Box */}
+                  <div 
+                    className="w-full h-72 rounded-xl flex items-center justify-center relative overflow-hidden shadow-inner border border-white/10"
+                    style={{ backgroundColor: defaultDesignColor }}
+                  >
+                    {/* Fabric Texture Effect */}
+                    <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]" />
+                    
+                    {/* Garment Neck Spec Tag */}
+                    <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-black/60 border border-white/15 px-2 py-0.5 rounded text-[8px] font-mono text-white/80 tracking-widest uppercase">
+                      {defaultCustomLabel || 'INKWAVE // STUDIO SPEC'} • {defaultDesignSize}
+                    </div>
+
+                    {/* Default Graphic Art Decal */}
+                    {defaultDesignGraphicUrl ? (
+                      <div 
+                        className="absolute transition-all duration-200 pointer-events-none flex items-center justify-center"
+                        style={{
+                          top: `${defaultDesignY}%`,
+                          left: `calc(50% + ${defaultDesignX * 2}px)`,
+                          transform: 'translate(-50%, -50%)',
+                          width: `${Math.max(20, defaultDesignScale * 1.8)}px`,
+                          height: `${Math.max(20, defaultDesignScale * 1.8)}px`,
+                        }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={defaultDesignGraphicUrl} 
+                          alt={defaultDesignGraphicName} 
+                          className="max-w-full max-h-full object-contain filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]" 
+                        />
+                      </div>
+                    ) : (
+                      <div className="text-center text-white/40 text-xs font-mono">
+                        No Artwork Configured
+                      </div>
+                    )}
+
+                    {/* Placement Side Badge */}
+                    <div className="absolute bottom-2 right-2 bg-black/70 border border-white/20 px-2 py-0.5 rounded text-[9px] font-mono text-white">
+                      Side: {defaultDesignSide}
+                    </div>
+                  </div>
+
+                  {/* Summary Footer */}
+                  <div className="w-full bg-[var(--bg-card)] border border-[var(--line)] rounded-xl p-3 text-[10px] font-mono space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-[var(--text-dim)]">Starting Price:</span>
+                      <span className="font-bold text-[var(--accent)]">₹{printBasePrice || 699} (All Inclusive)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--text-dim)]">Graphic Artwork:</span>
+                      <span className="font-bold text-[var(--text)] truncate max-w-[160px]">{defaultDesignGraphicName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--text-dim)]">Fabric Wash:</span>
+                      <span className="text-[var(--text)] uppercase">{defaultDesignWash}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* ── Sub-Section 1: Blank T-Shirt Color Variants ── */}
-            <div className="space-y-4">
+            <div className="space-y-4 pt-4 border-t border-[var(--line)]">
               <div className="flex justify-between items-center">
                 <div>
                   <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--text)] flex items-center gap-2">
-                    <Palette className="w-4 h-4 text-[var(--accent)]" /> Blank T-Shirt Color Mockups ({printColors.length})
+                    <Palette className="w-4 h-4 text-[var(--accent)]" /> 3. Blank T-Shirt Color Mockups ({printColors.length})
                   </h4>
                   <p className="text-[11px] text-[var(--text-dim)]">These colors define the garment options available in the 3D customizer.</p>
                 </div>

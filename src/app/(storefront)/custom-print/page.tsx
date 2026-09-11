@@ -91,6 +91,7 @@ export default function CustomPrintStudio() {
   const [autoRotate, setAutoRotate] = useState<boolean>(false);
   const [fabricWash, setFabricWash] = useState<FabricWashStyle>('solid');
 
+  const [basePrice, setBasePrice] = useState<number>(699);
   const [colors, setColors] = useState<ColorPreset[]>(DEFAULT_COLORS);
   const [selectedColor, setSelectedColor] = useState<ColorPreset>(DEFAULT_COLORS[1]); // Ink Black default
   const [selectedSize, setSelectedSize] = useState<string>('L');
@@ -163,8 +164,14 @@ export default function CustomPrintStudio() {
             .single()
         ]);
 
+        if (configRes.data?.json_content?.price) {
+          setBasePrice(Number(configRes.data.json_content.price) || 699);
+        }
+
+        let loadedColors = DEFAULT_COLORS;
         if (configRes.data?.json_content?.colors && configRes.data.json_content.colors.length > 0) {
-          setColors(configRes.data.json_content.colors);
+          loadedColors = configRes.data.json_content.colors;
+          setColors(loadedColors);
         }
 
         if (configRes.data?.json_content?.stickers && Array.isArray(configRes.data.json_content.stickers) && configRes.data.json_content.stickers.length > 0) {
@@ -173,6 +180,42 @@ export default function CustomPrintStudio() {
 
         if (configRes.data?.json_content?.recipes && Array.isArray(configRes.data.json_content.recipes) && configRes.data.json_content.recipes.length > 0) {
           setRecipes(configRes.data.json_content.recipes);
+        }
+
+        // Apply admin-configured default starting design
+        if (configRes.data?.json_content?.default_design) {
+          const dd = configRes.data.json_content.default_design;
+          if (dd.colorHex) {
+            const matched = loadedColors.find((c: any) => c.hex.toLowerCase() === dd.colorHex.toLowerCase());
+            if (matched) {
+              setSelectedColor(matched);
+            } else {
+              setSelectedColor({ name: dd.colorName || 'Custom Base', hex: dd.colorHex, image: '' });
+            }
+          }
+          if (dd.size) setSelectedSize(dd.size);
+          if (dd.fabricWash) setFabricWash(dd.fabricWash);
+          if (dd.customLabel) setCustomLabel(dd.customLabel);
+          if (dd.graphics && Array.isArray(dd.graphics) && dd.graphics.length > 0) {
+            const parsedGraphics = dd.graphics.map((g: any, idx: number) => ({
+              id: g.id || `layer-${idx + 1}`,
+              name: g.name || 'Graphic Decal',
+              url: g.url || '',
+              processedUrl: g.processedUrl || g.url || '',
+              rawUrl: g.url || '',
+              side: g.side || 'front',
+              scale: typeof g.scale === 'number' ? g.scale : 46,
+              x: typeof g.x === 'number' ? g.x : 0,
+              y: typeof g.y === 'number' ? g.y : 38,
+              rotate: g.rotate || 0,
+              finish: g.finish || 'matte',
+              removeBg: g.removeBg || false,
+              bgTolerance: g.bgTolerance || 35
+            }));
+            setGraphics(parsedGraphics);
+            if (parsedGraphics[0]?.id) setSelectedLayerId(parsedGraphics[0].id);
+            if (parsedGraphics[0]?.side) setCameraView(parsedGraphics[0].side);
+          }
         }
 
         if (settingsRes.data?.json_content) {
@@ -466,7 +509,7 @@ export default function CustomPrintStudio() {
       id: `custom-print-${Date.now()}`,
       name: `Bespoke Streetwear Tee (${selectedColor.name})`,
       slug: 'custom-print',
-      price: 2499,
+      price: basePrice || 699,
       images: [snapshotUrl, selectedColor.image],
       selected_size: selectedSize,
       quantity: 1,
@@ -718,17 +761,20 @@ export default function CustomPrintStudio() {
           
           {/* Header */}
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
               <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)] bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20 flex items-center gap-1">
                 <Sparkle className="w-3 h-3" /> 3D CUSTOM STUDIO
               </span>
               <span className="text-xs font-mono text-[var(--text-dim)]">• 240GSM BOXY COTTON</span>
+              <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                ₹{basePrice || 699} FLAT RATE
+              </span>
             </div>
             <h1 className="font-display text-2xl sm:text-3xl uppercase font-bold tracking-tight">
               Design Your T-Shirt
             </h1>
             <p className="text-xs text-[var(--text-dim)] font-mono">
-              Place artwork anywhere (Chest, Back & Sleeves). Drag directly on the 3D t-shirt with AI auto-clean.
+              Bespoke 240GSM French Terry cotton t-shirt with custom artwork across Chest, Back, and Sleeves. ₹{basePrice || 699} with all prints & free shipping included!
             </p>
           </div>
 
@@ -1123,43 +1169,87 @@ export default function CustomPrintStudio() {
               </div>
 
               {/* Design Sizing Presets */}
-              <div className="pt-2 border-t border-[var(--line)] space-y-2">
+              <div className="pt-2 border-t border-[var(--line)] space-y-3">
                 <div className="flex justify-between items-center">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)]">
-                    Design Sizing
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
+                    <Move className="w-3.5 h-3.5 text-[var(--accent)]" /> Artwork Size & Scaling
                   </label>
                   <span className="text-xs font-mono text-[var(--accent)] font-bold">
-                    {activeGraphic?.scale}% Scale
+                    {activeGraphic?.scale || 45}% Scale
                   </span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
-                  {SIZING_PRESETS.slice(0, 3).map((sz) => (
+                {/* 4 Preset Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {SIZING_PRESETS.map((sz) => (
                     <button
                       key={sz.id}
                       onClick={() => handleApplySizing(sz)}
-                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${activeGraphic?.scale === sz.scale ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${activeGraphic?.scale === sz.scale ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] font-bold shadow-xs' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'}`}
                     >
                       <div className="text-[11px] font-mono font-bold">{sz.name}</div>
-                      <div className="text-[9px] font-mono opacity-60">{sz.cmLabel}</div>
+                      <div className="text-[9px] font-mono opacity-60">{sz.cmLabel} ({sz.scale}%)</div>
                     </button>
                   ))}
                 </div>
 
-                {/* Sizing Slider */}
-                <div className="pt-2">
-                  <div className="flex justify-between text-[10px] text-[var(--text-dim)] font-mono mb-1">
-                    <span>Smaller (18%)</span>
-                    <span>Larger (85%)</span>
+                {/* Quick Sizing Pills */}
+                <div className="flex gap-1.5 flex-wrap items-center pt-1">
+                  <span className="text-[10px] font-mono uppercase text-[var(--text-dim)] mr-1">Quick Sizes:</span>
+                  {[
+                    { label: 'Badge', scale: 22 },
+                    { label: 'Chest', scale: 45 },
+                    { label: 'Oversize', scale: 62 },
+                    { label: 'Statement', scale: 78 }
+                  ].map(pill => (
+                    <button
+                      key={pill.label}
+                      type="button"
+                      onClick={() => updateActiveLayer({ scale: pill.scale })}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase transition-all cursor-pointer ${
+                        activeGraphic?.scale === pill.scale
+                          ? 'bg-[var(--accent)] text-black'
+                          : 'bg-[var(--bg)] border border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'
+                      }`}
+                    >
+                      {pill.label} ({pill.scale}%)
+                    </button>
+                  ))}
+                </div>
+
+                {/* Sizing Slider with Precision +/- Controls */}
+                <div className="pt-2 space-y-1.5">
+                  <div className="flex justify-between text-[10px] text-[var(--text-dim)] font-mono">
+                    <span>Smaller (15%)</span>
+                    <span>Standard (45%)</span>
+                    <span>Oversized (85%)</span>
                   </div>
-                  <input 
-                    type="range" 
-                    min="18" 
-                    max="85" 
-                    value={activeGraphic?.scale || 45} 
-                    onChange={e => updateActiveLayer({ scale: Number(e.target.value) })} 
-                    className="w-full accent-[var(--accent)] cursor-pointer"
-                  />
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => updateActiveLayer({ scale: Math.max(15, (activeGraphic?.scale || 45) - 5) })}
+                      className="w-8 h-8 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-xs font-mono font-bold text-[var(--text)] flex items-center justify-center cursor-pointer transition-colors"
+                      title="Decrease 5%"
+                    >
+                      -5%
+                    </button>
+                    <input 
+                      type="range" 
+                      min="15" 
+                      max="85" 
+                      value={activeGraphic?.scale || 45} 
+                      onChange={e => updateActiveLayer({ scale: Number(e.target.value) })} 
+                      className="flex-1 accent-[var(--accent)] cursor-pointer"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => updateActiveLayer({ scale: Math.min(85, (activeGraphic?.scale || 45) + 5) })}
+                      className="w-8 h-8 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-xs font-mono font-bold text-[var(--text)] flex items-center justify-center cursor-pointer transition-colors"
+                      title="Increase 5%"
+                    >
+                      +5%
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -1169,7 +1259,7 @@ export default function CustomPrintStudio() {
                   <Hand className="w-4 h-4 text-[var(--accent)]" />
                 </div>
                 <p className="text-[11px] font-mono text-[var(--text-dim)] leading-relaxed">
-                  Touch & drag directly on the 3D t-shirt on the left to move your artwork anywhere on the chest, back, or sleeves!
+                  Touch & drag directly on the 3D t-shirt on the left to freely move your artwork anywhere on the chest, back, or sleeves!
                 </p>
               </div>
 
@@ -1218,13 +1308,13 @@ export default function CustomPrintStudio() {
               className="w-full bg-[var(--accent)] text-black hover:opacity-90 py-4 rounded-2xl font-mono font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent)]/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ShoppingBag className="w-4 h-4" />
-              <span>Purchase Bespoke Custom Tee • ₹2,499</span>
+              <span>Purchase Bespoke Custom Tee • ₹{basePrice || 699}</span>
             </button>
 
             <div className="flex gap-2.5 items-start bg-yellow-500/10 border border-yellow-500/20 p-3 rounded-2xl">
               <Sparkles className="w-4 h-4 text-yellow-400 shrink-0 mt-0.5" />
               <p className="text-[10px] font-mono text-[var(--text-dim)] leading-relaxed">
-                Atomic vector dispatch. Hand-printed on 240GSM cotton in Surat with luxury wash finish. Free Shipping included.
+                Atomic vector dispatch. Hand-printed on 240GSM cotton in Surat with luxury wash finish. Free Express Shipping & 100% Free Fit Exchanges included.
               </p>
             </div>
           </div>

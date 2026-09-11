@@ -245,14 +245,14 @@ export default function ShopByStyle({
 
         {/* Bottom CTA to Full Catalog */}
         <div className="mt-12 text-center pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="font-mono text-xs text-neutral-400">
-            Looking for something tailored? Check our Custom 3D Print Lab.
+          <span className="font-mono text-xs text-neutral-300">
+            Looking for something unique? Design your bespoke 240GSM t-shirt in our 3D Print Lab for <strong className="text-[var(--accent)]">₹699</strong> (all prints & free shipping included).
           </span>
           <Link
             href="/custom-print"
-            className="btn-immersive inline-flex items-center gap-2 px-6 py-3 bg-white text-black hover:bg-black hover:text-white border border-white font-mono text-xs font-bold uppercase tracking-wider transition-all rounded-none"
+            className="btn-immersive inline-flex items-center gap-2 px-6 py-3 bg-[var(--accent)] text-black hover:bg-white border border-[var(--accent)] font-mono text-xs font-bold uppercase tracking-wider transition-all rounded-xl shadow-lg"
           >
-            <span>Custom Print Lab</span>
+            <span>Enter 3D Custom Lab • ₹699</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
