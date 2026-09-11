@@ -27,15 +27,16 @@ export default function SupportChatHub() {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Hide widget completely on product detail and checkout pages
+  // Hide widget completely on product detail, checkout, and 3D custom print studio pages
   const isProductOverview = pathname.startsWith('/product');
   const isCheckoutPage = pathname.startsWith('/checkout');
+  const isCustomPrintPage = pathname.startsWith('/custom-print');
 
   useEffect(() => {
-    if (isProductOverview || isCheckoutPage) {
+    if (isProductOverview || isCheckoutPage || isCustomPrintPage) {
       setIsOpen(false);
     }
-  }, [pathname, isProductOverview, isCheckoutPage]);
+  }, [pathname, isProductOverview, isCheckoutPage, isCustomPrintPage]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -45,7 +46,7 @@ export default function SupportChatHub() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  if (isProductOverview || isCheckoutPage) {
+  if (isProductOverview || isCheckoutPage || isCustomPrintPage) {
     return null;
   }
 

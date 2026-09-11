@@ -44,8 +44,8 @@ function DecalItem({
   const isRightSleeve = side === 'sleeve-right';
   
   // Decal coordinates on the oversized boxy shirt geometry
-  const mappedX = (xOffset / 100) * 0.32;
-  const mappedY = 0.04 + ((38 - yOffset) * 0.0055);
+  const mappedX = (xOffset / 100) * 0.34;
+  const mappedY = 0.04 + ((38 - yOffset) * 0.0056);
   const mappedScale = (scaleValue / 100) * 0.34;
   const mappedRotation = (rotateValue * Math.PI) / 180;
 
@@ -56,14 +56,14 @@ function DecalItem({
   if (isLeftSleeve) {
     // Outer Left Sleeve:
     // Outer surface of the left arm sleeve mesh (-X side)
-    decalPosition = [-0.265 / 1.28, (mappedY + 0.015) / 1.03, (xOffset / 100) * 0.07];
+    decalPosition = [-0.265 / 1.28, (mappedY + 0.015) / 1.03, (xOffset / 100) * 0.10];
     decalRotation = [0, -Math.PI / 2, mappedRotation];
     // Controlled projection depth (0.11) ensures clean wrap around outer bicep without bleeding into torso
     decalScale = [mappedScale / 1.25, mappedScale / 1.03, 0.11];
   } else if (isRightSleeve) {
     // Outer Right Sleeve:
     // Outer surface of the right arm sleeve mesh (+X side)
-    decalPosition = [0.265 / 1.28, (mappedY + 0.015) / 1.03, -(xOffset / 100) * 0.07];
+    decalPosition = [0.265 / 1.28, (mappedY + 0.015) / 1.03, -(xOffset / 100) * 0.10];
     decalRotation = [0, Math.PI / 2, -mappedRotation];
     decalScale = [mappedScale / 1.25, mappedScale / 1.03, 0.11];
   } else if (isBack) {

@@ -29,7 +29,14 @@ import {
   Flame, 
   Sparkle,
   Eye,
-  Hand
+  Hand,
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  Scan,
+  Zap
 } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { createClient } from '@/lib/supabase/client';
@@ -38,6 +45,7 @@ import {
   generateTextDecal, 
   applyPrintFinishTexture, 
   processImageWithAI,
+  enhanceImageWithAIUpscale,
   GraphicLayer,
   PrintFinish, 
   FabricWashStyle,
@@ -122,6 +130,7 @@ export default function CustomPrintStudio() {
   const [selectedLayerId, setSelectedLayerId] = useState<string>('layer-1');
   const [selectedStickerCat, setSelectedStickerCat] = useState<StickerCategory | 'all'>('all');
   const [isProcessingAI, setIsProcessingAI] = useState(false);
+  const [isUpscalingAI, setIsUpscalingAI] = useState(false);
 
   // Typography
   const [typographyEnabled, setTypographyEnabled] = useState(false);
@@ -279,10 +288,28 @@ export default function CustomPrintStudio() {
       xDelta = dx * factor;
     }
 
-    // Full garment freedom: chest, shoulders, lower hem, ribs, and sleeves
-    const newX = Math.max(-48, Math.min(48, activeGraphic.x + xDelta));
-    const newY = Math.max(4, Math.min(80, activeGraphic.y + yDelta));
+    // Full garment freedom: collar, chest, ribs, belly, hem, bicep, wrist
+    const newX = Math.max(-55, Math.min(55, Math.round(activeGraphic.x + xDelta)));
+    const newY = Math.max(4, Math.min(84, Math.round(activeGraphic.y + yDelta)));
 
+    updateActiveLayer({ x: newX, y: newY });
+  };
+
+  // Precision Nudge Controller for Mobile / Thumb Navigation
+  const handleNudgePosition = (direction: 'up' | 'down' | 'left' | 'right' | 'center') => {
+    if (!activeGraphic) return;
+    if (direction === 'center') {
+      updateActiveLayer({ x: 0, y: 38 });
+      toast.info('Centered artwork');
+      return;
+    }
+    const step = 4;
+    let newX = activeGraphic.x;
+    let newY = activeGraphic.y;
+    if (direction === 'up') newY = Math.max(4, activeGraphic.y - step);
+    if (direction === 'down') newY = Math.min(84, activeGraphic.y + step);
+    if (direction === 'left') newX = Math.max(-55, activeGraphic.x - step);
+    if (direction === 'right') newX = Math.min(55, activeGraphic.x + step);
     updateActiveLayer({ x: newX, y: newY });
   };
 
@@ -297,7 +324,7 @@ export default function CustomPrintStudio() {
     }
 
     setIsProcessingAI(true);
-    toast.info('AI is auto-cleaning background & placing on shirt...');
+    toast.info('AI is auto-cleaning background & optimizing resolution...');
 
     const reader = new FileReader();
     reader.onload = async (event) => {
@@ -320,7 +347,8 @@ export default function CustomPrintStudio() {
         rotate: 0,
         finish: 'matte',
         removeBg: hasRemovedBg,
-        bgTolerance: 35
+        bgTolerance: 35,
+        isUpscaled: false
       };
 
       setGraphics(prev => [...prev, newLayer]);
@@ -336,6 +364,24 @@ export default function CustomPrintStudio() {
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  // AI HD Upscaler / 300 DPI Resolution Booster
+  const handleAIUpscale = async () => {
+    if (!activeGraphic) return;
+    setIsUpscalingAI(true);
+    toast.info('✨ AI is upscaling resolution to 4X Ultra HD (300 DPI)...');
+    try {
+      const sourceImage = activeGraphic.processedUrl || activeGraphic.url;
+      const { enhancedUrl, scaleFactor } = await enhanceImageWithAIUpscale(sourceImage);
+      updateActiveLayer({ processedUrl: enhancedUrl, isUpscaled: true });
+      toast.success(`✨ ${scaleFactor}X HD Print Quality (300 DPI) Ready! No blurriness.`);
+    } catch (err) {
+      console.error('AI Upscale error:', err);
+      toast.error('Could not upscale image.');
+    } finally {
+      setIsUpscalingAI(false);
+    }
   };
 
   // Re-run AI Auto-Clean on active graphic
@@ -615,78 +661,78 @@ export default function CustomPrintStudio() {
             />
 
             {/* ─── Top Bar: Camera Angles & Lookbook ─── */}
-            <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center pointer-events-none">
+            <div className="absolute top-3 inset-x-3 z-10 flex justify-between items-center gap-1.5 pointer-events-none">
               
-              {/* Front / Back / L-Sleeve / R-Sleeve / 3/4 View Buttons */}
-              <div className="flex bg-black/85 backdrop-blur-md border border-white/10 p-1 rounded-2xl pointer-events-auto shadow-lg overflow-x-auto max-w-[310px] sm:max-w-none">
+              {/* Front / Back / L-Sleeve / R-Sleeve View Buttons */}
+              <div className="flex bg-black/90 backdrop-blur-md border border-white/10 p-1 rounded-2xl pointer-events-auto shadow-lg items-center gap-0.5 overflow-hidden">
                 <button
                   onClick={() => setCameraView('front')}
-                  className={`px-3 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'front' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                  className={`px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'front' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
                   Front
                 </button>
                 <button
                   onClick={() => setCameraView('back')}
-                  className={`px-3 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'back' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                  className={`px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'back' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
                   Back
                 </button>
                 <button
                   onClick={() => setCameraView('sleeve-left')}
-                  className={`px-2.5 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'sleeve-left' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                  className={`px-2 sm:px-2.5 py-1.5 text-[11px] sm:text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'sleeve-left' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
                   L-Sleeve
                 </button>
                 <button
                   onClick={() => setCameraView('sleeve-right')}
-                  className={`px-2.5 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'sleeve-right' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                  className={`px-2 sm:px-2.5 py-1.5 text-[11px] sm:text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'sleeve-right' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
                   R-Sleeve
                 </button>
                 <button
                   onClick={() => setCameraView('angle-left')}
-                  className={`px-2.5 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'angle-left' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                  className={`hidden sm:block px-2.5 py-1.5 text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer ${cameraView === 'angle-left' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
                   3/4
                 </button>
               </div>
 
               {/* Lookbook & Auto-Spin Action */}
-              <div className="flex items-center gap-1.5 pointer-events-auto">
+              <div className="flex items-center gap-1 pointer-events-auto shrink-0">
                 <button
                   onClick={() => setAutoRotate(!autoRotate)}
                   title="Auto 360 Spin"
-                  className={`p-2 rounded-xl border backdrop-blur-md transition-all cursor-pointer ${autoRotate ? 'bg-[var(--accent)] text-black border-[var(--accent)]' : 'bg-black/80 text-white border-white/10'}`}
+                  className={`p-2 rounded-xl border backdrop-blur-md transition-all cursor-pointer ${autoRotate ? 'bg-[var(--accent)] text-black border-[var(--accent)]' : 'bg-black/85 text-white border-white/10'}`}
                 >
-                  {autoRotate ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                  {autoRotate ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                 </button>
 
                 <button
                   onClick={handleGenerateLookbook}
                   disabled={isSnapping}
-                  className="px-3.5 py-1.5 bg-black/85 backdrop-blur-md border border-white/10 hover:border-[var(--accent)] text-white text-xs font-mono uppercase tracking-wider rounded-2xl transition-all flex items-center gap-1.5 cursor-pointer shadow-lg"
+                  className="px-2.5 sm:px-3 py-1.5 bg-black/85 backdrop-blur-md border border-white/10 hover:border-[var(--accent)] text-white text-[11px] sm:text-xs font-mono uppercase tracking-wider rounded-2xl transition-all flex items-center gap-1 cursor-pointer shadow-lg"
                 >
                   <Camera className="w-3.5 h-3.5 text-[var(--accent)]" />
-                  <span>{isSnapping ? 'Rendering...' : 'Lookbook'}</span>
+                  <span className="hidden sm:inline">{isSnapping ? 'Rendering...' : 'Lookbook'}</span>
                 </button>
               </div>
             </div>
 
-            {/* ─── Center-Bottom Interactive Mode Switcher & Gesture Tip ─── */}
-            <div className="absolute bottom-4 inset-x-4 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+            {/* ─── Center-Bottom Interactive Mode Switcher ─── */}
+            <div className="absolute bottom-3 inset-x-3 z-10 flex items-center justify-between gap-2 pointer-events-none">
               
               {/* Mode Toggle Pill: Move Artwork vs Orbit 3D */}
               <div className="flex bg-black/85 backdrop-blur-md border border-white/15 p-1 rounded-2xl pointer-events-auto shadow-xl">
                 <button
                   onClick={() => setInteractionMode('move')}
-                  className={`px-3.5 py-1.5 text-xs font-mono uppercase rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${interactionMode === 'move' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                  className={`px-3 py-1.5 text-[11px] sm:text-xs font-mono uppercase rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${interactionMode === 'move' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
                   <Hand className="w-3.5 h-3.5" />
-                  <span>Move Design</span>
+                  <span>Move</span>
                 </button>
                 <button
                   onClick={() => setInteractionMode('rotate')}
-                  className={`px-3.5 py-1.5 text-xs font-mono uppercase rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${interactionMode === 'rotate' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
+                  className={`px-3 py-1.5 text-[11px] sm:text-xs font-mono uppercase rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${interactionMode === 'rotate' ? 'bg-[var(--accent)] text-black font-bold shadow' : 'text-white/80 hover:text-white'}`}
                 >
                   <RotateCw className="w-3.5 h-3.5" />
                   <span>Spin 3D</span>
@@ -694,8 +740,8 @@ export default function CustomPrintStudio() {
               </div>
 
               {/* Gesture Helper Badge */}
-              <div className="bg-black/80 backdrop-blur-md px-3 py-1.5 border border-white/10 rounded-2xl text-[10px] font-mono tracking-wider text-[var(--accent)] uppercase pointer-events-none">
-                {interactionMode === 'move' ? '👆 Touch & drag on shirt to place' : '🔄 Drag to rotate view in 3D'}
+              <div className="hidden xs:flex bg-black/80 backdrop-blur-md px-2.5 py-1.5 border border-white/10 rounded-2xl text-[10px] font-mono tracking-wider text-[var(--accent)] uppercase pointer-events-none items-center gap-1">
+                {interactionMode === 'move' ? '👆 Touch & drag on shirt' : '🔄 Drag to spin in 3D'}
               </div>
             </div>
 
@@ -948,23 +994,57 @@ export default function CustomPrintStudio() {
                 />
               </label>
 
-              {/* Active Graphic Card with AI Clean & Quick Side Switcher */}
+              {/* Active Graphic Card with AI HD Upscale & Placement Controller */}
               {activeGraphic && (
-                <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3 shadow">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="w-12 h-12 rounded-xl bg-black border border-white/10 flex items-center justify-center p-1 shrink-0">
+                <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] space-y-3.5 shadow-md">
+                  {/* Top Preview & Actions */}
+                  <div className="flex items-center justify-between gap-2.5">
+                    <div className="flex items-center gap-2.5 overflow-hidden">
+                      <div className="w-12 h-12 rounded-xl bg-black border border-white/10 flex items-center justify-center p-1 shrink-0 relative">
                         <img src={activeGraphic.processedUrl || activeGraphic.url} alt="Preview" className="w-full h-full object-contain" />
+                        {activeGraphic.isUpscaled && (
+                          <div className="absolute -top-1 -right-1 bg-emerald-500 text-black rounded-full p-0.5" title="4X HD Ready">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </div>
+                        )}
                       </div>
                       <div className="overflow-hidden">
                         <div className="text-xs font-mono font-bold text-[var(--text)] truncate">{activeGraphic.name}</div>
-                        <div className="text-[10px] font-mono text-[var(--accent)] font-semibold">
-                          Placed on: <span className="uppercase">{activeGraphic.side === 'sleeve-left' ? 'Left Sleeve' : activeGraphic.side === 'sleeve-right' ? 'Right Sleeve' : activeGraphic.side}</span>
+                        <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                          <span className="text-[10px] font-mono text-[var(--accent)] font-semibold uppercase">
+                            Side: {activeGraphic.side === 'sleeve-left' ? 'L-Sleeve' : activeGraphic.side === 'sleeve-right' ? 'R-Sleeve' : activeGraphic.side}
+                          </span>
+                          {activeGraphic.isUpscaled ? (
+                            <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                              ✨ 300 DPI HD
+                            </span>
+                          ) : (
+                            <span className="text-[9px] font-mono text-[var(--text-dim)]">
+                              • Standard Res
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
 
+                    {/* AI Buttons */}
                     <div className="flex items-center gap-1.5 shrink-0">
+                      {/* AI HD Upscale Button */}
+                      <button
+                        onClick={handleAIUpscale}
+                        disabled={isUpscalingAI || activeGraphic.isUpscaled}
+                        className={`px-2.5 py-1.5 rounded-xl border text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all ${
+                          activeGraphic.isUpscaled 
+                            ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400 cursor-default' 
+                            : 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/30 text-amber-400'
+                        }`}
+                        title="Enhance & Upscale to 4X (300 DPI print quality)"
+                      >
+                        <Zap className="w-3 h-3" />
+                        <span>{isUpscalingAI ? 'Upscaling...' : activeGraphic.isUpscaled ? 'HD Ready' : 'AI Upscale'}</span>
+                      </button>
+
+                      {/* AI Clean Background */}
                       <button
                         onClick={handleReRunAIClean}
                         disabled={isProcessingAI}
@@ -972,13 +1052,14 @@ export default function CustomPrintStudio() {
                         title="AI Background Cleaner"
                       >
                         <Wand2 className="w-3 h-3" />
-                        <span>{isProcessingAI ? 'Cleaning...' : 'AI Clean'}</span>
+                        <span>{isProcessingAI ? 'Cleaning...' : 'Clean'}</span>
                       </button>
+
                       {graphics.length > 1 && (
                         <button
                           onClick={() => handleRemoveLayer(activeGraphic.id)}
                           className="p-1.5 text-[var(--text-dim)] hover:text-red-400 cursor-pointer"
-                          title="Remove"
+                          title="Remove Layer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -987,11 +1068,12 @@ export default function CustomPrintStudio() {
                   </div>
 
                   {/* 1-Tap Side Switcher */}
-                  <div className="pt-2 border-t border-[var(--line)] flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-mono uppercase text-[var(--text-dim)] font-bold shrink-0">
-                      Print Side:
-                    </span>
-                    <div className="grid grid-cols-4 gap-1 flex-1">
+                  <div className="pt-2 border-t border-[var(--line)] space-y-1.5">
+                    <div className="flex justify-between items-center text-[10px] font-mono uppercase text-[var(--text-dim)]">
+                      <span className="font-bold">Target Placement Side:</span>
+                      <span className="text-[var(--accent)]">Auto-rotates 3D view</span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-1">
                       {[
                         { id: 'front', label: 'Front' },
                         { id: 'back', label: 'Back' },
@@ -1005,7 +1087,7 @@ export default function CustomPrintStudio() {
                             updateActiveLayer({ side: s.id as any });
                             setCameraView(s.id as any);
                           }}
-                          className={`py-1.5 text-[10px] font-mono uppercase rounded-lg border transition-all cursor-pointer text-center font-bold ${
+                          className={`py-2 text-[10px] font-mono uppercase rounded-xl border transition-all cursor-pointer text-center font-bold ${
                             activeGraphic.side === s.id
                               ? 'border-[var(--accent)] bg-[var(--accent)] text-black shadow-xs'
                               : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] hover:text-[var(--text)]'
@@ -1017,10 +1099,61 @@ export default function CustomPrintStudio() {
                     </div>
                   </div>
 
+                  {/* Mobile Quick Nudge Controller & Placement Actions */}
+                  <div className="pt-2 border-t border-[var(--line)] flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] font-mono uppercase text-[var(--text-dim)] mr-1">Nudge:</span>
+                      <button
+                        type="button"
+                        onClick={() => handleNudgePosition('left')}
+                        className="w-7 h-7 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] flex items-center justify-center cursor-pointer active:scale-95"
+                        title="Nudge Left"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleNudgePosition('up')}
+                        className="w-7 h-7 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] flex items-center justify-center cursor-pointer active:scale-95"
+                        title="Nudge Up"
+                      >
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleNudgePosition('down')}
+                        className="w-7 h-7 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] flex items-center justify-center cursor-pointer active:scale-95"
+                        title="Nudge Down"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleNudgePosition('right')}
+                        className="w-7 h-7 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] flex items-center justify-center cursor-pointer active:scale-95"
+                        title="Nudge Right"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleNudgePosition('center')}
+                        className="px-2 h-7 rounded-lg bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--accent)] text-[10px] font-mono font-bold text-[var(--accent)] flex items-center justify-center cursor-pointer active:scale-95 ml-0.5"
+                        title="Center on Chest"
+                      >
+                        Center
+                      </button>
+                    </div>
+
+                    <div className="text-[10px] font-mono text-[var(--text-dim)] shrink-0">
+                      <span>Size: {activeGraphic.scale}%</span>
+                    </div>
+                  </div>
+
                   {/* Touch & Drag Helper */}
                   <div className="text-[10px] font-mono text-[var(--text-dim)] bg-[var(--bg)] px-2.5 py-1.5 rounded-lg border border-[var(--line)]/60 flex items-center gap-1.5">
-                    <span className="text-[var(--accent)] font-bold">💡 Tip:</span>
-                    <span>Touch & drag directly on the 3D t-shirt to freely move this design!</span>
+                    <span className="text-[var(--accent)] font-bold">💡 Freedom:</span>
+                    <span>Touch & drag directly on the 3D t-shirt to place this design anywhere!</span>
                   </div>
                 </div>
               )}
@@ -1294,13 +1427,102 @@ export default function CustomPrintStudio() {
                 </div>
               </div>
 
+              {/* Quick Sizing & Position D-Pad Controller */}
+              <div className="pt-2 border-t border-[var(--line)] space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
+                    <Move className="w-3.5 h-3.5 text-[var(--accent)]" /> Precision Placement & Nudge
+                  </label>
+                  <span className="text-[10px] font-mono text-[var(--accent)] font-bold">
+                    X: {activeGraphic?.x || 0}%, Y: {activeGraphic?.y || 38}%
+                  </span>
+                </div>
+
+                {/* Mobile-Friendly Precision D-Pad */}
+                <div className="bg-[var(--bg)] p-3 rounded-2xl border border-[var(--line)] flex flex-col items-center justify-center gap-1.5 shadow-inner">
+                  <button
+                    type="button"
+                    onClick={() => handleNudgePosition('up')}
+                    className="w-10 h-9 rounded-xl bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] flex items-center justify-center cursor-pointer active:scale-95 shadow-xs"
+                    title="Nudge Up"
+                  >
+                    <ChevronUp className="w-5 h-5" />
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleNudgePosition('left')}
+                      className="w-10 h-9 rounded-xl bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] flex items-center justify-center cursor-pointer active:scale-95 shadow-xs"
+                      title="Nudge Left"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleNudgePosition('center')}
+                      className="px-3 h-9 rounded-xl bg-[var(--accent)] text-black font-mono font-bold text-xs uppercase flex items-center justify-center cursor-pointer active:scale-95 shadow"
+                      title="Center on Chest"
+                    >
+                      Center 🎯
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleNudgePosition('right')}
+                      className="w-10 h-9 rounded-xl bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] flex items-center justify-center cursor-pointer active:scale-95 shadow-xs"
+                      title="Nudge Right"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleNudgePosition('down')}
+                    className="w-10 h-9 rounded-xl bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--accent)] text-[var(--text)] flex items-center justify-center cursor-pointer active:scale-95 shadow-xs"
+                    title="Nudge Down"
+                  >
+                    <ChevronDown className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Rotation Slider */}
+              <div className="pt-2 border-t border-[var(--line)] space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
+                    <RotateCw className="w-3.5 h-3.5 text-[var(--accent)]" /> Artwork Rotation
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => updateActiveLayer({ rotate: 0 })}
+                    className="text-[10px] font-mono text-[var(--accent)] hover:underline cursor-pointer"
+                  >
+                    Reset (0°)
+                  </button>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <input 
+                    type="range" 
+                    min="-180" 
+                    max="180" 
+                    value={activeGraphic?.rotate || 0} 
+                    onChange={e => updateActiveLayer({ rotate: Number(e.target.value) })} 
+                    className="flex-1 accent-[var(--accent)] cursor-pointer"
+                  />
+                  <span className="text-xs font-mono text-[var(--text)] w-10 text-right">
+                    {activeGraphic?.rotate || 0}°
+                  </span>
+                </div>
+              </div>
+
               {/* Direct Drag Instruction Card */}
               <div className="p-3.5 rounded-2xl bg-[var(--bg)] border border-white/10 flex items-center gap-3 shadow-inner">
                 <div className="w-8 h-8 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center shrink-0">
                   <Hand className="w-4 h-4 text-[var(--accent)]" />
                 </div>
                 <p className="text-[11px] font-mono text-[var(--text-dim)] leading-relaxed">
-                  Touch & drag directly on the 3D t-shirt on the left to freely move your artwork anywhere on the chest, back, or sleeves!
+                  Touch & drag directly on the 3D t-shirt to place your artwork anywhere across the front, back, or sleeves!
                 </p>
               </div>
 
