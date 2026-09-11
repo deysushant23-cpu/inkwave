@@ -140,30 +140,27 @@ export default function Header({
             {/* Left Corner Logo Lockup */}
             <Link 
               href="/" 
-              className="logo-lockup group flex items-center gap-2 sm:gap-2.5 py-1 select-none"
+              className="logo-lockup group flex items-center gap-2.5 sm:gap-3 py-1 select-none"
               aria-label="Inkwave Home"
             >
-              {/* Animated Logo Mark with Liquid Glow */}
-              <div className="relative flex items-center justify-center shrink-0">
-                <div className="ink-sink-mark w-8 h-8 sm:w-10 sm:h-10 rounded-full p-1 bg-black/40 border border-white/10 flex items-center justify-center shadow-md backdrop-blur-sm relative">
-                  <Image 
-                    src="/logo.png" 
-                    alt="Inkwave Logo" 
-                    fill
-                    sizes="40px"
-                    priority
-                    className="object-contain invert brightness-150 transition-all duration-500 group-hover:scale-110 group-hover:brightness-200" 
-                  />
-                </div>
-                <span className="absolute inset-0 rounded-full bg-[var(--accent)]/30 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              {/* Premium Logo Mark without clunky circle overlay */}
+              <div className="relative flex items-center justify-center shrink-0 w-8 h-8 sm:w-9 sm:h-9">
+                <Image 
+                  src="/logo.png" 
+                  alt="Inkwave Logo" 
+                  fill
+                  sizes="36px"
+                  priority
+                  className="object-contain invert brightness-200 transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-[0_0_8px_rgba(201,162,39,0.6)]" 
+                />
               </div>
 
-              {/* Sunk-in Ink Typography */}
-              <div className="relative flex flex-col justify-center overflow-hidden shrink-0">
-                <span className="logo-brand-text font-display text-lg sm:text-2xl md:text-[24px] tracking-[0.08em] leading-none uppercase whitespace-nowrap">
+              {/* Clean Luxury Typography */}
+              <div className="relative flex flex-col justify-center shrink-0">
+                <span className="logo-brand-text font-display text-lg sm:text-2xl md:text-[23px] tracking-[0.09em] font-black uppercase whitespace-nowrap text-white group-hover:text-[var(--accent)] transition-colors duration-300">
                   INKWAVE
                 </span>
-                <span className="ink-liquid-line absolute -bottom-0.5 left-0 w-full h-[1.5px] bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent opacity-40 group-hover:opacity-100 transition-opacity duration-500" />
+                <span className="ink-liquid-line absolute -bottom-0.5 left-0 w-full h-[1.5px] bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </Link>
           </div>
@@ -242,9 +239,18 @@ export default function Header({
                 <Link 
                   href="/" 
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 group"
+                  className="flex items-center gap-2.5 group"
                 >
-                  <span className="font-display text-lg uppercase font-bold tracking-widest text-white">
+                  <div className="relative w-6 h-6 shrink-0">
+                    <Image 
+                      src="/logo.png" 
+                      alt="Inkwave Logo" 
+                      fill
+                      sizes="24px"
+                      className="object-contain invert brightness-200" 
+                    />
+                  </div>
+                  <span className="font-display text-lg uppercase font-bold tracking-widest text-white group-hover:text-[var(--accent)] transition-colors">
                     INKWAVE
                   </span>
                 </Link>
