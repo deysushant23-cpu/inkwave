@@ -245,8 +245,9 @@ export default async function Home() {
         {/* ══════════════════════════════════════════════════════════════════
             4. DYNAMIC CATEGORY CATALOG GRID SECTIONS
         ══════════════════════════════════════════════════════════════════ */}
-        {groupedCategories.map((cat: any, idx: number) => (
-          <section key={cat.id} className="py-16 md:py-24 border-b border-[var(--line)] bg-black" id={cat.slug}>
+        <div id="categories-showcase" className="scroll-mt-20">
+          {groupedCategories.map((cat: any, idx: number) => (
+            <section key={cat.id} className="py-16 md:py-24 border-b border-[var(--line)] bg-black scroll-mt-20" id={cat.slug}>
             <div className="wrap">
               {/* Category Header */}
               <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-4 mb-10 pb-4 border-b border-[var(--line)]">
@@ -278,6 +279,7 @@ export default async function Home() {
             </div>
           </section>
         ))}
+        </div>
 
         {/* ══════════════════════════════════════════════════════════════════
             5. IMMERSIVE STORE CONTINUATION: NEW DROPS INVERTED CAROUSEL

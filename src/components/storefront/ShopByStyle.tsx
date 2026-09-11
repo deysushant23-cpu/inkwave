@@ -206,13 +206,20 @@ export default function ShopByStyle({
             <span className="italic text-neutral-300">{activeCategoryObj.tagline}</span>
           </div>
 
-          <Link
-            href={activeStyle === 'all' ? '/collections' : `/collections?style=${activeStyle}`}
-            className="text-xs font-bold text-white hover:text-[var(--accent)] flex items-center gap-1 uppercase transition-colors shrink-0 ml-4 hover:underline"
+          <a
+            href="#categories-showcase"
+            onClick={(e) => {
+              const el = document.getElementById('categories-showcase');
+              if (el) {
+                e.preventDefault();
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+            className="text-xs font-bold text-white hover:text-[var(--accent)] flex items-center gap-1.5 uppercase transition-colors shrink-0 ml-4 hover:underline cursor-pointer group/va"
           >
             <span>View All</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/va:translate-x-1" />
+          </a>
         </div>
 
         {/* ─── PRODUCT GRID SHOWCASE ─── */}
