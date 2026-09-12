@@ -53,10 +53,10 @@ function DecalItem({
   const isLeftSleeve = side === 'sleeve-left';
   const isRightSleeve = side === 'sleeve-right';
   
-  // Decal coordinates on the clean natural shirt geometry
-  const mappedX = (xOffset / 100) * 0.32;
-  const mappedY = 0.04 + ((38 - yOffset) * 0.0055);
-  const baseScale = (scaleValue / 100) * 0.32;
+  // Decal coordinates on the oversized boxy shirt geometry
+  const mappedX = (xOffset / 100) * 0.34;
+  const mappedY = 0.04 + ((38 - yOffset) * 0.0056);
+  const baseScale = (scaleValue / 100) * 0.34;
   const mappedScaleX = baseScale * ((scaleX || 100) / 100) * (flipX ? -1 : 1);
   const mappedScaleY = baseScale * ((scaleY || 100) / 100) * (flipY ? -1 : 1);
   const mappedRotation = (rotateValue * Math.PI) / 180;
@@ -66,25 +66,28 @@ function DecalItem({
   let decalScale: [number, number, number];
 
   if (isLeftSleeve) {
-    // Outer Left Sleeve (-X side)
-    decalPosition = [-0.27, mappedY + 0.015, (xOffset / 100) * 0.09];
+    // Outer Left Sleeve:
+    // Outer surface of the left arm sleeve mesh (-X side)
+    decalPosition = [-0.265 / 1.28, (mappedY + 0.015) / 1.03, (xOffset / 100) * 0.10];
     decalRotation = [0, -Math.PI / 2, mappedRotation];
-    decalScale = [mappedScaleX, mappedScaleY, 0.12];
+    // Controlled projection depth (0.11) ensures clean wrap around outer bicep without bleeding into torso
+    decalScale = [mappedScaleX / 1.25, mappedScaleY / 1.03, 0.11];
   } else if (isRightSleeve) {
-    // Outer Right Sleeve (+X side)
-    decalPosition = [0.27, mappedY + 0.015, -(xOffset / 100) * 0.09];
+    // Outer Right Sleeve:
+    // Outer surface of the right arm sleeve mesh (+X side)
+    decalPosition = [0.265 / 1.28, (mappedY + 0.015) / 1.03, -(xOffset / 100) * 0.10];
     decalRotation = [0, Math.PI / 2, -mappedRotation];
-    decalScale = [mappedScaleX, mappedScaleY, 0.12];
+    decalScale = [mappedScaleX / 1.25, mappedScaleY / 1.03, 0.11];
   } else if (isBack) {
-    // Project onto Back of shirt only
-    decalPosition = [-mappedX, mappedY, -0.15];
+    // Project onto Back of shirt only (shallow depth 0.11 prevents reverse projection onto front)
+    decalPosition = [-mappedX / 1.28, mappedY / 1.03, -0.15];
     decalRotation = [0, Math.PI, -mappedRotation];
-    decalScale = [mappedScaleX, mappedScaleY, 0.12];
+    decalScale = [mappedScaleX / 1.28, mappedScaleY / 1.03, 0.11];
   } else {
-    // Project onto Front Chest of shirt only
-    decalPosition = [mappedX, mappedY, 0.15];
+    // Project onto Front Chest of shirt only (shallow depth 0.11 prevents bleed-through onto back)
+    decalPosition = [mappedX / 1.28, mappedY / 1.03, 0.15];
     decalRotation = [0, 0, mappedRotation];
-    decalScale = [mappedScaleX, mappedScaleY, 0.12];
+    decalScale = [mappedScaleX / 1.28, mappedScaleY / 1.03, 0.11];
   }
 
   return (
@@ -93,7 +96,7 @@ function DecalItem({
       rotation={decalRotation}
       scale={decalScale}
       map={decalTexture}
-      polygonOffsetFactor={-4}
+      polygonOffsetFactor={-2}
     />
   );
 }
@@ -133,14 +136,16 @@ function Shirt({
 }) {
   const { nodes } = useGLTF('/shirt.glb') as any;
   const shirtColor = new THREE.Color(color || '#ffffff');
-  const roughness = fabricWash === 'acid-wash' ? 0.92 : fabricWash === 'mercerized' ? 0.40 : 0.76;
-  const metalness = wireframe ? 0.8 : fabricWash === 'mercerized' ? 0.06 : 0.01;
+  const roughness = fabricWash === 'acid-wash' ? 0.96 : fabricWash === 'mercerized' ? 0.45 : 0.82;
+  const metalness = wireframe ? 0.8 : fabricWash === 'mercerized' ? 0.12 : 0.05;
 
   return (
     <group>
       <mesh
+        castShadow
+        receiveShadow
         geometry={nodes.T_Shirt_male.geometry}
-        scale={[1, 1, 1]}
+        scale={[1.28, 1.03, 1.25]} // boxy, drop-shoulder, oversized fit
         dispose={null}
       >
         <meshStandardMaterial
@@ -296,7 +301,7 @@ export default function CustomPrintCanvas({
   autoRotateSpeed = 2.0,
   enableOrbit = false,
   onDragDecal,
-  envPreset = 'studio',
+  envPreset = 'city',
   graphics = [],
   typographyTexture,
   typographyOptions,
@@ -351,15 +356,14 @@ export default function CustomPrintCanvas({
       onPointerCancel={handlePointerUp}
     >
       <Canvas
-        camera={{ position: [0, 0, 2.35], fov: 25 }}
+        shadows
+        camera={{ position: [0, 0, 2.4], fov: 25 }}
         gl={{ preserveDrawingBuffer: true, antialias: true, alpha: true }}
       >
-        {/* Soft balanced studio lighting - eliminates harsh dark silhouettes & shadow acne */}
-        <ambientLight intensity={wireframe ? 1.4 : 1.05} />
-        <directionalLight position={[3, 5, 4]} intensity={wireframe ? 1.5 : 1.15} />
-        <directionalLight position={[-4, 3, 3]} intensity={0.75} />
-        <directionalLight position={[0, 4, -4]} intensity={0.65} />
-        <directionalLight position={[0, -3, 2]} intensity={0.35} />
+        <ambientLight intensity={wireframe ? 1.4 : 0.85} />
+        <directionalLight position={[5, 6, 4]} intensity={wireframe ? 1.5 : 1.25} castShadow />
+        <directionalLight position={[-5, 6, -4]} intensity={0.75} />
+        <directionalLight position={[0, -5, 2]} intensity={0.35} />
         
         <Suspense fallback={null}>
           <Center>
@@ -379,17 +383,17 @@ export default function CustomPrintCanvas({
             />
           </Center>
 
-          {/* Clean Soft Floating Ground Contact Shadow */}
+          {/* Soft Ground Contact Shadow */}
           <ContactShadows 
-            position={[0, -0.62, 0]} 
-            opacity={0.42} 
-            scale={2.4} 
-            blur={2.0} 
-            far={1.0} 
+            position={[0, -0.65, 0]} 
+            opacity={0.65} 
+            scale={2.2} 
+            blur={1.8} 
+            far={1.2} 
           />
 
-          {/* Clean Studio HDRI Environment */}
-          <Environment preset={envPreset as any || 'studio'} />
+          {/* HDR Environment Lighting Simulation */}
+          <Environment preset={envPreset as any} />
         </Suspense>
 
         <CameraRig 
