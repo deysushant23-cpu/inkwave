@@ -20,7 +20,7 @@ export default function SupportChatHub() {
     {
       id: 'init-1',
       role: 'assistant',
-      content: "Hey there! 👋 I'm your Inkwave AI Stylist.\n\nLooking for something specific? E.g. *\"Show me some t-shirts under ₹100\"* or *\"I need some new jeans.\"*"
+      content: "Hey there! 👋 I'm your Inkwave AI Stylist.\n\nAsk me about our **₹600 3D Custom Print Studio**, order tracking, sizing, or finding styles under your budget!"
     }
   ]);
   const [input, setInput] = useState('');
@@ -50,11 +50,10 @@ export default function SupportChatHub() {
     return null;
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  const sendQuery = async (queryText: string) => {
+    if (!queryText.trim() || isTyping) return;
 
-    const userMessage: Message = { id: Date.now().toString(), role: 'user', content: input.trim() };
+    const userMessage: Message = { id: Date.now().toString(), role: 'user', content: queryText.trim() };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
@@ -79,6 +78,12 @@ export default function SupportChatHub() {
     } finally {
       setIsTyping(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    await sendQuery(input);
   };
 
   const triggerWhatsAppRedirect = () => {
@@ -242,20 +247,52 @@ export default function SupportChatHub() {
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Quick Suggestions Chips */}
+            <div className="px-3.5 py-2 bg-[var(--bg)]/90 border-t border-[var(--line)]/50 flex items-center gap-1.5 overflow-x-auto scrollbar-hide shrink-0">
+              <button 
+                type="button"
+                onClick={() => sendQuery("Tell me about custom t-shirt ₹600")}
+                className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[var(--bg-alt)] border border-[var(--line)] hover:border-[var(--accent)] text-[10px] font-mono text-[var(--text-dim)] hover:text-white transition-all cursor-pointer shrink-0 flex items-center gap-1"
+              >
+                👕 3D Custom Tee ₹600
+              </button>
+              <button 
+                type="button"
+                onClick={() => sendQuery("Track my order")}
+                className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[var(--bg-alt)] border border-[var(--line)] hover:border-[var(--accent)] text-[10px] font-mono text-[var(--text-dim)] hover:text-white transition-all cursor-pointer shrink-0 flex items-center gap-1"
+              >
+                📦 Track Order
+              </button>
+              <button 
+                type="button"
+                onClick={() => sendQuery("What is your size and fit guide?")}
+                className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[var(--bg-alt)] border border-[var(--line)] hover:border-[var(--accent)] text-[10px] font-mono text-[var(--text-dim)] hover:text-white transition-all cursor-pointer shrink-0 flex items-center gap-1"
+              >
+                📏 Size Guide
+              </button>
+              <button 
+                type="button"
+                onClick={() => sendQuery("Show me latest drops")}
+                className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[var(--bg-alt)] border border-[var(--line)] hover:border-[var(--accent)] text-[10px] font-mono text-[var(--text-dim)] hover:text-white transition-all cursor-pointer shrink-0 flex items-center gap-1"
+              >
+                🔥 Drops
+              </button>
+            </div>
+
             {/* Input Area */}
-            <div className="p-4 bg-[var(--bg)] border-t border-[var(--line)]">
+            <div className="p-3.5 bg-[var(--bg)] border-t border-[var(--line)]">
               <form onSubmit={handleSubmit} className="flex gap-2 relative">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask me anything..."
-                  className="flex-1 bg-[var(--bg-alt)] border border-[var(--line)] rounded-full pl-4 pr-12 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition-colors placeholder-[var(--text-dim)] font-mono"
+                  className="flex-1 bg-[var(--bg-alt)] border border-[var(--line)] rounded-full pl-4 pr-12 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition-colors placeholder-[var(--text-dim)] font-mono"
                 />
                 <button 
                   type="submit"
                   disabled={!input.trim() || isTyping}
-                  className="absolute right-1 top-1 bottom-1 aspect-square rounded-full flex items-center justify-center bg-[var(--accent)] text-[var(--bg)] disabled:opacity-50 transition-opacity"
+                  className="absolute right-1 top-1 bottom-1 aspect-square rounded-full flex items-center justify-center bg-[var(--accent)] text-[var(--bg)] disabled:opacity-50 transition-opacity cursor-pointer"
                 >
                   <Send className="w-4 h-4 -ml-0.5" />
                 </button>

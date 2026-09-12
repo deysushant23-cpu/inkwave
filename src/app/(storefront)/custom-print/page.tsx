@@ -110,7 +110,7 @@ export default function CustomPrintStudio() {
   const [autoRotate, setAutoRotate] = useState<boolean>(false);
   const [fabricWash, setFabricWash] = useState<FabricWashStyle>('solid');
 
-  const [basePrice, setBasePrice] = useState<number>(699);
+  const [basePrice, setBasePrice] = useState<number>(600);
   const [colors, setColors] = useState<ColorPreset[]>(DEFAULT_COLORS);
   const [selectedColor, setSelectedColor] = useState<ColorPreset>(DEFAULT_COLORS[1]); // Ink Black default
   const [selectedSize, setSelectedSize] = useState<string>('L');
@@ -204,7 +204,7 @@ export default function CustomPrintStudio() {
         ]);
 
         if (configRes.data?.json_content?.price) {
-          setBasePrice(Number(configRes.data.json_content.price) || 699);
+          setBasePrice(Number(configRes.data.json_content.price) || 600);
         }
 
         let loadedColors = DEFAULT_COLORS;
@@ -739,7 +739,7 @@ export default function CustomPrintStudio() {
       id: `custom-print-${Date.now()}`,
       name: `Bespoke Streetwear Tee (${selectedColor.name})`,
       slug: 'custom-print',
-      price: basePrice || 699,
+      price: basePrice || 600,
       images: [snapshotUrl, selectedColor.image],
       selected_size: selectedSize,
       quantity: 1,
@@ -1015,14 +1015,14 @@ export default function CustomPrintStudio() {
               </span>
               <span className="text-xs font-mono text-[var(--text-dim)]">• 240GSM BOXY COTTON</span>
               <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                ₹{basePrice || 699} FLAT RATE
+                ₹{basePrice || 600} FLAT RATE
               </span>
             </div>
             <h1 className="font-display text-2xl sm:text-3xl uppercase font-bold tracking-tight">
               Design Your T-Shirt
             </h1>
             <p className="text-xs text-[var(--text-dim)] font-mono">
-              Bespoke 240GSM French Terry cotton t-shirt with custom artwork across Chest, Back, and Sleeves. ₹{basePrice || 699} with all prints & free shipping included!
+              Bespoke 240GSM French Terry cotton t-shirt with custom artwork across Chest, Back, and Sleeves. ₹{basePrice || 600} with all prints & free shipping included!
             </p>
           </div>
 
@@ -2123,7 +2123,7 @@ export default function CustomPrintStudio() {
               className="w-full bg-[var(--accent)] text-black hover:opacity-90 py-4 rounded-2xl font-mono font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent)]/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ShoppingBag className="w-4 h-4" />
-              <span>Purchase Bespoke Custom Tee • ₹{basePrice || 699}</span>
+              <span>Purchase Bespoke Custom Tee • ₹{basePrice || 600}</span>
             </button>
 
             <div className="flex gap-2.5 items-start bg-yellow-500/10 border border-yellow-500/20 p-3 rounded-2xl">

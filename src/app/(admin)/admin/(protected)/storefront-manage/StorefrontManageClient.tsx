@@ -276,7 +276,7 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
   const [footerCols, setFooterCols] = useState<FooterColumn[]>([]);
 
   // ── Tab 7: Custom Print Studio Config State
-  const [printBasePrice, setPrintBasePrice] = useState<number>(699);
+  const [printBasePrice, setPrintBasePrice] = useState<number>(600);
   const [printColors, setPrintColors] = useState<any[]>([]);
   const [printStickers, setPrintStickers] = useState<StreetwearSticker[]>(STREETWEAR_STICKERS);
   const [printRecipes, setPrintRecipes] = useState<any[]>(DESIGN_RECIPES);
@@ -537,9 +537,9 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
       // 8. Process Custom Print Config
       const printData = sectionMap.get('custom_print_config');
       if (printData?.price) {
-        setPrintBasePrice(Number(printData.price) || 699);
+        setPrintBasePrice(Number(printData.price) || 600);
       } else {
-        setPrintBasePrice(699);
+        setPrintBasePrice(600);
       }
 
       if (printData?.colors && Array.isArray(printData.colors)) {
@@ -1052,12 +1052,12 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
     };
 
     saveSectionKey('custom_print_config', { 
-      price: printBasePrice || 699,
+      price: printBasePrice || 600,
       colors: printColors,
       stickers: printStickers,
       recipes: printRecipes,
       default_design: defaultDesignPayload
-    }, `Custom Print Lab (Price: ₹${printBasePrice || 699}, Default Design, Tees & Stickers) saved live!`);
+    }, `Custom Print Lab (Price: ₹${printBasePrice || 600}, Default Design, Tees & Stickers) saved live!`);
   };
 
   const handleAddPresetSticker = (e: React.FormEvent) => {
@@ -2898,19 +2898,19 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
                       min="1"
                       step="1"
                       value={printBasePrice} 
-                      onChange={e => setPrintBasePrice(Math.max(1, Number(e.target.value) || 699))} 
+                      onChange={e => setPrintBasePrice(Math.max(1, Number(e.target.value) || 600))} 
                       className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl p-3 text-lg font-bold font-mono text-[var(--text)] outline-none focus:border-[var(--accent)] transition-colors"
-                      placeholder="699"
+                      placeholder="600"
                     />
                   </div>
                   <p className="text-[10px] text-[var(--text-dim)]">
-                    Default: <span className="font-bold text-[var(--accent)]">₹699</span>. This price is applied automatically to cart & checkout for all custom bespoke tees.
+                    Default: <span className="font-bold text-[var(--accent)]">₹600</span>. This price is applied automatically to cart & checkout for all custom bespoke tees.
                   </p>
                 </div>
 
                 <div className="md:col-span-8 bg-[var(--bg)] border border-[var(--line)]/60 rounded-xl p-4 space-y-2">
                   <h5 className="text-[11px] font-bold text-[var(--text)] uppercase tracking-wider flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> What&apos;s Included for the Customer at ₹{printBasePrice || 699}:
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> What&apos;s Included for the Customer at ₹{printBasePrice || 600}:
                   </h5>
                   <ul className="text-[11px] text-[var(--text-dim)] space-y-1 list-disc list-inside">
                     <li><strong className="text-[var(--text)]">240 GSM</strong> 100% Super-Combed French Terry Cotton blank.</li>
@@ -3225,7 +3225,7 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
                   <div className="w-full bg-[var(--bg-card)] border border-[var(--line)] rounded-xl p-3 text-[10px] font-mono space-y-1">
                     <div className="flex justify-between">
                       <span className="text-[var(--text-dim)]">Starting Price:</span>
-                      <span className="font-bold text-[var(--accent)]">₹{printBasePrice || 699} (All Inclusive)</span>
+                      <span className="font-bold text-[var(--accent)]">₹{printBasePrice || 600} (All Inclusive)</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[var(--text-dim)]">Graphic Artwork:</span>
