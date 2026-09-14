@@ -337,18 +337,12 @@ export default function CustomPrintStudio() {
     fetchConfig();
   }, []);
 
-  // Direct On-Garment Drag Handler (Precise 4-Surface Dragging)
+  // Direct On-Garment Drag Handler (Precise, 1:1 Natural Screen-Space Dragging on all 4 surfaces)
   const handleDirectDragDecal = (dx: number, dy: number) => {
     if (!activeGraphic) return;
     const factor = 0.22;
-    let xDelta = dx * factor;
-    let yDelta = dy * factor;
-
-    if (activeGraphic.side === 'back' || activeGraphic.side === 'sleeve-left') {
-      xDelta = -dx * factor;
-    } else if (activeGraphic.side === 'sleeve-right') {
-      xDelta = dx * factor;
-    }
+    const xDelta = dx * factor;
+    const yDelta = dy * factor;
 
     const bounds = SURFACE_BOUNDARIES[activeGraphic.side] || SURFACE_BOUNDARIES.front;
     const newX = Math.max(bounds.minX, Math.min(bounds.maxX, Math.round(activeGraphic.x + xDelta)));
