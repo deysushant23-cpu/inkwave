@@ -9,7 +9,7 @@ import { GraphicLayer, FabricWashStyle } from '@/lib/customPrintHelpers';
 // Pre-load the GLB model locally
 useGLTF.preload('/shirt.glb');
 
-/* ── Individual Decal Layer Component with Slap-On & Sleeve Projection ─── */
+/* ── Individual Decal Layer Component with Precise 4-Surface Mapping ────── */
 function DecalItem({ 
   textureUrl, 
   xOffset = 0, 
@@ -52,42 +52,70 @@ function DecalItem({
   const isBack = side === 'back';
   const isLeftSleeve = side === 'sleeve-left';
   const isRightSleeve = side === 'sleeve-right';
-  
-  // Decal coordinates on the oversized boxy shirt geometry
-  const mappedX = (xOffset / 100) * 0.34;
-  const mappedY = 0.04 + ((38 - yOffset) * 0.0056);
-  const baseScale = (scaleValue / 100) * 0.34;
-  const mappedScaleX = baseScale * ((scaleX || 100) / 100) * (flipX ? -1 : 1);
-  const mappedScaleY = baseScale * ((scaleY || 100) / 100) * (flipY ? -1 : 1);
-  const mappedRotation = (rotateValue * Math.PI) / 180;
 
   let decalPosition: [number, number, number];
   let decalRotation: [number, number, number];
   let decalScale: [number, number, number];
 
+  const mappedRotation = (rotateValue * Math.PI) / 180;
+
   if (isLeftSleeve) {
-    // Outer Left Sleeve:
-    // Outer surface of the left arm sleeve mesh (-X side)
-    decalPosition = [-0.265 / 1.28, (mappedY + 0.015) / 1.03, (xOffset / 100) * 0.10];
+    // 🦾 Outer Left Sleeve (Wearer's Left / -X side):
+    // Mesh local outer lateral boundary is around X = -0.276.
+    // Projector placed at X = -0.278, projecting into sleeve.
+    const sleeveBaseScale = (scaleValue / 100) * 0.22;
+    const mappedScaleX = sleeveBaseScale * ((scaleX || 100) / 100) * (flipX ? -1 : 1);
+    const mappedScaleY = sleeveBaseScale * ((scaleY || 100) / 100) * (flipY ? -1 : 1);
+
+    const lateralZ = -0.02 + ((xOffset / 100) * 0.11);
+    const verticalY = 0.08 + (((38 - yOffset) / 100) * 0.30);
+
+    decalPosition = [-0.278, verticalY, lateralZ];
+    // Facing outwards towards -X (camera angle at -PI/2):
+    // Rotation around Y = -PI/2 makes normal point towards -X. Text reads unmirrored.
     decalRotation = [0, -Math.PI / 2, mappedRotation];
-    // Controlled projection depth (0.11) ensures clean wrap around outer bicep without bleeding into torso
-    decalScale = [mappedScaleX / 1.25, mappedScaleY / 1.03, 0.11];
+    // Projection depth 0.14 wraps around bicep curvature without bleeding into torso (torso is at X > -0.15)
+    decalScale = [mappedScaleX, mappedScaleY, 0.14];
   } else if (isRightSleeve) {
-    // Outer Right Sleeve:
-    // Outer surface of the right arm sleeve mesh (+X side)
-    decalPosition = [0.265 / 1.28, (mappedY + 0.015) / 1.03, -(xOffset / 100) * 0.10];
+    // 🦾 Outer Right Sleeve (Wearer's Right / +X side):
+    // Mesh local outer lateral boundary is around X = +0.274.
+    // Projector placed at X = +0.278, projecting into sleeve.
+    const sleeveBaseScale = (scaleValue / 100) * 0.22;
+    const mappedScaleX = sleeveBaseScale * ((scaleX || 100) / 100) * (flipX ? -1 : 1);
+    const mappedScaleY = sleeveBaseScale * ((scaleY || 100) / 100) * (flipY ? -1 : 1);
+
+    const lateralZ = -0.02 - ((xOffset / 100) * 0.11);
+    const verticalY = 0.08 + (((38 - yOffset) / 100) * 0.30);
+
+    decalPosition = [0.278, verticalY, lateralZ];
+    // Facing outwards towards +X (camera angle at +PI/2):
+    // Rotation around Y = PI/2 makes normal point towards +X. Text reads unmirrored.
     decalRotation = [0, Math.PI / 2, -mappedRotation];
-    decalScale = [mappedScaleX / 1.25, mappedScaleY / 1.03, 0.11];
+    decalScale = [mappedScaleX, mappedScaleY, 0.14];
   } else if (isBack) {
-    // Project onto Back of shirt only (shallow depth 0.11 prevents reverse projection onto front)
-    decalPosition = [-mappedX / 1.28, mappedY / 1.03, -0.15];
+    // 🔥 Back of Tee:
+    const baseScale = (scaleValue / 100) * 0.28;
+    const mappedScaleX = baseScale * ((scaleX || 100) / 100) * (flipX ? -1 : 1);
+    const mappedScaleY = baseScale * ((scaleY || 100) / 100) * (flipY ? -1 : 1);
+
+    const mappedX = (-xOffset / 100) * 0.22;
+    const mappedY = 0.06 + (((38 - yOffset) / 100) * 0.42);
+
+    decalPosition = [mappedX, mappedY, -0.14];
     decalRotation = [0, Math.PI, -mappedRotation];
-    decalScale = [mappedScaleX / 1.28, mappedScaleY / 1.03, 0.11];
+    decalScale = [mappedScaleX, mappedScaleY, 0.14];
   } else {
-    // Project onto Front Chest of shirt only (shallow depth 0.11 prevents bleed-through onto back)
-    decalPosition = [mappedX / 1.28, mappedY / 1.03, 0.15];
+    // 🎯 Front Chest of Tee:
+    const baseScale = (scaleValue / 100) * 0.28;
+    const mappedScaleX = baseScale * ((scaleX || 100) / 100) * (flipX ? -1 : 1);
+    const mappedScaleY = baseScale * ((scaleY || 100) / 100) * (flipY ? -1 : 1);
+
+    const mappedX = (xOffset / 100) * 0.22;
+    const mappedY = 0.04 + (((38 - yOffset) / 100) * 0.42);
+
+    decalPosition = [mappedX, mappedY, 0.14];
     decalRotation = [0, 0, mappedRotation];
-    decalScale = [mappedScaleX / 1.28, mappedScaleY / 1.03, 0.11];
+    decalScale = [mappedScaleX, mappedScaleY, 0.14];
   }
 
   return (
@@ -101,7 +129,7 @@ function DecalItem({
   );
 }
 
-/* ── 3D Shirt Mesh with Multi-Decals & Wireframe Mode ──────────────────── */
+/* ── 3D Shirt Mesh with Multi-Decals (240 GSM Cotton Terry) ─────────────── */
 function Shirt({ 
   color, 
   wireframe = false,
@@ -132,12 +160,17 @@ function Shirt({
     y: number;
     scale: number;
     rotate: number;
+    side?: 'front' | 'back' | 'sleeve-left' | 'sleeve-right';
   };
 }) {
   const { nodes } = useGLTF('/shirt.glb') as any;
   const shirtColor = new THREE.Color(color || '#ffffff');
-  const roughness = fabricWash === 'acid-wash' ? 0.96 : fabricWash === 'mercerized' ? 0.45 : 0.82;
-  const metalness = wireframe ? 0.8 : fabricWash === 'mercerized' ? 0.12 : 0.05;
+  
+  // Premium 240 GSM Cotton Terry cloth physical attributes
+  const roughness = 0.82;
+  const metalness = wireframe ? 0.8 : 0.04;
+
+  const typoTargetSide = typographyOptions?.side || legacySide || 'front';
 
   return (
     <group>
@@ -145,7 +178,7 @@ function Shirt({
         castShadow
         receiveShadow
         geometry={nodes.T_Shirt_male.geometry}
-        scale={[1.28, 1.03, 1.25]} // boxy, drop-shoulder, oversized fit
+        scale={[1.28, 1.03, 1.25]} // boxy, drop-shoulder, oversized streetwear fit
         dispose={null}
       >
         <meshStandardMaterial
@@ -156,7 +189,7 @@ function Shirt({
           side={THREE.DoubleSide}
         />
 
-        {/* 1. Legacy Single Texture Decal (for Admin Orders/Requested Prints) */}
+        {/* 1. Legacy Single Texture Decal (for Admin Orders & Historical Previews) */}
         {!wireframe && legacyTextureUrl && (
           <Suspense fallback={null}>
             <DecalItem
@@ -170,7 +203,7 @@ function Shirt({
           </Suspense>
         )}
 
-        {/* 2. Front Typography Decal */}
+        {/* 2. Legacy Typography Decal (supporting multi-surface targeting) */}
         {!wireframe && typographyTexture && typographyOptions && (
           <Suspense fallback={null}>
             <DecalItem
@@ -179,12 +212,12 @@ function Shirt({
               yOffset={typographyOptions.y}
               scaleValue={typographyOptions.scale}
               rotateValue={typographyOptions.rotate}
-              side="front"
+              side={typoTargetSide}
             />
           </Suspense>
         )}
 
-        {/* 3. Multi-Graphic Decal Layers (Front, Back, L-Sleeve, R-Sleeve simultaneous) */}
+        {/* 3. Multi-Surface Graphic Decal Layers (Front, Back, L-Sleeve, R-Sleeve) */}
         {!wireframe && graphics.map((g, idx) => (
           (g.processedUrl || g.url) ? (
             <Suspense key={g.id || `graphic-${idx}`} fallback={null}>
@@ -223,7 +256,7 @@ function CameraRig({
 }) {
   const controlsRef = useRef<any>(null);
 
-  // Smoothly update camera azimuthal rotation angle on preset change
+  // Smoothly update camera azimuthal rotation angle on surface/view change
   useEffect(() => {
     if (controlsRef.current) {
       if (activeView === 'back') {
@@ -279,6 +312,7 @@ export interface CustomPrintCanvasProps {
     y: number;
     scale: number;
     rotate: number;
+    side?: 'front' | 'back' | 'sleeve-left' | 'sleeve-right';
   };
   activeView?: 'front' | 'back' | 'sleeve-left' | 'sleeve-right' | 'angle-left' | 'angle-right' | 'side-left' | 'side-right' | string;
   

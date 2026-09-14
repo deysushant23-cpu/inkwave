@@ -19,6 +19,7 @@ export interface TextPrintOptions {
 
 export type PrintFinish = 'matte' | 'puff' | 'vintage' | 'chrome';
 export type FabricWashStyle = 'solid' | 'acid-wash' | 'mercerized';
+export type PrintSurface = 'front' | 'back' | 'sleeve-left' | 'sleeve-right';
 
 export interface GraphicLayer {
   id: string;
@@ -26,7 +27,9 @@ export interface GraphicLayer {
   url: string;
   processedUrl: string;
   rawUrl?: string;
-  side: 'front' | 'back' | 'sleeve-left' | 'sleeve-right';
+  side: PrintSurface;
+  layerType?: 'image' | 'text' | 'vector';
+  textOptions?: TextPrintOptions;
   x: number;
   y: number;
   scale: number;
@@ -41,6 +44,74 @@ export interface GraphicLayer {
   removeBg: boolean;
   bgTolerance: number;
   isUpscaled?: boolean;
+}
+
+export interface SurfaceBoundary {
+  surface: PrintSurface;
+  name: string;
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+  defaultScale: number;
+  maxScale: number;
+}
+
+export const SURFACE_BOUNDARIES: Record<PrintSurface, SurfaceBoundary> = {
+  front: {
+    surface: 'front',
+    name: 'Front Chest',
+    minX: -45,
+    maxX: 45,
+    minY: 10,
+    maxY: 80,
+    defaultScale: 46,
+    maxScale: 75,
+  },
+  back: {
+    surface: 'back',
+    name: 'Back',
+    minX: -45,
+    maxX: 45,
+    minY: 10,
+    maxY: 80,
+    defaultScale: 52,
+    maxScale: 80,
+  },
+  'sleeve-left': {
+    surface: 'sleeve-left',
+    name: 'Left Sleeve',
+    minX: -35,
+    maxX: 35,
+    minY: 15,
+    maxY: 65,
+    defaultScale: 28,
+    maxScale: 45,
+  },
+  'sleeve-right': {
+    surface: 'sleeve-right',
+    name: 'Right Sleeve',
+    minX: -35,
+    maxX: 35,
+    minY: 15,
+    maxY: 65,
+    defaultScale: 28,
+    maxScale: 45,
+  },
+};
+
+export function autoFitLayer(layer: GraphicLayer, surface: PrintSurface): Partial<GraphicLayer> {
+  const bounds = SURFACE_BOUNDARIES[surface] || SURFACE_BOUNDARIES.front;
+  return {
+    x: 0,
+    y: 38,
+    scale: Math.min(layer.scale || bounds.defaultScale, bounds.maxScale),
+    scaleX: 100,
+    scaleY: 100,
+    rotate: 0,
+    flipX: false,
+    flipY: false,
+  };
 }
 
 export interface PrintPlacementPreset {
