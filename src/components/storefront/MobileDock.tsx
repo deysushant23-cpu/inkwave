@@ -2,16 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Sparkles, Wand2, Heart, ShoppingBag } from 'lucide-react';
+import { Home, Layers, Search, Heart, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
+import { useUiStore } from '@/store/useUiStore';
 
 export default function MobileDock({ showPrintLab = true }: { showPrintLab?: boolean }) {
   const pathname = usePathname();
   const cartItemsCount = useCartStore((state) => state.items.length);
   const setCartDrawerOpen = useCartStore((state) => state.setCartDrawerOpen);
   const wishlistItems = useWishlistStore((state) => state.items);
-  const wishlistCount = wishlistItems.length;
+  const wishlistCount = wishlistItems?.length || 0;
+  const setSearchModalOpen = useUiStore((state) => state.setSearchModalOpen);
 
   // Do not show dock on admin or checkout pages to avoid UI collision
   if (pathname?.startsWith('/admin') || pathname?.startsWith('/checkout')) {
@@ -19,82 +21,78 @@ export default function MobileDock({ showPrintLab = true }: { showPrintLab?: boo
   }
 
   const isHome = pathname === '/';
-  const isShowcase = pathname?.startsWith('/showcase');
-  const isCustomPrint = pathname?.startsWith('/custom-print');
+  const isShop = pathname?.startsWith('/collections') || pathname?.startsWith('/category');
   const isWishlist = pathname?.startsWith('/wishlist');
 
   return (
     <nav 
       aria-label="Mobile Navigation Dock"
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[var(--bg)]/95 backdrop-blur-xl border-t border-[var(--line)] px-3 py-2.5 shadow-[0_-8px_25px_rgba(0,0,0,0.4)]"
-      style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
+      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-black/95 backdrop-blur-2xl border-t border-white/10 px-2 py-2 shadow-[0_-8px_25px_rgba(0,0,0,0.7)]"
+      style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}
     >
       <div className="flex items-center justify-around max-w-md mx-auto">
         
-        {/* Home */}
+        {/* 1. Home */}
         <Link 
           href="/" 
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${
-            isHome ? 'text-[var(--accent)] font-bold' : 'text-[var(--text-dim)] hover:text-[var(--text)]'
+          className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all active:scale-95 ${
+            isHome ? 'text-white font-bold' : 'text-neutral-400 hover:text-white'
           }`}
         >
-          <Home className={`w-5 h-5 transition-transform ${isHome ? 'scale-110' : ''}`} />
-          <span className="text-[10px] uppercase font-mono tracking-wider">Home</span>
+          <Home className={`w-5 h-5 transition-transform ${isHome ? 'scale-110 text-white' : ''}`} />
+          <span className="text-[9px] uppercase font-mono tracking-wider">Home</span>
         </Link>
 
-        {/* Showcase */}
+        {/* 2. Shop / Collections */}
         <Link 
-          href="/showcase" 
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${
-            isShowcase ? 'text-[var(--accent)] font-bold' : 'text-[var(--text-dim)] hover:text-[var(--text)]'
+          href="/collections" 
+          className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all active:scale-95 ${
+            isShop ? 'text-white font-bold' : 'text-neutral-400 hover:text-white'
           }`}
         >
-          <Sparkles className={`w-5 h-5 transition-transform ${isShowcase ? 'scale-110' : ''}`} />
-          <span className="text-[10px] uppercase font-mono tracking-wider">Drops</span>
+          <Layers className={`w-5 h-5 transition-transform ${isShop ? 'scale-110 text-white' : ''}`} />
+          <span className="text-[9px] uppercase font-mono tracking-wider">Shop</span>
         </Link>
 
-        {/* Custom Print (Conditional) */}
-        {showPrintLab && (
-          <Link 
-            href="/custom-print" 
-            className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${
-              isCustomPrint ? 'text-[var(--accent)] font-bold' : 'text-[var(--text-dim)] hover:text-[var(--text)]'
-            }`}
-          >
-            <Wand2 className={`w-5 h-5 transition-transform ${isCustomPrint ? 'scale-110' : ''}`} />
-            <span className="text-[10px] uppercase font-mono tracking-wider">Print Lab</span>
-          </Link>
-        )}
+        {/* 3. Search */}
+        <button 
+          onClick={() => setSearchModalOpen(true)}
+          className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-neutral-400 hover:text-white transition-all cursor-pointer active:scale-95"
+          aria-label="Search Catalog"
+        >
+          <Search className="w-5 h-5" />
+          <span className="text-[9px] uppercase font-mono tracking-wider">Search</span>
+        </button>
 
-        {/* Wishlist */}
+        {/* 4. Wishlist */}
         <Link 
           href="/wishlist" 
-          className={`relative flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${
-            isWishlist ? 'text-[var(--accent)] font-bold' : 'text-[var(--text-dim)] hover:text-[var(--text)]'
+          className={`relative flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all active:scale-95 ${
+            isWishlist ? 'text-white font-bold' : 'text-neutral-400 hover:text-white'
           }`}
         >
-          <Heart className={`w-5 h-5 transition-transform ${isWishlist ? 'scale-110' : ''}`} />
+          <Heart className={`w-5 h-5 transition-transform ${isWishlist ? 'scale-110 text-white' : ''}`} />
           {wishlistCount > 0 && (
-            <span className="absolute 0 top-0.5 right-2 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] font-black flex items-center justify-center font-mono">
+            <span className="absolute top-0 right-1.5 w-3.5 h-3.5 bg-rose-500 text-white rounded-full text-[8px] font-black flex items-center justify-center font-mono">
               {wishlistCount}
             </span>
           )}
-          <span className="text-[10px] uppercase font-mono tracking-wider">Saved</span>
+          <span className="text-[9px] uppercase font-mono tracking-wider">Wishlist</span>
         </Link>
 
-        {/* Cart Trigger */}
+        {/* 5. Cart / Bag Trigger */}
         <button 
           onClick={() => setCartDrawerOpen(true)}
-          className="relative flex flex-col items-center gap-1 p-1.5 rounded-xl text-[var(--text-dim)] hover:text-[var(--accent)] transition-all cursor-pointer"
-          aria-label="Open Cart"
+          className="relative flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-neutral-400 hover:text-white transition-all cursor-pointer active:scale-95"
+          aria-label="Open Shopping Bag"
         >
           <ShoppingBag className="w-5 h-5" />
           {cartItemsCount > 0 && (
-            <span className="absolute 0 top-0.5 right-1.5 w-4 h-4 bg-[var(--accent)] text-[var(--bg)] rounded-full text-[9px] font-black flex items-center justify-center font-mono">
+            <span className="absolute top-0 right-1.5 w-3.5 h-3.5 bg-white text-black rounded-full text-[8px] font-black flex items-center justify-center font-mono">
               {cartItemsCount}
             </span>
           )}
-          <span className="text-[10px] uppercase font-mono tracking-wider">Bag</span>
+          <span className="text-[9px] uppercase font-mono tracking-wider">Bag</span>
         </button>
 
       </div>

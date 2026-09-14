@@ -8,8 +8,8 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/utils';
-
-import { Heart, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Heart, ShoppingBag, ArrowRight, Check, X, Plus } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface ProductCardProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,6 +19,9 @@ interface ProductCardProps {
   viewMode?: 'grid' | 'list';
 }
 
+const APPAREL_ORDER = ['XS', 'S', 'M', 'L', 'XL', '2XL', 'XXL', '3XL', 'OS', 'FREE SIZE'];
+const JEANS_ORDER = ['28', '30', '32', '34', '36', '38', '40'];
+
 export default function ProductCard({ product, index, isBig = false, viewMode = 'grid' }: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem);
   const setCartDrawerOpen = useCartStore((state) => state.setCartDrawerOpen);
@@ -26,6 +29,9 @@ export default function ProductCard({ product, index, isBig = false, viewMode = 
   const toggleWish = useWishlistStore((state) => state.toggleWish);
   
   const [mounted, setMounted] = useState(false);
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [isAddedSuccess, setIsAddedSuccess] = useState(false);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -78,15 +84,31 @@ export default function ProductCard({ product, index, isBig = false, viewMode = 
   const primaryImg = (Array.isArray(product.images) && product.images[0]) || product.overlay_mask_url || product.image_url || '';
   const secondaryImg = (Array.isArray(product.images) && product.images[1]) || null;
 
-  const handleQuickAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const firstVariant = variants && variants.length > 0 ? variants[0] : null;
-    const itemPrice = firstVariant?.price_override ?? product.base_price ?? product.price ?? 0;
-    const itemSize = firstVariant?.size || 'OS';
-    const itemSku = firstVariant?.sku || product.sku || '';
-    const itemVariantId = firstVariant?.id || product.id;
+  // Extract distinct sizes with stock info
+  const rawCat = product.categories?.name || '';
+  const isJeansCat = rawCat.toLowerCase().includes('jean') || rawCat.toLowerCase().includes('pant') || rawCat.toLowerCase().includes('bottom');
+  const sizePreset = isJeansCat ? JEANS_ORDER : APPAREL_ORDER;
+
+  const availableSizes = Array.from(new Set(variants.map((v: any) => v.size).filter(Boolean))).sort((a: any, b: any) => {
+    const idxA = sizePreset.indexOf(a);
+    const idxB = sizePreset.indexOf(b);
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    return a.localeCompare(b);
+  });
+
+  const handleExecuteAdd = (sizeToSelect?: string) => {
+    let targetVariant = null;
+    if (sizeToSelect) {
+      targetVariant = variants.find((v: any) => v.size === sizeToSelect);
+    }
+    if (!targetVariant && variants.length > 0) {
+      targetVariant = variants[0];
+    }
+
+    const itemPrice = targetVariant?.price_override ?? product.base_price ?? product.price ?? 0;
+    const itemSize = sizeToSelect || targetVariant?.size || 'OS';
+    const itemSku = targetVariant?.sku || product.sku || '';
+    const itemVariantId = targetVariant?.id || product.id;
 
     addItem({
       id: `${product.id}-${itemVariantId}`,
@@ -98,10 +120,30 @@ export default function ProductCard({ product, index, isBig = false, viewMode = 
       image_url: primaryImg,
       sku: itemSku,
       size: itemSize,
-      color: firstVariant?.color || null
+      color: targetVariant?.color || null
     });
-    
+
+    setIsAddedSuccess(true);
+    setIsQuickAddOpen(false);
+    toast.success(`Added ${product.title || 'item'} (${itemSize}) to bag`);
     setCartDrawerOpen(true);
+
+    setTimeout(() => {
+      setIsAddedSuccess(false);
+    }, 2000);
+  };
+
+  const handleQuickAddClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // If multiple sizes exist, open in-card size picker
+    if (availableSizes.length > 1) {
+      setIsQuickAddOpen(prev => !prev);
+    } else {
+      // 1 size or no variant breakdown -> add immediately
+      handleExecuteAdd(availableSizes[0] as string | undefined);
+    }
   };
 
   const handleWishToggle = async (e: React.MouseEvent) => {
@@ -145,14 +187,13 @@ export default function ProductCard({ product, index, isBig = false, viewMode = 
 
   // Safe category label extraction
   const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-  const rawCat = product.categories?.name;
   const categoryLabel = rawCat || (!isUUID(product.category_id || '') ? product.category_id?.replace('cat_', '')?.replace(/-/g, ' ') : '') || 'STREETWEAR';
 
   // List View Layout
   if (viewMode === 'list') {
     return (
       <div 
-        className="group relative flex flex-row items-center sm:items-stretch gap-3 sm:gap-6 w-full bg-neutral-950/60 hover:bg-neutral-900/80 border border-white/10 hover:border-white/25 p-3 sm:p-5 rounded-2xl transition-all duration-300 shadow-md"
+        className="group relative flex flex-row items-center sm:items-stretch gap-3 sm:gap-6 w-full bg-neutral-950/80 hover:bg-neutral-900/90 border border-white/10 hover:border-white/25 p-3 sm:p-5 rounded-2xl transition-all duration-300 shadow-md"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -185,7 +226,7 @@ export default function ProductCard({ product, index, isBig = false, viewMode = 
         <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
           <div className="space-y-1.5 sm:space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[10px] sm:text-xs font-mono font-bold text-[var(--accent)] uppercase tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold text-neutral-400 uppercase tracking-wider">
                 {categoryLabel}
               </span>
               <button 
@@ -222,14 +263,14 @@ export default function ProductCard({ product, index, isBig = false, viewMode = 
               )}
             </div>
 
-            {/* Available Sizes preview if present */}
-            {variants.length > 0 && (
+            {/* Available Sizes preview */}
+            {availableSizes.length > 0 && (
               <div className="hidden sm:flex items-center gap-1.5 pt-1">
                 <span className="text-[10px] font-mono text-neutral-500 uppercase">Sizes:</span>
                 <div className="flex items-center gap-1">
-                  {variants.slice(0, 5).map((v: any) => (
-                    <span key={v.id} className="text-[9px] font-mono px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-neutral-300">
-                      {v.size || 'OS'}
+                  {availableSizes.slice(0, 5).map((s: any) => (
+                    <span key={s} className="text-[9px] font-mono px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-neutral-300">
+                      {s}
                     </span>
                   ))}
                 </div>
@@ -241,11 +282,11 @@ export default function ProductCard({ product, index, isBig = false, viewMode = 
           <div className="mt-3 sm:mt-4 flex items-center gap-2.5 sm:gap-3">
             <button 
               type="button"
-              onClick={handleQuickAdd} 
+              onClick={handleQuickAddClick} 
               className="px-4 sm:px-6 py-2 sm:py-2.5 bg-white text-black hover:bg-neutral-200 font-bold font-mono text-xs uppercase tracking-wider rounded-xl flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
             >
               <ShoppingBag className="w-3.5 h-3.5" />
-              <span>Add to Bag</span>
+              <span>{isAddedSuccess ? 'Added ✓' : 'Add to Bag'}</span>
             </button>
             <Link 
               href={`/product/${product.slug || product.id}`} 
@@ -260,6 +301,7 @@ export default function ProductCard({ product, index, isBig = false, viewMode = 
     );
   }
 
+  // Standard Grid View Layout
   return (
     <div 
       className={`group relative flex flex-col w-full min-w-0 ${isBig ? 'md:col-span-2' : ''}`}
@@ -271,15 +313,15 @@ export default function ProductCard({ product, index, isBig = false, viewMode = 
         transition: isHovered ? 'transform 0.1s ease-out' : 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)'
       } as React.CSSProperties}
     >
-      <Link href={`/product/${product.slug || product.id}`} className="block relative w-full">
+      <div className="relative w-full">
         {/* Strictly Locked 3:4 Media Box */}
         <div 
-          className="relative w-full rounded-none overflow-hidden bg-neutral-900 border border-white/10 transition-all duration-300 group-hover:border-white/25 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.5)]"
+          className="relative w-full rounded-2xl overflow-hidden bg-neutral-900 border border-white/10 transition-all duration-300 group-hover:border-white/30 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)]"
           style={{ aspectRatio: '3 / 4', width: '100%' }}
         >
           {/* Badge */}
           {activeBadge && (
-            <span className={`absolute top-2.5 left-2.5 sm:top-3.5 sm:left-3.5 z-20 text-[8px] sm:text-[10px] tracking-wider px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-none uppercase leading-none ${activeBadge.className}`}>
+            <span className={`absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20 text-[8px] sm:text-[9px] tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md uppercase font-black leading-none ${activeBadge.className}`}>
               {activeBadge.label}
             </span>
           )}
@@ -289,84 +331,137 @@ export default function ProductCard({ product, index, isBig = false, viewMode = 
             type="button"
             onClick={handleWishToggle}
             suppressHydrationWarning
-            className={`absolute top-2.5 right-2.5 sm:top-3.5 sm:right-3.5 z-20 w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center transition-all duration-300 ${
+            className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center transition-all duration-300 cursor-pointer ${
               isWished 
-                ? 'text-rose-500 scale-110 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]' 
-                : 'text-white/85 hover:text-white hover:scale-105 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]'
+                ? 'text-rose-500 scale-105 border-rose-500/30' 
+                : 'text-white/80 hover:text-white hover:scale-105'
             }`}
             aria-label={isWished ? "Remove from wishlist" : "Add to wishlist"}
           >
-            <svg 
-              viewBox="0 0 24 24" 
-              className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 ${isWished ? 'scale-110' : 'group-hover:scale-110'}`}
-              fill={isWished ? "currentColor" : "none"} 
-              stroke="currentColor" 
-              strokeWidth={isWished ? "0" : "2"}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-            </svg>
+            <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill={isWished ? "currentColor" : "none"} />
           </button>
 
-          {/* Images with Absolute Strict Fill */}
-          {primaryImg ? (
-            <div className="absolute inset-0 w-full h-full overflow-hidden">
-              <Image
-                src={primaryImg} 
-                alt={name || 'Product'} 
-                fill
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className={`object-cover object-center transition-all duration-500 group-hover:scale-105 block ${
-                  secondaryImg && isHovered ? 'opacity-0' : 'opacity-100'
-                }`}
-              />
-              {secondaryImg && (
-                <Image 
-                  src={secondaryImg} 
-                  alt={`${name || 'Product'} - alternate view`}
+          {/* Primary & Secondary Images */}
+          <Link href={`/product/${product.slug || product.id}`} className="block absolute inset-0 w-full h-full overflow-hidden">
+            {primaryImg ? (
+              <div className="absolute inset-0 w-full h-full">
+                <Image
+                  src={primaryImg} 
+                  alt={name || 'Product'} 
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className={`object-cover object-center absolute inset-0 transition-all duration-500 group-hover:scale-105 block ${
-                    isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  className={`object-cover object-center transition-all duration-500 group-hover:scale-105 block ${
+                    secondaryImg && isHovered ? 'opacity-0' : 'opacity-100'
                   }`}
                 />
-              )}
-            </div>
-          ) : (
-            <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-neutral-900 text-neutral-600 font-mono text-[10px] uppercase">
-              No Image
-            </div>
-          )}
+                {secondaryImg && (
+                  <Image 
+                    src={secondaryImg} 
+                    alt={`${name || 'Product'} - alternate view`}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className={`object-cover object-center absolute inset-0 transition-all duration-500 group-hover:scale-105 block ${
+                      isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                    }`}
+                  />
+                )}
+              </div>
+            ) : (
+              <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-neutral-900 text-neutral-600 font-mono text-[10px] uppercase">
+                No Image
+              </div>
+            )}
+          </Link>
           
-          {/* Mobile Quick-Add Floating Touch Button (+ Icon) */}
+          {/* Mobile Quick-Add Floating Touch Button */}
           <button
             type="button"
-            onClick={handleQuickAdd}
-            aria-label="Quick Add"
-            className="sm:hidden absolute bottom-2.5 right-2.5 z-20 w-7 h-7 rounded-none bg-white text-black shadow-lg flex items-center justify-center active:scale-90 transition-transform"
+            onClick={handleQuickAddClick}
+            aria-label="Quick Add to Bag"
+            className="sm:hidden absolute bottom-2.5 right-2.5 z-20 w-8 h-8 rounded-full bg-white text-black shadow-lg flex items-center justify-center active:scale-90 transition-transform cursor-pointer font-bold"
           >
-            <svg viewBox="0 0 24 24" width="13" height="13" style={{ stroke: 'currentColor', fill: 'none', strokeWidth: 3 }}>
-              <path d="M12 5v14M5 12h14"/>
-            </svg>
+            {isAddedSuccess ? <Check className="w-4 h-4 text-emerald-600" /> : <Plus className="w-4 h-4" />}
           </button>
 
-          {/* Desktop Quick-Add Slide-up Button */}
-          <div className="hidden sm:block absolute bottom-3 left-3 right-3 z-20 transform translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+          {/* Desktop Quick-Add Slide-up Bar */}
+          <div className="hidden sm:block absolute bottom-2.5 left-2.5 right-2.5 z-20 transform translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
             <button
               type="button"
-              onClick={handleQuickAdd}
-              className="w-full py-2.5 px-4 bg-white text-black hover:bg-neutral-200 active:scale-98 font-bold text-xs uppercase tracking-wider rounded-none shadow-xl flex items-center justify-center gap-2 transition-all"
+              onClick={handleQuickAddClick}
+              className={`w-full py-2.5 px-3 bg-white text-black hover:bg-neutral-200 active:scale-98 font-bold font-mono text-xs uppercase tracking-wider rounded-xl shadow-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                isAddedSuccess ? 'bg-emerald-400 text-black' : ''
+              }`}
             >
-              <svg viewBox="0 0 24 24" width="14" height="14" style={{ stroke: 'currentColor', fill: 'none', strokeWidth: 2.5 }}>
-                <path d="M12 5v14M5 12h14"/>
-              </svg>
-              Quick add
+              {isAddedSuccess ? (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Added to Bag</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  <span>Quick Add</span>
+                </>
+              )}
             </button>
           </div>
+
+          {/* ── INTERACTIVE SIZE SELECTOR DRAWER / OVERLAY ── */}
+          <AnimatePresence>
+            {isQuickAddOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 30 }}
+                transition={{ type: 'spring', damping: 22, stiffness: 300 }}
+                className="absolute inset-x-0 bottom-0 z-30 bg-black/95 backdrop-blur-xl p-3 border-t border-white/20 rounded-b-2xl flex flex-col gap-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-300">
+                    Select Size:
+                  </span>
+                  <button 
+                    onClick={() => setIsQuickAddOpen(false)}
+                    className="p-1 text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                    aria-label="Close size selector"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-5 gap-1.5 pt-1">
+                  {availableSizes.map((size: any) => {
+                    const variantForSize = variants.find((v: any) => v.size === size);
+                    const stock = variantForSize ? (variantForSize.stock_quantity - (variantForSize.reserved_stock || 0)) : 1;
+                    const isOutOfStock = stock <= 0;
+
+                    return (
+                      <button
+                        key={size}
+                        type="button"
+                        disabled={isOutOfStock}
+                        onClick={() => handleExecuteAdd(size)}
+                        className={`py-1.5 px-1 rounded-lg font-mono text-[10px] font-bold uppercase tracking-wider transition-all border text-center ${
+                          isOutOfStock 
+                            ? 'opacity-30 border-white/10 line-through text-neutral-600 cursor-not-allowed bg-transparent' 
+                            : 'bg-white/10 hover:bg-white hover:text-black border-white/20 text-white cursor-pointer active:scale-95'
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
         </div>
-      </Link>
+      </div>
       
       {/* Product Details Area */}
-      <div className="mt-2 sm:mt-2.5 flex flex-col gap-0.5 sm:gap-1 px-0.5 text-left">
+      <div className="mt-2.5 flex flex-col gap-0.5 px-0.5 text-left">
         <Link href={`/product/${product.slug || product.id}`} className="group/title">
           <h3 
             className="text-xs sm:text-sm font-bold text-white truncate group-hover/title:text-neutral-300 transition-colors leading-snug"
@@ -388,7 +483,7 @@ export default function ProductCard({ product, index, isBig = false, viewMode = 
             </span>
           )}
           {discountPercent && discountPercent > 0 && (
-            <span className="text-[8px] sm:text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-none border border-emerald-500/20 leading-none">
+            <span className="text-[8px] sm:text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 leading-none">
               {discountPercent}% OFF
             </span>
           )}

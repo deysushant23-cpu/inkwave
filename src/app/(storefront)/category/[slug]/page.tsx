@@ -99,10 +99,12 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     .order('created_at', { ascending: false });
 
   let rawList = (productsData as any[]) || [];
-  rawList = rawList.map(p => ({
-    ...p,
-    categories: p.categories || { name: category.name, slug: category.slug }
-  }));
+  rawList = rawList
+    .filter(p => p && (p.title || p.name) && p.id)
+    .map(p => ({
+      ...p,
+      categories: p.categories || { name: category.name, slug: category.slug }
+    }));
 
   let products = await enrichProductsWithComparePrices(rawList);
 

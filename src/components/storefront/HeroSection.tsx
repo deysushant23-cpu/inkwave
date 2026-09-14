@@ -31,10 +31,10 @@ interface HeroSectionProps {
 export default function HeroSection({ config }: HeroSectionProps) {
   const [videoError, setVideoError] = useState(false);
 
-  const eyebrow = config?.heroEyebrow || 'SS26 — Vol. 01 — New Arrivals';
-  const title1 = config?.heroTitle1 || 'Wear the';
-  const title2 = config?.heroTitle2 || 'Current.';
-  const lede = config?.heroLede || 'Premium readymade apparel. Designed for everyday comfort and effortless style.';
+  const eyebrow = config?.heroEyebrow || 'DROP 001 // THE LATEST INKWAVE COLLECTION';
+  const title1 = config?.heroTitle1 || 'WEAR SOMETHING';
+  const title2 = config?.heroTitle2 || 'DIFFERENT.';
+  const lede = config?.heroLede || 'Original streetwear built for people who don\'t blend in. Signature 240 GSM boxy cotton and bespoke underground drops.';
 
   const mediaType = config?.heroMediaType || 'none';
   const mediaUrl = config?.heroMediaUrl?.trim() || '';
@@ -44,12 +44,12 @@ export default function HeroSection({ config }: HeroSectionProps) {
   const blurAmount = config?.heroMediaBlur || 0;
   const kenBurns = config?.heroMediaKenBurns !== false;
 
-  const ctaPrimaryText = config?.heroCtaPrimaryText || 'Shop New Drops';
-  const ctaPrimaryLink = config?.heroCtaPrimaryLink || '#new';
+  const ctaPrimaryText = config?.heroCtaPrimaryText || 'SHOP THE DROP';
+  const ctaPrimaryLink = config?.heroCtaPrimaryLink || '/collections';
   const rawSecondaryText = config?.heroCtaSecondaryText || '';
   const rawSecondaryLink = config?.heroCtaSecondaryLink || '';
-  const ctaSecondaryText = (rawSecondaryText && rawSecondaryText !== 'View Lookbook') ? rawSecondaryText : 'Browse Catalog';
-  const ctaSecondaryLink = (rawSecondaryLink && rawSecondaryLink !== '#lookbook') ? rawSecondaryLink : '/';
+  const ctaSecondaryText = rawSecondaryText || 'EXPLORE COLLECTION';
+  const ctaSecondaryLink = rawSecondaryLink || '/collections';
 
   const hasActiveMedia = (mediaType === 'image' || mediaType === 'video') && mediaUrl.length > 0 && !videoError;
 

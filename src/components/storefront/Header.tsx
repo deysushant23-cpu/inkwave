@@ -10,6 +10,7 @@ import { Category } from '@/types/database';
 import SearchModal from './SearchModal';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useUiStore } from '@/store/useUiStore';
 import { 
   Menu, 
   X, 
@@ -109,32 +110,59 @@ export default function Header({
     setMenuOpen(false);
   }, [pathname]);
 
+  const searchModalOpen = useUiStore((state) => state.searchModalOpen);
+  const setSearchModalOpen = useUiStore((state) => state.setSearchModalOpen);
+
+  const isSearchActive = searchOpen || searchModalOpen;
+  const setCombinedSearchOpen = (open: boolean) => {
+    setSearchOpen(open);
+    setSearchModalOpen(open);
+  };
+
   const allCategories = categories.filter(c => c.is_active !== false);
+
+  // Dynamic Category Slugs
+  const tshirtsCat = allCategories.find(c => {
+    const s = (c.slug || '').toLowerCase();
+    const n = (c.name || '').toLowerCase();
+    return s.includes('t-shirt') || s.includes('tshirt') || s.includes('tee') || n.includes('t-shirt') || n.includes('tshirt') || n.includes('tee');
+  });
+  const tshirtsHref = tshirtsCat ? `/category/${tshirtsCat.slug}` : '/collections';
+
+  const bottomsCat = allCategories.find(c => {
+    const s = (c.slug || '').toLowerCase();
+    const n = (c.name || '').toLowerCase();
+    return s.includes('bottom') || s.includes('jean') || s.includes('pant') || s.includes('cargo') || s.includes('denim') || n.includes('bottom') || n.includes('jean') || n.includes('pant') || n.includes('cargo') || n.includes('denim');
+  });
+  const bottomsHref = bottomsCat ? `/category/${bottomsCat.slug}` : '/collections';
+
+  const isLinkActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    if (href.startsWith('/category/')) return pathname === href;
+    return pathname.startsWith(href);
+  };
 
   return (
     <>
       <header className={`nav ${scrolled ? 'scrolled' : ''}`} id="nav">
-        <div className="wrap flex items-center justify-between min-h-[40px] sm:min-h-[44px]">
+        <div className="wrap flex items-center justify-between min-h-[44px]">
           
           {/* ════════════════════════════════════════════════════════════════
-              1. LEFT CORNER: HAMBURGER BUTTON + LOGO MARK + BRAND NAME
+              1. LEFT: HAMBURGER (MOBILE/ALL) + BRAND LOGO LOCKUP
           ════════════════════════════════════════════════════════════════ */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             
-            {/* Hamburger Menu Trigger */}
+            {/* Hamburger Menu Trigger (Mobile & Quick Drawer) */}
             <button 
-              className="p-3 sm:p-2.5 -ml-2 sm:-ml-2 rounded-xl text-[var(--text)] hover:text-[var(--accent)] hover:bg-[var(--line)]/50 transition-all flex items-center justify-center gap-2 cursor-pointer group active:scale-95 shrink-0 z-50 relative"
+              className="lg:hidden p-2 sm:p-2.5 -ml-2 rounded-xl text-[var(--text)] hover:text-[var(--accent)] hover:bg-[var(--line)]/50 transition-all flex items-center justify-center gap-2 cursor-pointer group active:scale-95 shrink-0 z-50 relative"
               aria-label="Open Navigation Menu"
               onClick={() => setMenuOpen(true)}
             >
-              <div className="w-7 h-5 flex flex-col justify-between items-start relative transition-transform duration-300 group-hover:scale-105">
-                <span className="w-7 h-[2.5px] bg-current rounded-full transition-all duration-300" />
-                <span className="w-5 h-[2.5px] bg-current rounded-full transition-all duration-300 group-hover:w-7" />
-                <span className="w-7 h-[2.5px] bg-current rounded-full transition-all duration-300" />
+              <div className="w-6 h-4 flex flex-col justify-between items-start relative transition-transform duration-300 group-hover:scale-105">
+                <span className="w-6 h-[2px] bg-current rounded-full transition-all duration-300" />
+                <span className="w-4 h-[2px] bg-current rounded-full transition-all duration-300 group-hover:w-6" />
+                <span className="w-6 h-[2px] bg-current rounded-full transition-all duration-300" />
               </div>
-              <span className="hidden md:inline text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-dim)] group-hover:text-[var(--text)]">
-                Menu
-              </span>
             </button>
 
             {/* Left Corner Logo Lockup */}
@@ -143,7 +171,6 @@ export default function Header({
               className="logo-lockup group flex items-center gap-2.5 sm:gap-3 py-1 select-none"
               aria-label="Inkwave Home"
             >
-              {/* Premium Logo Mark without clunky circle overlay */}
               <div className="relative flex items-center justify-center shrink-0 w-8 h-8 sm:w-9 sm:h-9">
                 <Image 
                   src="/logo.png" 
@@ -151,13 +178,12 @@ export default function Header({
                   fill
                   sizes="36px"
                   priority
-                  className="object-contain invert brightness-200 transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-[0_0_8px_rgba(201,162,39,0.6)]" 
+                  className="object-contain invert brightness-200 transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]" 
                 />
               </div>
 
-              {/* Clean Luxury Typography */}
               <div className="relative flex flex-col justify-center shrink-0">
-                <span className="logo-brand-text font-display text-lg sm:text-2xl md:text-[23px] tracking-[0.09em] font-black uppercase whitespace-nowrap text-white group-hover:text-[var(--accent)] transition-colors duration-300">
+                <span className="logo-brand-text font-display text-lg sm:text-2xl md:text-[22px] tracking-[0.1em] font-black uppercase whitespace-nowrap text-white group-hover:text-[var(--accent)] transition-colors duration-300">
                   INKWAVE
                 </span>
                 <span className="ink-liquid-line absolute -bottom-0.5 left-0 w-full h-[1.5px] bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -166,28 +192,127 @@ export default function Header({
           </div>
 
           {/* ════════════════════════════════════════════════════════════════
-              2. RIGHT CORNER: SEARCH, WISHLIST & CART BAG ALIGNED TOGETHER
-              ════════════════════════════════════════════════════════════════ */}
-          <div className="flex items-center gap-1.5 sm:gap-3">
+              2. DESKTOP CENTER NAVIGATION LINKS (CLEAN & EDITORIAL)
+          ════════════════════════════════════════════════════════════════ */}
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+            <Link 
+              href="/collections" 
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-widest font-bold transition-all relative ${
+                isLinkActive('/collections') 
+                  ? 'text-white' 
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <span>SHOP</span>
+              {isLinkActive('/collections') && (
+                <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-white rounded-full" />
+              )}
+            </Link>
+
+            <Link 
+              href={tshirtsHref} 
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-widest font-bold transition-all relative ${
+                pathname === tshirtsHref 
+                  ? 'text-white' 
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <span>T-SHIRTS</span>
+              {pathname === tshirtsHref && (
+                <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-white rounded-full" />
+              )}
+            </Link>
+
+            <Link 
+              href={bottomsHref} 
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-widest font-bold transition-all relative ${
+                pathname === bottomsHref 
+                  ? 'text-white' 
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <span>BOTTOMS</span>
+              {pathname === bottomsHref && (
+                <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-white rounded-full" />
+              )}
+            </Link>
+
+            <Link 
+              href="/showcase" 
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-widest font-bold transition-all relative ${
+                isLinkActive('/showcase') 
+                  ? 'text-white' 
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <span className="flex items-center gap-1">
+                <span>NEW ARRIVALS</span>
+              </span>
+              {isLinkActive('/showcase') && (
+                <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-white rounded-full" />
+              )}
+            </Link>
+
+            {showPrintLab && (
+              <Link 
+                href="/custom-print" 
+                className={`ml-1 px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider font-bold transition-all flex items-center gap-1.5 border ${
+                  isLinkActive('/custom-print')
+                    ? 'bg-white text-black border-white shadow-sm'
+                    : 'bg-white/5 text-neutral-300 border-white/15 hover:border-white/40 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Wand2 className="w-3 h-3 text-[var(--accent)]" />
+                <span>3D LAB</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-mono">
+                  ₹600
+                </span>
+              </Link>
+            )}
+          </nav>
+
+          {/* ════════════════════════════════════════════════════════════════
+              3. RIGHT: SEARCH, ACCOUNT, WISHLIST & CART BAG
+          ════════════════════════════════════════════════════════════════ */}
+          <div className="flex items-center gap-1 sm:gap-2.5">
             
             {/* Search Icon */}
             <button 
-              className="icon-btn p-1.5 rounded-full hover:text-[var(--accent)] transition-all cursor-pointer active:scale-90" 
-              aria-label="Search" 
-              onClick={() => setSearchOpen(true)}
+              className="p-2 rounded-full text-neutral-300 hover:text-white hover:bg-white/5 transition-all cursor-pointer active:scale-90" 
+              aria-label="Search Catalog" 
+              onClick={() => setCombinedSearchOpen(true)}
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
+
+            {/* Account Icon / Link */}
+            {user ? (
+              <Link 
+                href="/profile" 
+                className="p-2 rounded-full text-neutral-300 hover:text-white hover:bg-white/5 transition-all active:scale-90 hidden sm:flex items-center justify-center"
+                aria-label="User Profile"
+              >
+                <User className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Link>
+            ) : (
+              <button 
+                onClick={() => setAuthModalOpen(true)}
+                className="p-2 rounded-full text-neutral-300 hover:text-white hover:bg-white/5 transition-all active:scale-90 hidden sm:flex items-center justify-center cursor-pointer"
+                aria-label="Sign In"
+              >
+                <User className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            )}
 
             {/* Wishlist Icon */}
             <Link 
               href="/wishlist" 
-              className="icon-btn relative p-1.5 rounded-full hover:text-[var(--accent)] transition-all active:scale-90 hidden sm:flex" 
-              aria-label="Wishlist"
+              className="relative p-2 rounded-full text-neutral-300 hover:text-white hover:bg-white/5 transition-all active:scale-90 hidden sm:flex items-center justify-center" 
+              aria-label="Saved Wishlist"
             >
-              <Heart className="w-5 h-5" />
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] font-black flex items-center justify-center font-mono shadow-sm animate-pulse">
+                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] font-black flex items-center justify-center font-mono shadow-sm">
                   {wishlistCount}
                 </span>
               )}
@@ -195,14 +320,16 @@ export default function Header({
 
             {/* Cart Drawer Trigger */}
             <button 
-              className="icon-btn relative p-1.5 rounded-full hover:text-[var(--accent)] transition-all cursor-pointer active:scale-90" 
-              aria-label="Cart"
+              className="relative p-2 rounded-full text-neutral-300 hover:text-white hover:bg-white/5 transition-all cursor-pointer active:scale-90 flex items-center justify-center" 
+              aria-label="Shopping Bag"
               onClick={() => setCartDrawerOpen(true)}
             >
-              <ShoppingBag className="w-5 h-5" />
-              <span className={`bag-count ${cartItemsCount > 0 ? 'show' : ''}`}>
-                {cartItemsCount}
-              </span>
+              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
+              {cartItemsCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-white text-black rounded-full text-[9px] font-black flex items-center justify-center font-mono shadow-sm">
+                  {cartItemsCount}
+                </span>
+              )}
             </button>
 
           </div>
@@ -441,7 +568,7 @@ export default function Header({
         )}
       </AnimatePresence>
 
-      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+      <SearchModal isOpen={isSearchActive} onClose={() => setCombinedSearchOpen(false)} />
     </>
   );
 }
