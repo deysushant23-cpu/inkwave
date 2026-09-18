@@ -7,7 +7,8 @@ import {
   LayoutGrid, Tag, Check, ArrowUpRight, Search, Palette,
   Film, Eye, Sliders, Play, SunMedium, ZoomIn, Layers,
   RotateCw, ToggleLeft, ToggleRight, SlidersHorizontal, CheckCircle2,
-  ArrowUp, ArrowDown, ShoppingBag, Package, ExternalLink, Filter
+  ArrowUp, ArrowDown, ShoppingBag, Package, ExternalLink, Filter,
+  Flame, ArrowRight, ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import MediaUploader from '@/components/admin/MediaUploader';
@@ -309,10 +310,31 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
   const [themeLine, setThemeLine] = useState('rgba(237,234,232,0.12)');
 
   // ── Tab 9: New Drops State
-  const [newDrops, setNewDrops] = useState<string[]>([]);
+  const [newDropsShow, setNewDropsShow] = useState(true);
+  const [newDropsMode, setNewDropsMode] = useState<'custom' | 'auto'>('custom');
+  const [newDropsEyebrow, setNewDropsEyebrow] = useState('DROP 001 // LIMITED EDITION');
+  const [newDropsTitle, setNewDropsTitle] = useState('THE LATEST DROP');
+  const [newDropsSubtitle, setNewDropsSubtitle] = useState('Engineered with 240 GSM heavy French Terry cotton. Limited batch runs.');
+  const [newDropsViewAllText, setNewDropsViewAllText] = useState('View Full Drop');
+  const [newDropsViewAllLink, setNewDropsViewAllLink] = useState('/collections');
+  const [newDropsShowBottomBtn, setNewDropsShowBottomBtn] = useState(true);
+  const [newDropsBottomBtnText, setNewDropsBottomBtnText] = useState('EXPLORE ALL NEW ARRIVALS');
+  const [newDropsBottomBtnLink, setNewDropsBottomBtnLink] = useState('/collections');
+  const [newDropsSelectedItems, setNewDropsSelectedItems] = useState<ShowcaseProductItem[]>([]);
+  const [newDropsProductSearch, setNewDropsProductSearch] = useState('');
+  const [newDropsCategoryFilter, setNewDropsCategoryFilter] = useState('all');
 
-  // ── Tab Bestsellers State
-  const [bestsellers, setBestsellers] = useState<string[]>([]);
+  // ── Tab Bestsellers / Inkwave Picks State
+  const [bestsellersShow, setBestsellersShow] = useState(true);
+  const [bestsellersMode, setBestsellersMode] = useState<'custom' | 'auto'>('custom');
+  const [bestsellersEyebrow, setBestsellersEyebrow] = useState('HELD THEIR SHAPE // COMMUNITY FAVORITES');
+  const [bestsellersTitle, setBestsellersTitle] = useState('THE INKWAVE PICKS');
+  const [bestsellersSubtitle, setBestsellersSubtitle] = useState('The pieces getting the most attention right now.');
+  const [bestsellersViewAllText, setBestsellersViewAllText] = useState('View Bestsellers');
+  const [bestsellersViewAllLink, setBestsellersViewAllLink] = useState('/collections');
+  const [bestsellersSelectedItems, setBestsellersSelectedItems] = useState<ShowcaseProductItem[]>([]);
+  const [bestsellersProductSearch, setBestsellersProductSearch] = useState('');
+  const [bestsellersCategoryFilter, setBestsellersCategoryFilter] = useState('all');
 
   // ── Tab 10: Reels State
   const [reels, setReels] = useState<any[]>([]);
@@ -597,14 +619,77 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
 
       // 10. Process New Drops Config
       const newDropsData = sectionMap.get('new_drops_config');
-      if (newDropsData?.slugs) {
-        setNewDrops(newDropsData.slugs);
+      if (newDropsData) {
+        if (typeof newDropsData.show === 'boolean') setNewDropsShow(newDropsData.show);
+        if (newDropsData.mode) setNewDropsMode(newDropsData.mode);
+        if (newDropsData.eyebrow) setNewDropsEyebrow(newDropsData.eyebrow);
+        if (newDropsData.title) setNewDropsTitle(newDropsData.title);
+        if (newDropsData.subtitle !== undefined) setNewDropsSubtitle(newDropsData.subtitle);
+        if (newDropsData.viewAllText) setNewDropsViewAllText(newDropsData.viewAllText);
+        if (newDropsData.viewAllLink) setNewDropsViewAllLink(newDropsData.viewAllLink);
+        if (typeof newDropsData.showBottomButton === 'boolean') setNewDropsShowBottomBtn(newDropsData.showBottomButton);
+        if (newDropsData.bottomButtonText) setNewDropsBottomBtnText(newDropsData.bottomButtonText);
+        if (newDropsData.bottomButtonLink) setNewDropsBottomBtnLink(newDropsData.bottomButtonLink);
+
+        if (Array.isArray(newDropsData.items) && newDropsData.items.length > 0) {
+          setNewDropsSelectedItems(newDropsData.items);
+        } else if (Array.isArray(newDropsData.slugs) && newDropsData.slugs.length > 0) {
+          setNewDropsSelectedItems(newDropsData.slugs.map((s: string) => ({ slug: s, badge: 'HOT DROP' })));
+        } else {
+          const listToUse = initialProducts && initialProducts.length > 0 ? initialProducts : dbProducts;
+          if (listToUse && listToUse.length > 0) {
+            setNewDropsSelectedItems(listToUse.slice(0, 8).map((p: any, idx: number) => ({
+              slug: p.slug,
+              badge: idx === 0 ? 'DROP 001' : idx === 1 ? 'HOT DROP' : idx === 2 ? '240 GSM' : 'LIMITED'
+            })));
+          }
+        }
+      } else {
+        const listToUse = initialProducts && initialProducts.length > 0 ? initialProducts : dbProducts;
+        if (listToUse && listToUse.length > 0) {
+          setNewDropsSelectedItems(listToUse.slice(0, 8).map((p: any, idx: number) => ({
+            slug: p.slug,
+            badge: idx === 0 ? 'DROP 001' : idx === 1 ? 'HOT DROP' : idx === 2 ? '240 GSM' : 'LIMITED'
+          })));
+        }
       }
 
-      // Process Bestsellers Config
+      // Process Bestsellers / Inkwave Picks Config
       const bestsellersData = sectionMap.get('bestsellers_config');
-      if (bestsellersData?.slugs) {
-        setBestsellers(bestsellersData.slugs);
+      if (bestsellersData) {
+        if (typeof bestsellersData.show === 'boolean') setBestsellersShow(bestsellersData.show);
+        if (bestsellersData.mode) setBestsellersMode(bestsellersData.mode);
+        if (bestsellersData.eyebrow) setBestsellersEyebrow(bestsellersData.eyebrow);
+        if (bestsellersData.title) setBestsellersTitle(bestsellersData.title);
+        if (bestsellersData.subtitle !== undefined) setBestsellersSubtitle(bestsellersData.subtitle);
+        if (bestsellersData.viewAllText) setBestsellersViewAllText(bestsellersData.viewAllText);
+        if (bestsellersData.viewAllLink) setBestsellersViewAllLink(bestsellersData.viewAllLink);
+
+        if (Array.isArray(bestsellersData.items) && bestsellersData.items.length > 0) {
+          setBestsellersSelectedItems(bestsellersData.items);
+        } else if (Array.isArray(bestsellersData.slugs) && bestsellersData.slugs.length > 0) {
+          setBestsellersSelectedItems(bestsellersData.slugs.map((s: string) => ({ slug: s, badge: 'BESTSELLER' })));
+        } else {
+          const listToUse = initialProducts && initialProducts.length > 0 ? initialProducts : dbProducts;
+          const bestProds = listToUse.filter((p: any) => p.is_bestseller);
+          const fallback = bestProds.length > 0 ? bestProds : listToUse.slice(0, 8);
+          if (fallback && fallback.length > 0) {
+            setBestsellersSelectedItems(fallback.slice(0, 8).map((p: any, idx: number) => ({
+              slug: p.slug,
+              badge: idx === 0 ? 'BESTSELLER' : idx === 1 ? 'VIRAL FIT' : idx === 2 ? 'RESTOCKED' : 'COMMUNITY FAV'
+            })));
+          }
+        }
+      } else {
+        const listToUse = initialProducts && initialProducts.length > 0 ? initialProducts : dbProducts;
+        const bestProds = listToUse.filter((p: any) => p.is_bestseller);
+        const fallback = bestProds.length > 0 ? bestProds : listToUse.slice(0, 8);
+        if (fallback && fallback.length > 0) {
+          setBestsellersSelectedItems(fallback.slice(0, 8).map((p: any, idx: number) => ({
+            slug: p.slug,
+            badge: idx === 0 ? 'BESTSELLER' : idx === 1 ? 'VIRAL FIT' : idx === 2 ? 'RESTOCKED' : 'COMMUNITY FAV'
+          })));
+        }
       }
 
       // 11. Process Reels Config
@@ -885,12 +970,176 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
 
   /* ── Tab 9: New Drops Actions ─────────────────────────────────────────── */
   const handleSaveNewDrops = () => {
-    saveSectionKey('new_drops_config', { slugs: newDrops.filter(Boolean) }, 'New Drops products updated successfully!');
+    const payload = {
+      show: newDropsShow,
+      mode: newDropsMode,
+      eyebrow: newDropsEyebrow,
+      title: newDropsTitle,
+      subtitle: newDropsSubtitle,
+      viewAllText: newDropsViewAllText,
+      viewAllLink: newDropsViewAllLink,
+      showBottomButton: newDropsShowBottomBtn,
+      bottomButtonText: newDropsBottomBtnText,
+      bottomButtonLink: newDropsBottomBtnLink,
+      slugs: newDropsSelectedItems.map(i => i.slug).filter(Boolean),
+      items: newDropsSelectedItems
+    };
+    saveSectionKey('new_drops_config', payload, 'Latest Drops configuration saved live!');
+  };
+
+  const handleAddDropProduct = (slug: string, badge?: string) => {
+    if (!slug) return;
+    if (newDropsSelectedItems.some(p => p.slug === slug)) {
+      toast.info('This product is already in Latest Drops');
+      return;
+    }
+    setNewDropsSelectedItems([...newDropsSelectedItems, { slug, badge: badge || 'HOT DROP' }]);
+    toast.success('Product added to Latest Drops!');
+  };
+
+  const handleRemoveDropProduct = (index: number) => {
+    setNewDropsSelectedItems(newDropsSelectedItems.filter((_, i) => i !== index));
+  };
+
+  const handleMoveDropProductUp = (index: number) => {
+    if (index === 0) return;
+    const list = [...newDropsSelectedItems];
+    const item = list[index];
+    list[index] = list[index - 1];
+    list[index - 1] = item;
+    setNewDropsSelectedItems(list);
+  };
+
+  const handleMoveDropProductDown = (index: number) => {
+    if (index >= newDropsSelectedItems.length - 1) return;
+    const list = [...newDropsSelectedItems];
+    const item = list[index];
+    list[index] = list[index + 1];
+    list[index + 1] = item;
+    setNewDropsSelectedItems(list);
+  };
+
+  const handleUpdateDropBadge = (index: number, badge: string) => {
+    const list = [...newDropsSelectedItems];
+    list[index] = { ...list[index], badge };
+    setNewDropsSelectedItems(list);
+  };
+
+  const handleResetDropProducts = () => {
+    const defaultList = dbProducts.slice(0, 8).map((p, idx) => ({
+      slug: p.slug,
+      badge: idx === 0 ? 'DROP 001' : idx === 1 ? 'HOT DROP' : idx === 2 ? '240 GSM' : 'LIMITED'
+    }));
+    setNewDropsSelectedItems(defaultList);
+    toast.success('Reset Latest Drops to 8 newest catalog products');
+  };
+
+  const handleAddAllCategoryToDrops = (categoryKeyword: string) => {
+    const catProducts = dbProducts.filter(p => {
+      if (categoryKeyword === 'all') return true;
+      const catName = p.categories?.name?.toLowerCase() || '';
+      const pTitle = p.title?.toLowerCase() || '';
+      return catName.includes(categoryKeyword.toLowerCase()) || pTitle.includes(categoryKeyword.toLowerCase());
+    });
+
+    const newItems = catProducts
+      .filter(p => !newDropsSelectedItems.some(sp => sp.slug === p.slug))
+      .map(p => ({ slug: p.slug, badge: 'HOT DROP' }));
+
+    if (newItems.length === 0) {
+      toast.info('All matched products are already in Latest Drops');
+      return;
+    }
+
+    setNewDropsSelectedItems([...newDropsSelectedItems, ...newItems]);
+    toast.success(`Added ${newItems.length} products to Latest Drops!`);
   };
 
   /* ── Tab Bestsellers Actions ─────────────────────────────────────────── */
   const handleSaveBestsellers = () => {
-    saveSectionKey('bestsellers_config', { slugs: bestsellers.filter(Boolean) }, 'Bestsellers products updated successfully!');
+    const payload = {
+      show: bestsellersShow,
+      mode: bestsellersMode,
+      eyebrow: bestsellersEyebrow,
+      title: bestsellersTitle,
+      subtitle: bestsellersSubtitle,
+      viewAllText: bestsellersViewAllText,
+      viewAllLink: bestsellersViewAllLink,
+      slugs: bestsellersSelectedItems.map(i => i.slug).filter(Boolean),
+      items: bestsellersSelectedItems
+    };
+    saveSectionKey('bestsellers_config', payload, 'Inkwave Picks / Bestsellers configuration saved live!');
+  };
+
+  const handleAddBestsellerProduct = (slug: string, badge?: string) => {
+    if (!slug) return;
+    if (bestsellersSelectedItems.some(p => p.slug === slug)) {
+      toast.info('This product is already in Inkwave Picks');
+      return;
+    }
+    setBestsellersSelectedItems([...bestsellersSelectedItems, { slug, badge: badge || 'BESTSELLER' }]);
+    toast.success('Product added to Inkwave Picks!');
+  };
+
+  const handleRemoveBestsellerProduct = (index: number) => {
+    setBestsellersSelectedItems(bestsellersSelectedItems.filter((_, i) => i !== index));
+  };
+
+  const handleMoveBestsellerProductUp = (index: number) => {
+    if (index === 0) return;
+    const list = [...bestsellersSelectedItems];
+    const item = list[index];
+    list[index] = list[index - 1];
+    list[index - 1] = item;
+    setBestsellersSelectedItems(list);
+  };
+
+  const handleMoveBestsellerProductDown = (index: number) => {
+    if (index >= bestsellersSelectedItems.length - 1) return;
+    const list = [...bestsellersSelectedItems];
+    const item = list[index];
+    list[index] = list[index + 1];
+    list[index + 1] = item;
+    setBestsellersSelectedItems(list);
+  };
+
+  const handleUpdateBestsellerBadge = (index: number, badge: string) => {
+    const list = [...bestsellersSelectedItems];
+    list[index] = { ...list[index], badge };
+    setBestsellersSelectedItems(list);
+  };
+
+  const handleResetBestsellerProducts = () => {
+    const bestProds = dbProducts.filter((p: any) => p.is_bestseller);
+    const source = bestProds.length > 0 ? bestProds : dbProducts;
+    const defaultList = source.slice(0, 8).map((p, idx) => ({
+      slug: p.slug,
+      badge: idx === 0 ? 'BESTSELLER' : idx === 1 ? 'VIRAL FIT' : idx === 2 ? 'RESTOCKED' : 'COMMUNITY FAV'
+    }));
+    setBestsellersSelectedItems(defaultList);
+    toast.success('Reset Inkwave Picks to top bestsellers');
+  };
+
+  const handleAddAllCategoryToBestsellers = (categoryKeyword: string) => {
+    const catProducts = dbProducts.filter(p => {
+      if (categoryKeyword === 'all') return true;
+      if (categoryKeyword === 'bestsellers') return p.is_bestseller;
+      const catName = p.categories?.name?.toLowerCase() || '';
+      const pTitle = p.title?.toLowerCase() || '';
+      return catName.includes(categoryKeyword.toLowerCase()) || pTitle.includes(categoryKeyword.toLowerCase());
+    });
+
+    const newItems = catProducts
+      .filter(p => !bestsellersSelectedItems.some(sp => sp.slug === p.slug))
+      .map(p => ({ slug: p.slug, badge: 'BESTSELLER' }));
+
+    if (newItems.length === 0) {
+      toast.info('All matched products are already in Inkwave Picks');
+      return;
+    }
+
+    setBestsellersSelectedItems([...bestsellersSelectedItems, ...newItems]);
+    toast.success(`Added ${newItems.length} products to Inkwave Picks!`);
   };
 
   /* ── Tab 1: Hero & Marquee Actions ────────────────────────────────────── */
@@ -3711,99 +3960,1123 @@ export default function StorefrontManageClient({ initialProducts, initialCategor
           </div>
         )}
 
-        {/* ══ Tab 9: New Drops ═════════════════════════════════════════ */}
+        {/* ══ Tab 9: Latest Drops ═════════════════════════════════════ */}
         {activeTab === 'newdrops' && (
-          <div className="space-y-6">
-            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6">
-              <div className="flex justify-between items-center mb-6 border-b border-[var(--line)] pb-4">
-                <div>
-                  <h3 className="font-display text-xl font-bold uppercase text-[var(--text)]">New Drops Carousel</h3>
-                  <p className="text-[10px] uppercase tracking-widest text-[var(--text-dim)] mt-1">Select exactly 8 products to feature. If left empty, the 8 newest products are auto-selected.</p>
+          <div className="space-y-8">
+            {/* Top Control Bar & Live Route Links */}
+            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-display text-xl font-bold uppercase text-[var(--text)]">
+                    Latest Drops (Homepage Section 3)
+                  </h3>
+                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 bg-[var(--accent)] text-[var(--bg)]">
+                    CMS Key: new_drops_config
+                  </span>
                 </div>
-                <button onClick={handleSaveNewDrops} disabled={savingTab} className="bg-[var(--accent)] text-[var(--bg)] font-bold px-5 py-2 text-xs uppercase tracking-wider hover:opacity-90 flex items-center gap-1 shrink-0">
-                  <Save className="w-3.5 h-3.5" /> Save Section
+                <p className="text-xs text-[var(--text-dim)] mt-1">
+                  Manage the editorial headline, limited batch tags, view all button links, and curating product order with marketing badges.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                <a 
+                  href="/#latest-drops" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 px-4 py-2 border border-[var(--line)] text-xs font-bold uppercase tracking-wider text-[var(--text-dim)] hover:text-white hover:border-white/40 transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" /> View Section
+                </a>
+                <button 
+                  type="button" 
+                  onClick={handleSaveNewDrops} 
+                  disabled={savingTab} 
+                  className="bg-[var(--accent)] text-[var(--bg)] font-bold px-6 py-2.5 text-xs uppercase tracking-wider hover:opacity-90 flex items-center gap-1.5 shrink-0 shadow-lg"
+                >
+                  {savingTab ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Drops Live
                 </button>
               </div>
-              
-              <div className="space-y-3">
-                {newDrops.map((slug, idx) => (
-                  <div key={idx} className="flex gap-4 items-center bg-[var(--bg)] border border-[var(--line)] p-3">
-                    <div className="font-mono text-[9px] text-[var(--text-dim)] uppercase tracking-widest w-12 shrink-0">SLOT 0{idx + 1}</div>
-                    <select 
-                      value={slug} 
-                      onChange={e => {
-                        const newArr = [...newDrops];
-                        newArr[idx] = e.target.value;
-                        setNewDrops(newArr);
-                      }} 
-                      className="flex-1 bg-transparent border-none text-xs font-bold text-[var(--text)] outline-none cursor-pointer"
+            </div>
+
+            {/* Section 1: Visibility, Mode & Editorial Headlines */}
+            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[var(--line)] pb-3">
+                <div className="flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-[var(--accent)]" />
+                  <h4 className="font-display text-sm font-bold uppercase tracking-wider text-[var(--text)]">
+                    1. Display Mode & Editorial Headlines
+                  </h4>
+                </div>
+
+                {/* Section Visibility Switch */}
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input 
+                    type="checkbox" 
+                    checked={newDropsShow} 
+                    onChange={e => setNewDropsShow(e.target.checked)}
+                    className="accent-[var(--accent)] w-4 h-4"
+                  />
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text)]">
+                    Section Enabled on Homepage
+                  </span>
+                </label>
+              </div>
+
+              {/* Mode Switch */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                  onClick={() => setNewDropsMode('custom')}
+                  className={`p-4 border cursor-pointer transition-all ${newDropsMode === 'custom' ? 'border-[var(--accent)] bg-[var(--accent)]/5' : 'border-[var(--line)] bg-[var(--bg)] hover:border-[var(--text-dim)]'}`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <input 
+                      type="radio" 
+                      name="new_drops_mode" 
+                      checked={newDropsMode === 'custom'} 
+                      onChange={() => setNewDropsMode('custom')}
+                      className="accent-[var(--accent)]"
+                    />
+                    <span className="font-bold text-xs uppercase tracking-wider text-[var(--text)]">
+                      Curated Manual Drops (Recommended)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[var(--text-dim)] pl-5">
+                    Explicitly select products, arrange exact positions, and assign custom drop badges (e.g. &quot;DROP 001&quot;, &quot;HOT DROP&quot;, &quot;240 GSM&quot;).
+                  </p>
+                </div>
+
+                <div 
+                  onClick={() => setNewDropsMode('auto')}
+                  className={`p-4 border cursor-pointer transition-all ${newDropsMode === 'auto' ? 'border-[var(--accent)] bg-[var(--accent)]/5' : 'border-[var(--line)] bg-[var(--bg)] hover:border-[var(--text-dim)]'}`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <input 
+                      type="radio" 
+                      name="new_drops_mode" 
+                      checked={newDropsMode === 'auto'} 
+                      onChange={() => setNewDropsMode('auto')}
+                      className="accent-[var(--accent)]"
+                    />
+                    <span className="font-bold text-xs uppercase tracking-wider text-[var(--text)]">
+                      All Newest Catalog (Auto Chronological)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[var(--text-dim)] pl-5">
+                    Automatically display the 8 newest uploaded catalog products in chronological order.
+                  </p>
+                </div>
+              </div>
+
+              {/* Editorial Texts */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="block text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                    Eyebrow / Sub-tag
+                  </label>
+                  <input 
+                    type="text" 
+                    value={newDropsEyebrow} 
+                    onChange={e => setNewDropsEyebrow(e.target.value)}
+                    placeholder="e.g. DROP 001 // LIMITED EDITION"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                    Main Headline Title
+                  </label>
+                  <input 
+                    type="text" 
+                    value={newDropsTitle} 
+                    onChange={e => setNewDropsTitle(e.target.value)}
+                    placeholder="e.g. THE LATEST DROP"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)] font-bold"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                    Section Subtitle / Description
+                  </label>
+                  <textarea 
+                    rows={2}
+                    value={newDropsSubtitle} 
+                    onChange={e => setNewDropsSubtitle(e.target.value)}
+                    placeholder="e.g. Engineered with 240 GSM heavy French Terry cotton. Limited batch runs."
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)] resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                    Header &quot;View All&quot; Text
+                  </label>
+                  <input 
+                    type="text" 
+                    value={newDropsViewAllText} 
+                    onChange={e => setNewDropsViewAllText(e.target.value)}
+                    placeholder="e.g. View Full Drop"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                    Header &quot;View All&quot; Link URL
+                  </label>
+                  <input 
+                    type="text" 
+                    value={newDropsViewAllLink} 
+                    onChange={e => setNewDropsViewAllLink(e.target.value)}
+                    placeholder="e.g. /collections or /category/all"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)]"
+                  />
+                </div>
+
+                <div className="md:col-span-2 flex items-center gap-2 pt-2">
+                  <input 
+                    type="checkbox" 
+                    id="new_drops_show_bottom_btn"
+                    checked={newDropsShowBottomBtn} 
+                    onChange={e => setNewDropsShowBottomBtn(e.target.checked)}
+                    className="accent-[var(--accent)] w-4 h-4"
+                  />
+                  <label htmlFor="new_drops_show_bottom_btn" className="text-xs font-bold uppercase tracking-wider text-[var(--text)] cursor-pointer">
+                    Show Big Bottom Action Button
+                  </label>
+                </div>
+
+                {newDropsShowBottomBtn && (
+                  <>
+                    <div>
+                      <label className="block text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                        Bottom Button Text
+                      </label>
+                      <input 
+                        type="text" 
+                        value={newDropsBottomBtnText} 
+                        onChange={e => setNewDropsBottomBtnText(e.target.value)}
+                        placeholder="e.g. EXPLORE ALL NEW ARRIVALS"
+                        className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                        Bottom Button Link URL
+                      </label>
+                      <input 
+                        type="text" 
+                        value={newDropsBottomBtnLink} 
+                        onChange={e => setNewDropsBottomBtnLink(e.target.value)}
+                        placeholder="e.g. /collections"
+                        className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)]"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Section 2: Product Curator & Order */}
+            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[var(--line)] pb-3">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="w-4 h-4 text-[var(--accent)]" />
+                  <h4 className="font-display text-sm font-bold uppercase tracking-wider text-[var(--text)]">
+                    2. Curated Drops Products & Grid Order ({newDropsSelectedItems.length} Products Configured)
+                  </h4>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <button 
+                    type="button" 
+                    onClick={handleResetDropProducts}
+                    className="px-3 py-1.5 border border-[var(--line)] text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] hover:text-white hover:border-white/30"
+                  >
+                    Reset (Top 8 Catalog)
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setNewDropsSelectedItems([])}
+                    className="px-3 py-1.5 border border-red-500/20 text-[10px] font-bold uppercase tracking-wider text-red-400 hover:bg-red-500/10"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Add & Filter Bar */}
+              <div className="bg-[var(--bg)] border border-[var(--line)] p-4 space-y-4">
+                <div className="flex flex-col md:flex-row gap-3 items-center">
+                  <div className="relative flex-1 w-full">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-dim)]" />
+                    <input 
+                      type="text" 
+                      value={newDropsProductSearch} 
+                      onChange={e => setNewDropsProductSearch(e.target.value)}
+                      placeholder="Search catalog products by name or slug to add..."
+                      className="w-full bg-[var(--bg-card)] border border-[var(--line)] pl-9 pr-3 py-2 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)]"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full md:w-auto">
+                    <select
+                      value={newDropsCategoryFilter}
+                      onChange={e => setNewDropsCategoryFilter(e.target.value)}
+                      className="bg-[var(--bg-card)] border border-[var(--line)] px-3 py-2 text-xs text-[var(--text)] font-mono outline-none cursor-pointer"
                     >
-                      <option value="">-- Auto-select from latest --</option>
-                      {dbProducts.map(p => (
-                        <option key={p.slug} value={p.slug}>{p.title} (₹{p.base_price})</option>
+                      <option value="all">All Categories</option>
+                      {dbCategories.map(c => (
+                        <option key={c.id} value={c.slug}>{c.name}</option>
                       ))}
                     </select>
-                    <button onClick={() => setNewDrops(newDrops.filter((_, i) => i !== idx))} className="text-red-400 hover:text-red-300 px-3 py-1.5 border border-red-500/20 text-[10px] font-bold uppercase tracking-wider">Remove</button>
                   </div>
-                ))}
-                
-                {newDrops.length < 8 && (
-                  <button 
-                    onClick={() => setNewDrops([...newDrops, ''])} 
-                    className="w-full border border-dashed border-[var(--line)] py-4 text-xs font-bold uppercase tracking-wider text-[var(--text-dim)] hover:text-[var(--text)] hover:border-[var(--text)] transition-colors"
-                  >
-                    + Assign Manual Product ({8 - newDrops.length} slots remain)
-                  </button>
+                </div>
+
+                {/* Filtered Catalog Picker Dropdown */}
+                {(() => {
+                  const filtered = dbProducts.filter(p => {
+                    const matchesSearch = !newDropsProductSearch || 
+                      p.title?.toLowerCase().includes(newDropsProductSearch.toLowerCase()) ||
+                      p.slug?.toLowerCase().includes(newDropsProductSearch.toLowerCase());
+                    const matchesCat = newDropsCategoryFilter === 'all' || 
+                      p.categories?.slug === newDropsCategoryFilter ||
+                      p.categories?.name?.toLowerCase().includes(newDropsCategoryFilter.toLowerCase());
+                    return matchesSearch && matchesCat;
+                  });
+
+                  return (
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider">
+                          Click any product below to instantly add to Latest Drops:
+                        </span>
+                        <span className="text-[10px] font-mono text-[var(--text-dim)]">
+                          {filtered.length} products available
+                        </span>
+                      </div>
+
+                      <div className="max-h-56 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 pr-1">
+                        {filtered.slice(0, 16).map(p => {
+                          const isAlreadyAdded = newDropsSelectedItems.some(sp => sp.slug === p.slug);
+                          const thumb = (p.images && p.images[0]) || p.overlay_mask_url || 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=200&auto=format&fit=crop';
+                          
+                          return (
+                            <button
+                              key={p.slug}
+                              type="button"
+                              onClick={() => handleAddDropProduct(p.slug, 'HOT DROP')}
+                              disabled={isAlreadyAdded}
+                              className={`flex items-center gap-2 p-2 border text-left transition-all ${
+                                isAlreadyAdded 
+                                  ? 'opacity-40 border-[var(--line)] bg-[var(--bg-card)] cursor-not-allowed' 
+                                  : 'border-[var(--line)] bg-[var(--bg-card)] hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 cursor-pointer'
+                              }`}
+                            >
+                              <img src={thumb} alt={p.title} className="w-10 h-10 object-cover shrink-0 bg-neutral-900 border border-[var(--line)]" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[11px] font-bold text-[var(--text)] truncate">{p.title}</p>
+                                <div className="flex items-center justify-between text-[10px] text-[var(--text-dim)] font-mono mt-0.5">
+                                  <span>₹{Number(p.base_price || p.price || 0).toLocaleString('en-IN')}</span>
+                                  {isAlreadyAdded ? (
+                                    <span className="text-[var(--accent)] font-bold">Added</span>
+                                  ) : (
+                                    <span className="text-[var(--text-dim)] group-hover:text-white">+ Add</span>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* 1-Click Category Batch Helpers */}
+                      <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-[var(--line)]">
+                        <span className="text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mr-1">
+                          Quick Add Category:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleAddAllCategoryToDrops('tee')}
+                          className="px-2.5 py-1 text-[10px] font-mono border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/30"
+                        >
+                          + All T-Shirts
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAddAllCategoryToDrops('jean')}
+                          className="px-2.5 py-1 text-[10px] font-mono border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/30"
+                        >
+                          + All Jeans
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAddAllCategoryToDrops('hoodie')}
+                          className="px-2.5 py-1 text-[10px] font-mono border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/30"
+                        >
+                          + All Hoodies
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAddAllCategoryToDrops('polo')}
+                          className="px-2.5 py-1 text-[10px] font-mono border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/30"
+                        >
+                          + All Polos
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAddAllCategoryToDrops('all')}
+                          className="px-2.5 py-1 text-[10px] font-mono border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/30"
+                        >
+                          + Add Entire Catalog
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Active Selected Products List & Ordering */}
+              <div>
+                <h5 className="text-[11px] font-bold text-[var(--text)] uppercase tracking-wider mb-3">
+                  Current Latest Drops Order ({newDropsSelectedItems.length} Products):
+                </h5>
+
+                {newDropsSelectedItems.length === 0 ? (
+                  <div className="p-8 text-center border border-dashed border-[var(--line)] bg-[var(--bg)] space-y-2">
+                    <Package className="w-8 h-8 mx-auto text-[var(--text-dim)]" />
+                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-dim)]">
+                      No Products Selected For Latest Drops
+                    </p>
+                    <p className="text-[11px] text-[var(--text-dim)] max-w-md mx-auto">
+                      Click the &quot;Reset (Top 8 Catalog)&quot; button or search products above to add them to the drops grid.
+                    </p>
+                    <button 
+                      type="button"
+                      onClick={handleResetDropProducts}
+                      className="mt-2 px-4 py-2 bg-[var(--accent)] text-[var(--bg)] text-xs font-bold uppercase tracking-wider"
+                    >
+                      Populate with 8 Catalog Products
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {newDropsSelectedItems.map((item, index) => {
+                      const prod = dbProducts.find(p => p.slug === item.slug);
+                      const thumb = (prod?.images && prod.images[0]) || prod?.overlay_mask_url || 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=200&auto=format&fit=crop';
+                      const title = prod?.title || item.slug;
+                      const price = prod?.base_price ?? prod?.price ?? 0;
+                      const category = prod?.categories?.name || 'Streetwear';
+
+                      return (
+                        <div 
+                          key={`${item.slug}-${index}`}
+                          className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 bg-[var(--bg)] border border-[var(--line)] hover:border-white/20 transition-all"
+                        >
+                          {/* Left: Position & Thumbnail & Info */}
+                          <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                            <span className="font-mono text-xs font-bold text-[var(--text-dim)] w-7 shrink-0 text-center">
+                              0{index + 1}
+                            </span>
+                            
+                            <img 
+                              src={thumb} 
+                              alt={title} 
+                              className="w-12 h-12 object-cover bg-neutral-900 border border-[var(--line)] shrink-0 rounded-none" 
+                            />
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h6 className="text-xs font-bold text-[var(--text)] uppercase tracking-wide truncate">
+                                  {title}
+                                </h6>
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[var(--bg-card)] border border-[var(--line)] text-[var(--text-dim)] uppercase shrink-0">
+                                  {category}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3 mt-1 text-[11px] font-mono text-[var(--text-dim)]">
+                                <span>₹{Number(price).toLocaleString('en-IN')}</span>
+                                <span className="text-[10px] text-neutral-500 truncate font-mono">slug: {item.slug}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right: Badge Customizer & Reorder Buttons */}
+                          <div className="flex items-center gap-2 shrink-0 pl-10 md:pl-0">
+                            {/* Badge Selector */}
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-dim)]">
+                                Badge:
+                              </span>
+                              <select
+                                value={item.badge || 'HOT DROP'}
+                                onChange={e => handleUpdateDropBadge(index, e.target.value)}
+                                className="bg-[var(--bg-card)] border border-[var(--line)] px-2 py-1 text-[10px] font-mono text-[var(--text)] outline-none"
+                              >
+                                <option value="HOT DROP">HOT DROP</option>
+                                <option value="DROP 001">DROP 001</option>
+                                <option value="LIMITED EDITION">LIMITED EDITION</option>
+                                <option value="240 GSM">240 GSM</option>
+                                <option value="HEAVYWEIGHT">HEAVYWEIGHT</option>
+                                <option value="NEW">NEW</option>
+                                <option value="CUSTOM">Custom Text...</option>
+                              </select>
+
+                              {item.badge && !['HOT DROP', 'DROP 001', 'LIMITED EDITION', '240 GSM', 'HEAVYWEIGHT', 'NEW'].includes(item.badge) && (
+                                <input 
+                                  type="text" 
+                                  value={item.badge} 
+                                  onChange={e => handleUpdateDropBadge(index, e.target.value)}
+                                  placeholder="Badge text"
+                                  className="w-24 bg-[var(--bg-card)] border border-[var(--line)] px-2 py-1 text-[10px] font-mono text-[var(--text)] outline-none"
+                                />
+                              )}
+                            </div>
+
+                            {/* Move Up Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleMoveDropProductUp(index)}
+                              disabled={index === 0}
+                              className="p-1.5 border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/40 disabled:opacity-20 disabled:cursor-not-allowed"
+                              title="Move Up"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* Move Down Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleMoveDropProductDown(index)}
+                              disabled={index === newDropsSelectedItems.length - 1}
+                              className="p-1.5 border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/40 disabled:opacity-20 disabled:cursor-not-allowed"
+                              title="Move Down"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveDropProduct(index)}
+                              className="p-1.5 border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20"
+                              title="Remove from Drops"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Section 3: Live Storefront Grid Preview */}
+            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 space-y-4">
+              <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
+                <Eye className="w-4 h-4 text-[var(--accent)]" />
+                <h4 className="font-display text-sm font-bold uppercase tracking-wider text-[var(--text)]">
+                  3. Live Storefront Grid Preview
+                </h4>
+              </div>
+
+              <div className="p-6 bg-black border border-white/10 space-y-8 rounded-none">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-white/10">
+                  <div>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[var(--accent)] font-bold flex items-center gap-1.5">
+                      <Flame className="w-3.5 h-3.5 text-[var(--accent)]" /> {newDropsEyebrow}
+                    </span>
+                    <h2 className="font-display text-2xl sm:text-4xl font-black uppercase text-white mt-1 tracking-tight">
+                      {newDropsTitle}
+                    </h2>
+                    {newDropsSubtitle && (
+                      <p className="text-xs font-mono text-neutral-400 mt-1">
+                        {newDropsSubtitle}
+                      </p>
+                    )}
+                  </div>
+
+                  {newDropsViewAllLink && (
+                    <div className="font-mono text-xs uppercase tracking-widest text-white flex items-center gap-1.5 font-bold">
+                      <span>{newDropsViewAllText}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {newDropsSelectedItems.slice(0, 4).map((item, idx) => {
+                    const prod = dbProducts.find(p => p.slug === item.slug);
+                    const thumb = (prod?.images && prod.images[0]) || prod?.overlay_mask_url || 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=200&auto=format&fit=crop';
+                    const title = prod?.title || item.slug;
+                    const price = prod?.base_price ?? prod?.price ?? 0;
+
+                    return (
+                      <div key={idx} className="bg-neutral-900 border border-white/10 p-3 space-y-2 relative group">
+                        <div className="absolute top-2 left-2 z-10">
+                          <span className="bg-white text-black text-[9px] font-black uppercase px-2 py-0.5 tracking-wider">
+                            {item.badge || 'HOT DROP'}
+                          </span>
+                        </div>
+                        <img src={thumb} alt={title} className="w-full aspect-square object-cover bg-black" />
+                        <div>
+                          <p className="text-xs font-bold text-white uppercase truncate">{title}</p>
+                          <p className="text-[11px] font-mono text-[var(--accent)] mt-0.5">₹{Number(price).toLocaleString('en-IN')}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {newDropsShowBottomBtn && (
+                  <div className="text-center pt-2">
+                    <span className="inline-flex items-center gap-2 px-6 py-2.5 bg-white text-black font-mono text-xs font-bold uppercase tracking-wider rounded-xl">
+                      <span>{newDropsBottomBtnText}</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
           </div>
         )}
 
-        {/* ══ Tab Bestsellers ═════════════════════════════════════════ */}
+        {/* ══ Tab Bestsellers / Inkwave Picks ═════════════════════════ */}
         {activeTab === 'bestsellers' && (
-          <div className="space-y-6">
-            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6">
-              <div className="flex justify-between items-center mb-6 border-b border-[var(--line)] pb-4">
-                <div>
-                  <h3 className="font-display text-xl font-bold uppercase text-[var(--text)]">Bestsellers Carousel</h3>
-                  <p className="text-[10px] uppercase tracking-widest text-[var(--text-dim)] mt-1">Select up to 16 products to feature as Bestsellers. If left empty, latest products are featured.</p>
+          <div className="space-y-8">
+            {/* Top Control Bar & Live Route Links */}
+            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-display text-xl font-bold uppercase text-[var(--text)]">
+                    The Inkwave Picks / Bestsellers (Homepage Section 4)
+                  </h3>
+                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 bg-[var(--accent)] text-[var(--bg)]">
+                    CMS Key: bestsellers_config
+                  </span>
                 </div>
-                <button onClick={handleSaveBestsellers} disabled={savingTab} className="bg-[var(--accent)] text-[var(--bg)] font-bold px-5 py-2 text-xs uppercase tracking-wider hover:opacity-90 flex items-center gap-1 shrink-0">
-                  <Save className="w-3.5 h-3.5" /> Save Section
+                <p className="text-xs text-[var(--text-dim)] mt-1">
+                  Manage the community favorites editorial headline, section visibility, and curate top bestsellers in custom order.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                <a 
+                  href="/#bestsellers" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 px-4 py-2 border border-[var(--line)] text-xs font-bold uppercase tracking-wider text-[var(--text-dim)] hover:text-white hover:border-white/40 transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" /> View Section
+                </a>
+                <button 
+                  type="button" 
+                  onClick={handleSaveBestsellers} 
+                  disabled={savingTab} 
+                  className="bg-[var(--accent)] text-[var(--bg)] font-bold px-6 py-2.5 text-xs uppercase tracking-wider hover:opacity-90 flex items-center gap-1.5 shrink-0 shadow-lg"
+                >
+                  {savingTab ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Picks Live
                 </button>
               </div>
-              
-              <div className="space-y-3">
-                {bestsellers.map((slug, idx) => (
-                  <div key={idx} className="flex gap-4 items-center bg-[var(--bg)] border border-[var(--line)] p-3">
-                    <div className="font-mono text-[9px] text-[var(--text-dim)] uppercase tracking-widest w-12 shrink-0">SLOT 0{idx + 1}</div>
-                    <select 
-                      value={slug} 
-                      onChange={e => {
-                        const newArr = [...bestsellers];
-                        newArr[idx] = e.target.value;
-                        setBestsellers(newArr);
-                      }} 
-                      className="flex-1 bg-transparent border-none text-xs font-bold text-[var(--text)] outline-none cursor-pointer"
+            </div>
+
+            {/* Section 1: Visibility, Mode & Editorial Headlines */}
+            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[var(--line)] pb-3">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="w-4 h-4 text-[var(--accent)]" />
+                  <h4 className="font-display text-sm font-bold uppercase tracking-wider text-[var(--text)]">
+                    1. Display Mode & Editorial Headlines
+                  </h4>
+                </div>
+
+                {/* Section Visibility Switch */}
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input 
+                    type="checkbox" 
+                    checked={bestsellersShow} 
+                    onChange={e => setBestsellersShow(e.target.checked)}
+                    className="accent-[var(--accent)] w-4 h-4"
+                  />
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text)]">
+                    Section Enabled on Homepage
+                  </span>
+                </label>
+              </div>
+
+              {/* Mode Switch */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                  onClick={() => setBestsellersMode('custom')}
+                  className={`p-4 border cursor-pointer transition-all ${bestsellersMode === 'custom' ? 'border-[var(--accent)] bg-[var(--accent)]/5' : 'border-[var(--line)] bg-[var(--bg)] hover:border-[var(--text-dim)]'}`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <input 
+                      type="radio" 
+                      name="bestsellers_mode" 
+                      checked={bestsellersMode === 'custom'} 
+                      onChange={() => setBestsellersMode('custom')}
+                      className="accent-[var(--accent)]"
+                    />
+                    <span className="font-bold text-xs uppercase tracking-wider text-[var(--text)]">
+                      Curated Manual Selection (Recommended)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[var(--text-dim)] pl-5">
+                    Explicitly select products, order them, and assign marketing badges (e.g. &quot;BESTSELLER&quot;, &quot;COMMUNITY FAV&quot;, &quot;VIRAL FIT&quot;).
+                  </p>
+                </div>
+
+                <div 
+                  onClick={() => setBestsellersMode('auto')}
+                  className={`p-4 border cursor-pointer transition-all ${bestsellersMode === 'auto' ? 'border-[var(--accent)] bg-[var(--accent)]/5' : 'border-[var(--line)] bg-[var(--bg)] hover:border-[var(--text-dim)]'}`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <input 
+                      type="radio" 
+                      name="bestsellers_mode" 
+                      checked={bestsellersMode === 'auto'} 
+                      onChange={() => setBestsellersMode('auto')}
+                      className="accent-[var(--accent)]"
+                    />
+                    <span className="font-bold text-xs uppercase tracking-wider text-[var(--text)]">
+                      Catalog Bestsellers (Auto Flagged)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[var(--text-dim)] pl-5">
+                    Automatically display products in the database that have the &quot;Bestseller&quot; switch enabled.
+                  </p>
+                </div>
+              </div>
+
+              {/* Editorial Texts */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="block text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                    Eyebrow / Sub-tag
+                  </label>
+                  <input 
+                    type="text" 
+                    value={bestsellersEyebrow} 
+                    onChange={e => setBestsellersEyebrow(e.target.value)}
+                    placeholder="e.g. HELD THEIR SHAPE // COMMUNITY FAVORITES"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                    Main Headline Title
+                  </label>
+                  <input 
+                    type="text" 
+                    value={bestsellersTitle} 
+                    onChange={e => setBestsellersTitle(e.target.value)}
+                    placeholder="e.g. THE INKWAVE PICKS"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)] font-bold"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                    Section Subtitle / Description
+                  </label>
+                  <textarea 
+                    rows={2}
+                    value={bestsellersSubtitle} 
+                    onChange={e => setBestsellersSubtitle(e.target.value)}
+                    placeholder="e.g. The pieces getting the most attention right now."
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)] resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                    Header &quot;View All&quot; Text
+                  </label>
+                  <input 
+                    type="text" 
+                    value={bestsellersViewAllText} 
+                    onChange={e => setBestsellersViewAllText(e.target.value)}
+                    placeholder="e.g. View Bestsellers"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mb-1">
+                    Header &quot;View All&quot; Link URL
+                  </label>
+                  <input 
+                    type="text" 
+                    value={bestsellersViewAllLink} 
+                    onChange={e => setBestsellersViewAllLink(e.target.value)}
+                    placeholder="e.g. /collections or /category/all"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] p-2.5 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 2: Product Curator & Order */}
+            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[var(--line)] pb-3">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="w-4 h-4 text-[var(--accent)]" />
+                  <h4 className="font-display text-sm font-bold uppercase tracking-wider text-[var(--text)]">
+                    2. Curated Picks & Grid Order ({bestsellersSelectedItems.length} Products Configured)
+                  </h4>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <button 
+                    type="button" 
+                    onClick={handleResetBestsellerProducts}
+                    className="px-3 py-1.5 border border-[var(--line)] text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] hover:text-white hover:border-white/30"
+                  >
+                    Reset (Top Bestsellers)
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setBestsellersSelectedItems([])}
+                    className="px-3 py-1.5 border border-red-500/20 text-[10px] font-bold uppercase tracking-wider text-red-400 hover:bg-red-500/10"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Add & Filter Bar */}
+              <div className="bg-[var(--bg)] border border-[var(--line)] p-4 space-y-4">
+                <div className="flex flex-col md:flex-row gap-3 items-center">
+                  <div className="relative flex-1 w-full">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-dim)]" />
+                    <input 
+                      type="text" 
+                      value={bestsellersProductSearch} 
+                      onChange={e => setBestsellersProductSearch(e.target.value)}
+                      placeholder="Search catalog products by name or slug to add..."
+                      className="w-full bg-[var(--bg-card)] border border-[var(--line)] pl-9 pr-3 py-2 text-xs text-[var(--text)] font-mono outline-none focus:border-[var(--accent)]"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full md:w-auto">
+                    <select
+                      value={bestsellersCategoryFilter}
+                      onChange={e => setBestsellersCategoryFilter(e.target.value)}
+                      className="bg-[var(--bg-card)] border border-[var(--line)] px-3 py-2 text-xs text-[var(--text)] font-mono outline-none cursor-pointer"
                     >
-                      <option value="">-- Select Product --</option>
-                      {dbProducts.map(p => (
-                        <option key={p.slug} value={p.slug}>{p.title} (₹{p.base_price})</option>
+                      <option value="all">All Categories</option>
+                      {dbCategories.map(c => (
+                        <option key={c.id} value={c.slug}>{c.name}</option>
                       ))}
                     </select>
-                    <button onClick={() => setBestsellers(bestsellers.filter((_, i) => i !== idx))} className="text-red-400 hover:text-red-300 px-3 py-1.5 border border-red-500/20 text-[10px] font-bold uppercase tracking-wider">Remove</button>
                   </div>
-                ))}
-                
-                {bestsellers.length < 16 && (
-                  <button 
-                    onClick={() => setBestsellers([...bestsellers, ''])} 
-                    className="w-full border border-dashed border-[var(--line)] py-4 text-xs font-bold uppercase tracking-wider text-[var(--text-dim)] hover:text-[var(--text)] hover:border-[var(--text)] transition-colors"
-                  >
-                    + Assign Manual Product ({16 - bestsellers.length} slots remain)
-                  </button>
+                </div>
+
+                {/* Filtered Catalog Picker Dropdown */}
+                {(() => {
+                  const filtered = dbProducts.filter(p => {
+                    const matchesSearch = !bestsellersProductSearch || 
+                      p.title?.toLowerCase().includes(bestsellersProductSearch.toLowerCase()) ||
+                      p.slug?.toLowerCase().includes(bestsellersProductSearch.toLowerCase());
+                    const matchesCat = bestsellersCategoryFilter === 'all' || 
+                      p.categories?.slug === bestsellersCategoryFilter ||
+                      p.categories?.name?.toLowerCase().includes(bestsellersCategoryFilter.toLowerCase());
+                    return matchesSearch && matchesCat;
+                  });
+
+                  return (
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider">
+                          Click any product below to instantly add to Inkwave Picks:
+                        </span>
+                        <span className="text-[10px] font-mono text-[var(--text-dim)]">
+                          {filtered.length} products available
+                        </span>
+                      </div>
+
+                      <div className="max-h-56 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 pr-1">
+                        {filtered.slice(0, 16).map(p => {
+                          const isAlreadyAdded = bestsellersSelectedItems.some(sp => sp.slug === p.slug);
+                          const thumb = (p.images && p.images[0]) || p.overlay_mask_url || 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=200&auto=format&fit=crop';
+                          
+                          return (
+                            <button
+                              key={p.slug}
+                              type="button"
+                              onClick={() => handleAddBestsellerProduct(p.slug, 'BESTSELLER')}
+                              disabled={isAlreadyAdded}
+                              className={`flex items-center gap-2 p-2 border text-left transition-all ${
+                                isAlreadyAdded 
+                                  ? 'opacity-40 border-[var(--line)] bg-[var(--bg-card)] cursor-not-allowed' 
+                                  : 'border-[var(--line)] bg-[var(--bg-card)] hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 cursor-pointer'
+                              }`}
+                            >
+                              <img src={thumb} alt={p.title} className="w-10 h-10 object-cover shrink-0 bg-neutral-900 border border-[var(--line)]" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[11px] font-bold text-[var(--text)] truncate">{p.title}</p>
+                                <div className="flex items-center justify-between text-[10px] text-[var(--text-dim)] font-mono mt-0.5">
+                                  <span>₹{Number(p.base_price || p.price || 0).toLocaleString('en-IN')}</span>
+                                  {isAlreadyAdded ? (
+                                    <span className="text-[var(--accent)] font-bold">Added</span>
+                                  ) : (
+                                    <span className="text-[var(--text-dim)] group-hover:text-white">+ Add</span>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* 1-Click Category Batch Helpers */}
+                      <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-[var(--line)]">
+                        <span className="text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider mr-1">
+                          Quick Add Category:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleAddAllCategoryToBestsellers('bestsellers')}
+                          className="px-2.5 py-1 text-[10px] font-mono border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/30"
+                        >
+                          + All Catalog Bestsellers
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAddAllCategoryToBestsellers('hoodie')}
+                          className="px-2.5 py-1 text-[10px] font-mono border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/30"
+                        >
+                          + All Hoodies
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAddAllCategoryToBestsellers('tee')}
+                          className="px-2.5 py-1 text-[10px] font-mono border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/30"
+                        >
+                          + All T-Shirts
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAddAllCategoryToBestsellers('jean')}
+                          className="px-2.5 py-1 text-[10px] font-mono border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/30"
+                        >
+                          + All Jeans
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAddAllCategoryToBestsellers('all')}
+                          className="px-2.5 py-1 text-[10px] font-mono border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/30"
+                        >
+                          + Add Entire Catalog
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Active Selected Products List & Ordering */}
+              <div>
+                <h5 className="text-[11px] font-bold text-[var(--text)] uppercase tracking-wider mb-3">
+                  Current Inkwave Picks Order ({bestsellersSelectedItems.length} Products):
+                </h5>
+
+                {bestsellersSelectedItems.length === 0 ? (
+                  <div className="p-8 text-center border border-dashed border-[var(--line)] bg-[var(--bg)] space-y-2">
+                    <Package className="w-8 h-8 mx-auto text-[var(--text-dim)]" />
+                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-dim)]">
+                      No Products Selected For Inkwave Picks
+                    </p>
+                    <p className="text-[11px] text-[var(--text-dim)] max-w-md mx-auto">
+                      Click the &quot;Reset (Top Bestsellers)&quot; button or search products above to add them to the bestsellers grid.
+                    </p>
+                    <button 
+                      type="button"
+                      onClick={handleResetBestsellerProducts}
+                      className="mt-2 px-4 py-2 bg-[var(--accent)] text-[var(--bg)] text-xs font-bold uppercase tracking-wider"
+                    >
+                      Populate Top Bestsellers
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {bestsellersSelectedItems.map((item, index) => {
+                      const prod = dbProducts.find(p => p.slug === item.slug);
+                      const thumb = (prod?.images && prod.images[0]) || prod?.overlay_mask_url || 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=200&auto=format&fit=crop';
+                      const title = prod?.title || item.slug;
+                      const price = prod?.base_price ?? prod?.price ?? 0;
+                      const category = prod?.categories?.name || 'Streetwear';
+
+                      return (
+                        <div 
+                          key={`${item.slug}-${index}`}
+                          className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 bg-[var(--bg)] border border-[var(--line)] hover:border-white/20 transition-all"
+                        >
+                          {/* Left: Position & Thumbnail & Info */}
+                          <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                            <span className="font-mono text-xs font-bold text-[var(--text-dim)] w-7 shrink-0 text-center">
+                              0{index + 1}
+                            </span>
+                            
+                            <img 
+                              src={thumb} 
+                              alt={title} 
+                              className="w-12 h-12 object-cover bg-neutral-900 border border-[var(--line)] shrink-0 rounded-none" 
+                            />
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h6 className="text-xs font-bold text-[var(--text)] uppercase tracking-wide truncate">
+                                  {title}
+                                </h6>
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[var(--bg-card)] border border-[var(--line)] text-[var(--text-dim)] uppercase shrink-0">
+                                  {category}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3 mt-1 text-[11px] font-mono text-[var(--text-dim)]">
+                                <span>₹{Number(price).toLocaleString('en-IN')}</span>
+                                <span className="text-[10px] text-neutral-500 truncate font-mono">slug: {item.slug}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right: Badge Customizer & Reorder Buttons */}
+                          <div className="flex items-center gap-2 shrink-0 pl-10 md:pl-0">
+                            {/* Badge Selector */}
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-dim)]">
+                                Badge:
+                              </span>
+                              <select
+                                value={item.badge || 'BESTSELLER'}
+                                onChange={e => handleUpdateBestsellerBadge(index, e.target.value)}
+                                className="bg-[var(--bg-card)] border border-[var(--line)] px-2 py-1 text-[10px] font-mono text-[var(--text)] outline-none"
+                              >
+                                <option value="BESTSELLER">BESTSELLER</option>
+                                <option value="TOP PICK">TOP PICK</option>
+                                <option value="COMMUNITY FAV">COMMUNITY FAV</option>
+                                <option value="RESTOCKED">RESTOCKED</option>
+                                <option value="VIRAL FIT">VIRAL FIT</option>
+                                <option value="LIMITED">LIMITED</option>
+                                <option value="CUSTOM">Custom Text...</option>
+                              </select>
+
+                              {item.badge && !['BESTSELLER', 'TOP PICK', 'COMMUNITY FAV', 'RESTOCKED', 'VIRAL FIT', 'LIMITED'].includes(item.badge) && (
+                                <input 
+                                  type="text" 
+                                  value={item.badge} 
+                                  onChange={e => handleUpdateBestsellerBadge(index, e.target.value)}
+                                  placeholder="Badge text"
+                                  className="w-24 bg-[var(--bg-card)] border border-[var(--line)] px-2 py-1 text-[10px] font-mono text-[var(--text)] outline-none"
+                                />
+                              )}
+                            </div>
+
+                            {/* Move Up Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleMoveBestsellerProductUp(index)}
+                              disabled={index === 0}
+                              className="p-1.5 border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/40 disabled:opacity-20 disabled:cursor-not-allowed"
+                              title="Move Up"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* Move Down Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleMoveBestsellerProductDown(index)}
+                              disabled={index === bestsellersSelectedItems.length - 1}
+                              className="p-1.5 border border-[var(--line)] bg-[var(--bg-card)] text-[var(--text-dim)] hover:text-white hover:border-white/40 disabled:opacity-20 disabled:cursor-not-allowed"
+                              title="Move Down"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveBestsellerProduct(index)}
+                              className="p-1.5 border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20"
+                              title="Remove from Picks"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
+              </div>
+            </div>
+
+            {/* Section 3: Live Storefront Grid Preview */}
+            <div className="bg-[var(--bg-card)] border border-[var(--line)] p-6 space-y-4">
+              <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
+                <Eye className="w-4 h-4 text-[var(--accent)]" />
+                <h4 className="font-display text-sm font-bold uppercase tracking-wider text-[var(--text)]">
+                  3. Live Storefront Grid Preview
+                </h4>
+              </div>
+
+              <div className="p-6 bg-black border border-white/10 space-y-8 rounded-none">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-white/10">
+                  <div>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-400 font-bold">
+                      {bestsellersEyebrow}
+                    </span>
+                    <h2 className="font-display text-2xl sm:text-4xl font-black uppercase text-white mt-1 tracking-tight">
+                      {bestsellersTitle}
+                    </h2>
+                    {bestsellersSubtitle && (
+                      <p className="text-xs font-mono text-neutral-400 mt-1">
+                        {bestsellersSubtitle}
+                      </p>
+                    )}
+                  </div>
+
+                  {bestsellersViewAllLink && (
+                    <div className="font-mono text-xs uppercase tracking-widest text-white flex items-center gap-1.5 font-bold">
+                      <span>{bestsellersViewAllText}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {bestsellersSelectedItems.slice(0, 4).map((item, idx) => {
+                    const prod = dbProducts.find(p => p.slug === item.slug);
+                    const thumb = (prod?.images && prod.images[0]) || prod?.overlay_mask_url || 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=200&auto=format&fit=crop';
+                    const title = prod?.title || item.slug;
+                    const price = prod?.base_price ?? prod?.price ?? 0;
+
+                    return (
+                      <div key={idx} className="bg-neutral-900 border border-white/10 p-3 space-y-2 relative group">
+                        <div className="absolute top-2 left-2 z-10">
+                          <span className="bg-amber-400 text-black text-[9px] font-black uppercase px-2 py-0.5 tracking-wider shadow-md">
+                            {item.badge || 'BESTSELLER'}
+                          </span>
+                        </div>
+                        <img src={thumb} alt={title} className="w-full aspect-square object-cover bg-black" />
+                        <div>
+                          <p className="text-xs font-bold text-white uppercase truncate">{title}</p>
+                          <p className="text-[11px] font-mono text-[var(--accent)] mt-0.5">₹{Number(price).toLocaleString('en-IN')}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>

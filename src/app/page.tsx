@@ -95,31 +95,60 @@ export default async function Home() {
   const rawProducts = ((productsData as any[]) || []).filter(p => p && (p.title || p.name) && p.id);
   const products = await enrichProductsWithComparePrices(rawProducts);
 
-  // 3. Compute Current Drop (4-6 products)
-  const newDropSlugs: string[] = newDropsConfig?.slugs || [];
+  // 3. Compute Current Drop / Latest Drops (Dynamic from CMS)
+  const showNewDrops = newDropsConfig?.show !== false;
+  const newDropEyebrow = newDropsConfig?.eyebrow || "DROP 001 // LIMITED EDITION";
+  const newDropTitle = newDropsConfig?.title || "THE LATEST DROP";
+  const newDropSubtitle = newDropsConfig?.subtitle || "Engineered with 240 GSM heavy French Terry cotton. Limited batch runs.";
+  const newDropViewAllText = newDropsConfig?.viewAllText || "View Full Drop";
+  const newDropViewAllLink = newDropsConfig?.viewAllLink || "/collections";
+  const newDropBottomBtnText = newDropsConfig?.bottomButtonText || "EXPLORE ALL NEW ARRIVALS";
+  const newDropBottomBtnLink = newDropsConfig?.bottomButtonLink || "/collections";
+  const newDropShowBottomBtn = newDropsConfig?.showBottomButton !== false;
+
+  const rawDropItems = newDropsConfig?.items || [];
+  const newDropSlugs: string[] = rawDropItems.length > 0
+    ? rawDropItems.map((it: any) => typeof it === 'string' ? it : it.slug).filter(Boolean)
+    : (newDropsConfig?.slugs || []);
+
   let newDropProducts: any[] = [];
-  if (newDropSlugs.length > 0) {
-    newDropProducts = newDropSlugs.map((slug) => products.find((p) => p.slug === slug)).filter(Boolean);
+  if (newDropsConfig?.mode !== 'auto' && newDropSlugs.length > 0) {
+    newDropProducts = newDropSlugs.map((slug) => {
+      const p = products.find((prod) => prod.slug === slug);
+      if (!p) return null;
+      const matchedItem = rawDropItems.find((it: any) => (typeof it === 'object' && it?.slug === slug));
+      return matchedItem?.badge ? { ...p, custom_badge: matchedItem.badge } : p;
+    }).filter(Boolean);
   }
   if (newDropProducts.length === 0) {
-    newDropProducts = products.slice(0, 6);
-  } else {
-    newDropProducts = newDropProducts.slice(0, 6);
+    newDropProducts = products.slice(0, 8);
   }
 
-  // 4. Compute Bestsellers (4 products)
-  const bestsellerSlugs: string[] = bestsellersConfig?.slugs || [];
+  // 4. Compute Bestsellers / Inkwave Picks (Dynamic from CMS)
+  const showBestsellers = bestsellersConfig?.show !== false;
+  const bestsellersEyebrow = bestsellersConfig?.eyebrow || "HELD THEIR SHAPE // COMMUNITY FAVORITES";
+  const bestsellersTitle = bestsellersConfig?.title || "THE INKWAVE PICKS";
+  const bestsellersSubtitle = bestsellersConfig?.subtitle || "The pieces getting the most attention right now.";
+  const bestsellersViewAllText = bestsellersConfig?.viewAllText || "View Bestsellers";
+  const bestsellersViewAllLink = bestsellersConfig?.viewAllLink || "/collections";
+
+  const rawBestsellerItems = bestsellersConfig?.items || [];
+  const bestsellerSlugs: string[] = rawBestsellerItems.length > 0
+    ? rawBestsellerItems.map((it: any) => typeof it === 'string' ? it : it.slug).filter(Boolean)
+    : (bestsellersConfig?.slugs || []);
+
   let bestsellerProducts: any[] = [];
-  if (bestsellerSlugs.length > 0) {
-    bestsellerProducts = bestsellerSlugs.map((slug) => products.find((p) => p.slug === slug)).filter(Boolean);
+  if (bestsellersConfig?.mode !== 'auto' && bestsellerSlugs.length > 0) {
+    bestsellerProducts = bestsellerSlugs.map((slug) => {
+      const p = products.find((prod) => prod.slug === slug);
+      if (!p) return null;
+      const matchedItem = rawBestsellerItems.find((it: any) => (typeof it === 'object' && it?.slug === slug));
+      return matchedItem?.badge ? { ...p, custom_badge: matchedItem.badge } : p;
+    }).filter(Boolean);
   }
   if (bestsellerProducts.length === 0) {
-    bestsellerProducts = products.filter((p) => p.is_bestseller).slice(0, 4);
-    if (bestsellerProducts.length === 0) {
-      bestsellerProducts = products.slice(0, 4);
-    }
-  } else {
-    bestsellerProducts = bestsellerProducts.slice(0, 4);
+    const bests = products.filter((p) => p.is_bestseller);
+    bestsellerProducts = bests.length > 0 ? bests.slice(0, 8) : products.slice(0, 8);
   }
 
   const rawMarquee = homepageConfig.marqueeItems || [];
@@ -246,127 +275,107 @@ export default async function Home() {
         )}
 
         {/* ══════════════════════════════════════════════════════════════════
-            3. CURRENT DROP / NEW ARRIVALS (DROP 001)
+            3. CURRENT DROP / NEW ARRIVALS (LATEST DROPS - DYNAMIC CMS)
         ══════════════════════════════════════════════════════════════════ */}
-        <section className="py-16 md:py-24 border-b border-white/10 bg-black" id="drop">
-          <div className="wrap space-y-10">
-            {/* Section Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-white/10">
-              <div>
-                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[var(--accent)] font-bold flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 text-[var(--accent)]" /> DROP 001 // LIMITED EDITION
-                </span>
-                <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-black uppercase text-white mt-1 tracking-tight">
-                  THE LATEST DROP
-                </h2>
-                <p className="text-xs sm:text-sm font-mono text-neutral-400 mt-1">
-                  Engineered with 240 GSM heavy French Terry cotton. Limited batch runs.
-                </p>
+        {showNewDrops && newDropProducts.length > 0 && (
+          <section className="py-16 md:py-24 border-b border-white/10 bg-black" id="drop">
+            <div className="wrap space-y-10">
+              {/* Section Header */}
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-white/10">
+                <div>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[var(--accent)] font-bold flex items-center gap-1.5">
+                    <Flame className="w-3.5 h-3.5 text-[var(--accent)]" /> {newDropEyebrow}
+                  </span>
+                  <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-black uppercase text-white mt-1 tracking-tight">
+                    {newDropTitle}
+                  </h2>
+                  {newDropSubtitle && (
+                    <p className="text-xs sm:text-sm font-mono text-neutral-400 mt-1">
+                      {newDropSubtitle}
+                    </p>
+                  )}
+                </div>
+
+                {newDropViewAllLink && (
+                  <Link
+                    href={newDropViewAllLink}
+                    className="font-mono text-xs uppercase tracking-widest text-white hover:text-neutral-400 transition-colors flex items-center gap-1.5 font-bold hover:underline self-start md:self-auto"
+                  >
+                    <span>{newDropViewAllText}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                )}
               </div>
 
-              <Link
-                href="/collections"
-                className="font-mono text-xs uppercase tracking-widest text-white hover:text-neutral-400 transition-colors flex items-center gap-1.5 font-bold hover:underline self-start md:self-auto"
-              >
-                <span>View Full Drop</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            {/* Product Grid - 4 Columns */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 items-start w-full">
-              {newDropProducts.slice(0, 4).map((product: any, idx: number) => (
-                <div key={product.id} className="product-card-wrap w-full min-w-0 flex flex-col">
-                  <ProductCard product={product} index={idx} />
-                </div>
-              ))}
-            </div>
-
-            {/* Bottom Callout */}
-            <div className="text-center pt-4">
-              <Link
-                href="/collections"
-                className="btn-immersive inline-flex items-center gap-2 px-8 py-3.5 bg-white text-black hover:bg-neutral-200 font-mono text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xl"
-              >
-                <span>EXPLORE ALL NEW ARRIVALS</span>
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════════════
-            4. BESTSELLERS (THE INKWAVE PICKS)
-        ══════════════════════════════════════════════════════════════════ */}
-        <section className="py-16 md:py-24 border-b border-white/10 bg-black" id="bestsellers">
-          <div className="wrap space-y-10">
-            {/* Section Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-white/10">
-              <div>
-                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-400 font-bold">
-                  HELD THEIR SHAPE // COMMUNITY FAVORITES
-                </span>
-                <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-black uppercase text-white mt-1 tracking-tight">
-                  THE INKWAVE PICKS
-                </h2>
-                <p className="text-xs sm:text-sm font-mono text-neutral-400 mt-1">
-                  The pieces getting the most attention right now.
-                </p>
+              {/* Product Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 items-start w-full">
+                {newDropProducts.map((product: any, idx: number) => (
+                  <div key={product.id} className="product-card-wrap w-full min-w-0 flex flex-col">
+                    <ProductCard product={product} index={idx} />
+                  </div>
+                ))}
               </div>
 
-              <Link
-                href="/collections"
-                className="font-mono text-xs uppercase tracking-widest text-white hover:text-neutral-400 transition-colors flex items-center gap-1.5 font-bold hover:underline self-start md:self-auto"
-              >
-                <span>View Bestsellers</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            {/* 4-Product Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 items-start w-full">
-              {bestsellerProducts.map((product: any, idx: number) => (
-                <div key={product.id} className="product-card-wrap w-full min-w-0 flex flex-col">
-                  <ProductCard product={product} index={idx} />
+              {/* Bottom Callout Button */}
+              {newDropShowBottomBtn && newDropBottomBtnLink && (
+                <div className="text-center pt-4">
+                  <Link
+                    href={newDropBottomBtnLink}
+                    className="btn-immersive inline-flex items-center gap-2 px-8 py-3.5 bg-white text-black hover:bg-neutral-200 font-mono text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xl"
+                  >
+                    <span>{newDropBottomBtnText}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
                 </div>
-              ))}
+              )}
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* ══════════════════════════════════════════════════════════════════
-            5. EDITORIAL BRAND STATEMENT (BRUTALIST MANIFESTO)
+            4. BESTSELLERS / THE INKWAVE PICKS (DYNAMIC CMS)
         ══════════════════════════════════════════════════════════════════ */}
-        <section className="py-20 md:py-28 border-b border-white/10 bg-neutral-950 text-white relative overflow-hidden">
-          <div className="wrap relative z-10 text-center max-w-4xl mx-auto space-y-6">
-            <span className="font-mono text-[10px] sm:text-xs uppercase tracking-[0.3em] text-neutral-400 font-bold block">
-              INKWAVE MANIFESTO // SURAT FACTORY
-            </span>
-            <h2 className="font-display text-4xl sm:text-6xl md:text-7xl uppercase font-black tracking-tight leading-none text-white">
-              NOT MADE TO BLEND IN.
-            </h2>
-            <p className="font-mono text-xs sm:text-sm md:text-base text-neutral-300 leading-relaxed max-w-2xl mx-auto">
-              INKWAVE exists for people who see clothing as more than something you wear. Original graphics, bold silhouettes, and 240 GSM heavyweights designed to make a statement.
-            </p>
+        {showBestsellers && bestsellerProducts.length > 0 && (
+          <section className="py-16 md:py-24 border-b border-white/10 bg-black" id="bestsellers">
+            <div className="wrap space-y-10">
+              {/* Section Header */}
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-white/10">
+                <div>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-400 font-bold">
+                    {bestsellersEyebrow}
+                  </span>
+                  <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-black uppercase text-white mt-1 tracking-tight">
+                    {bestsellersTitle}
+                  </h2>
+                  {bestsellersSubtitle && (
+                    <p className="text-xs sm:text-sm font-mono text-neutral-400 mt-1">
+                      {bestsellersSubtitle}
+                    </p>
+                  )}
+                </div>
 
-            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/custom-print"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white text-black font-mono font-bold text-xs uppercase tracking-wider hover:bg-neutral-200 transition-all flex items-center justify-center gap-2 shadow-lg"
-              >
-                <Wand2 className="w-4 h-4 text-black" />
-                <span>3D Custom Studio • ₹600</span>
-              </Link>
-              <Link
-                href="/collections"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white/5 border border-white/20 text-white font-mono font-bold text-xs uppercase tracking-wider hover:bg-white/10 hover:border-white/40 transition-all flex items-center justify-center gap-2"
-              >
-                <span>Browse All Collections</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+                {bestsellersViewAllLink && (
+                  <Link
+                    href={bestsellersViewAllLink}
+                    className="font-mono text-xs uppercase tracking-widest text-white hover:text-neutral-400 transition-colors flex items-center gap-1.5 font-bold hover:underline self-start md:self-auto"
+                  >
+                    <span>{bestsellersViewAllText}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                )}
+              </div>
+
+              {/* Product Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 items-start w-full">
+                {bestsellerProducts.map((product: any, idx: number) => (
+                  <div key={product.id} className="product-card-wrap w-full min-w-0 flex flex-col">
+                    <ProductCard product={product} index={idx} />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* ══════════════════════════════════════════════════════════════════
             6. SHOP BY STYLE (CURATED FITS & CATEGORIES)
