@@ -11,18 +11,11 @@ import OffersSection from '@/components/storefront/OffersSection';
 import Scroll3DEffect from '@/components/storefront/Scroll3DEffect';
 import ReelsSection from '@/components/storefront/ReelsSection';
 import CuratedFits from '@/components/storefront/CuratedFits';
-import PremiumCategoriesBento from '@/components/storefront/PremiumCategoriesBento';
 import NewsletterForm from '@/components/storefront/NewsletterForm';
 import { 
-  Sparkles, 
   ArrowRight, 
   ChevronRight, 
-  ShieldCheck, 
-  Truck, 
-  RotateCcw, 
-  Flame, 
-  Layers, 
-  Wand2
+  Flame 
 } from 'lucide-react';
 
 export const revalidate = 60;
@@ -404,68 +397,7 @@ export default async function Home() {
         <ShopByStyle products={products} />
 
         {/* ══════════════════════════════════════════════════════════════════
-            6. WHY INKWAVE (CRAFTSMANSHIP & TRUST)
-        ══════════════════════════════════════════════════════════════════ */}
-        <section className="py-16 md:py-24 border-b border-white/10 bg-black">
-          <div className="wrap space-y-12">
-            <div className="text-center max-w-2xl mx-auto space-y-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-400 font-bold">
-                BUILT DIFFERENT // NO SHORTCUTS
-              </span>
-              <h2 className="font-display text-3xl sm:text-5xl font-black uppercase text-white tracking-tight">
-                WHY INKWAVE
-              </h2>
-              <p className="text-xs sm:text-sm font-mono text-neutral-400">
-                Crafted in our Surat workshop with obsession over fabric density, print longevity, and silhouette drape.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="p-6 rounded-2xl bg-neutral-950 border border-white/10 space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white">
-                  <Layers className="w-5 h-5" />
-                </div>
-                <h4 className="font-display text-lg uppercase font-bold text-white">Original Artwork</h4>
-                <p className="font-mono text-xs text-neutral-400 leading-relaxed">
-                  Bespoke typography, cyberpunk motifs, and high-density screen prints designed in-house.
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-neutral-950 border border-white/10 space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <h4 className="font-display text-lg uppercase font-bold text-white">240 GSM French Terry</h4>
-                <p className="font-mono text-xs text-neutral-400 leading-relaxed">
-                  100% Super-combed heavyweight cotton with dense knit loops that hold the signature drop-shoulder drape.
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-neutral-950 border border-white/10 space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white">
-                  <RotateCcw className="w-5 h-5" />
-                </div>
-                <h4 className="font-display text-lg uppercase font-bold text-white">Pre-Shrunk & Mercerized</h4>
-                <p className="font-mono text-xs text-neutral-400 leading-relaxed">
-                  Anti-fade luxury wash treatments ensure zero shrinkage and long-lasting fabric luster.
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-neutral-950 border border-white/10 space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white">
-                  <Truck className="w-5 h-5" />
-                </div>
-                <h4 className="font-display text-lg uppercase font-bold text-white">Free Express Shipping</h4>
-                <p className="font-mono text-xs text-neutral-400 leading-relaxed">
-                  Dispatched directly from Surat with 100% free size exchanges and live SMS/WhatsApp tracking.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════════════
-            7. INSTAGRAM / SOCIAL PROOF
+            6. INSTAGRAM / SOCIAL PROOF
         ══════════════════════════════════════════════════════════════════ */}
         <section className="py-16 md:py-20 border-b border-white/10 bg-black">
           <div className="wrap space-y-8 text-center">
@@ -518,24 +450,24 @@ export default async function Home() {
         </section>
 
         {/* ══════════════════════════════════════════════════════════════════
-            8. SHOPPABLE REELS SECTION (IF ENABLED)
+            7. SHOPPABLE REELS SECTION (IF ENABLED)
         ══════════════════════════════════════════════════════════════════ */}
         <ReelsSection />
 
         {/* ══════════════════════════════════════════════════════════════════
-            9. EXCLUSIVE OFFERS & DEALS SECTION
+            8. EXCLUSIVE OFFERS & DEALS SECTION
         ══════════════════════════════════════════════════════════════════ */}
         <Scroll3DEffect>
           <OffersSection />
         </Scroll3DEffect>
 
         {/* ══════════════════════════════════════════════════════════════════
-            10. CURATED FITS SECTION (SHOP THE LOOK)
+            9. CURATED FITS SECTION (SHOP THE LOOK)
         ══════════════════════════════════════════════════════════════════ */}
         {showFits && <CuratedFits fits={curatedFits} />}
 
         {/* ══════════════════════════════════════════════════════════════════
-            11. COMMUNITY NEWSLETTER SECTION
+            10. COMMUNITY NEWSLETTER SECTION
         ══════════════════════════════════════════════════════════════════ */}
         <section className="newsletter border-t border-white/10 bg-black py-16 md:py-20">
           <div className="wrap text-center max-w-xl mx-auto space-y-4">
