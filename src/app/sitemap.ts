@@ -6,22 +6,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Static site pages
   const staticRoutes = [
-    '',
-    '/wishlist',
-    '/cart',
-    '/showcase',
-    '/custom-print',
-    '/pages/about',
-    '/pages/contact',
-    '/pages/size-guide',
-    '/pages/track-order',
-    '/pages/privacy-policy',
-    '/pages/terms-conditions',
+    { path: '', priority: 1.0, changeFrequency: 'daily' as const },
+    { path: '/collections', priority: 0.95, changeFrequency: 'daily' as const },
+    { path: '/custom-print', priority: 0.9, changeFrequency: 'daily' as const },
+    { path: '/showcase', priority: 0.85, changeFrequency: 'weekly' as const },
+    { path: '/wishlist', priority: 0.6, changeFrequency: 'weekly' as const },
+    { path: '/cart', priority: 0.6, changeFrequency: 'weekly' as const },
+    { path: '/brand-pillars', priority: 0.7, changeFrequency: 'monthly' as const },
+    { path: '/pages/about', priority: 0.7, changeFrequency: 'monthly' as const },
+    { path: '/pages/contact', priority: 0.7, changeFrequency: 'monthly' as const },
+    { path: '/pages/size-guide', priority: 0.7, changeFrequency: 'monthly' as const },
+    { path: '/pages/track-order', priority: 0.7, changeFrequency: 'weekly' as const },
+    { path: '/pages/privacy-policy', priority: 0.5, changeFrequency: 'yearly' as const },
+    { path: '/pages/terms-conditions', priority: 0.5, changeFrequency: 'yearly' as const },
   ].map((route) => ({
-    url: `${baseUrl}${route}`,
+    url: `${baseUrl}${route.path}`,
     lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: route === '' ? 1.0 : 0.8,
+    changeFrequency: route.changeFrequency,
+    priority: route.priority,
   }));
 
   try {

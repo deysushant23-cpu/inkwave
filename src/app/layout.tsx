@@ -25,34 +25,66 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Inkwave | Premium Gen-Z Streetwear & Custom Prints",
-  description: "Luxury underground streetwear. Shop limited oversized t-shirts, custom 3D printed tees, and small-batch ink-dyed clothing.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://inkwavefashion.com'),
+  title: {
+    default: "Inkwave | Premium Gen-Z Streetwear & Custom Prints",
+    template: "%s | Inkwave"
+  },
+  description: "Luxury underground streetwear engineered with 240 GSM heavyweight French Terry cotton. Shop limited drops, oversized graphic tees, baggy denim, and interactive 3D custom print tees.",
   keywords: [
-    "streetwear", "oversized tshirts", "ink-dyed garments", "menswear silhouettes",
-    "small batch apparel", "premium clothing", "custom 3D print tshirts", "printed tees",
-    "baggy cargo pants", "inkwave fashion", "indie streetwear brand", "buy streetwear india"
+    "inkwave", "inkwave fashion", "streetwear india", "oversized graphic t-shirts", 
+    "240 gsm heavy tee", "french terry cotton", "baggy cargo jeans", "custom 3D lab t-shirt", 
+    "limited edition drop", "underground streetwear", "gen-z fashion", "buy streetwear online",
+    "boxy fit tees", "cyberpunk clothing", "custom printed apparel surat", "designer streetwear"
   ],
+  authors: [{ name: "Inkwave Studio", url: "https://inkwavefashion.com" }],
+  creator: "Inkwave",
+  publisher: "Inkwave",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
     title: "Inkwave | Premium Gen-Z Streetwear & Custom Prints",
-    description: "Luxury underground streetwear. Shop limited oversized t-shirts, custom 3D printed tees, and small-batch ink-dyed clothing.",
+    description: "Luxury underground streetwear engineered with 240 GSM heavyweight French Terry cotton. Shop limited drops, oversized tees, and custom prints.",
     url: 'https://inkwavefashion.com',
-    siteName: 'Inkwave',
+    siteName: 'Inkwave Streetwear',
     images: [
       {
-        url: 'https://inkwavefashion.com/logo.png', // Assuming a logo exists or will be replaced with actual OG image
+        url: 'https://inkwavefashion.com/logo.png',
         width: 1200,
         height: 630,
-        alt: 'Inkwave Streetwear',
+        alt: 'Inkwave Streetwear Brand',
       },
     ],
-    locale: 'en_US',
+    locale: 'en_IN',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: "Inkwave | Premium Gen-Z Streetwear & Custom Prints",
-    description: "Luxury underground streetwear. Shop limited oversized t-shirts, custom 3D printed tees, and small-batch ink-dyed clothing.",
+    description: "Luxury underground streetwear engineered with 240 GSM heavyweight French Terry cotton. Shop limited drops, oversized tees, and custom prints.",
     images: ['https://inkwavefashion.com/logo.png'],
+    creator: '@inkwavefashion',
+  },
+  icons: {
+    icon: '/icon.png',
+    apple: '/icon.png',
   },
 };
 

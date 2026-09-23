@@ -3,6 +3,8 @@
 import { useCartStore } from '@/store/useCartStore';
 import { useRouter } from 'next/navigation';
 import { formatPrice } from '@/lib/utils';
+import { ShieldCheck, Truck, ArrowRight, ShoppingBag } from 'lucide-react';
+import Link from 'next/link';
 
 export default function CartDrawer() {
   const { isCartDrawerOpen, setCartDrawerOpen, items, removeItem, updateQuantity } = useCartStore();
@@ -15,6 +17,11 @@ export default function CartDrawer() {
     router.push('/checkout');
   };
 
+  const handleExplore = () => {
+    setCartDrawerOpen(false);
+    router.push('/collections');
+  };
+
   if (!isCartDrawerOpen) return null;
 
   return (
@@ -22,16 +29,43 @@ export default function CartDrawer() {
       <div className={`overlay ${isCartDrawerOpen ? 'open' : ''}`} onClick={() => setCartDrawerOpen(false)}></div>
       <div className={`drawer ${isCartDrawerOpen ? 'open' : ''}`}>
         <div className="drawer-head">
-          <h3>Your bag</h3>
+          <div className="flex items-center gap-2">
+            <ShoppingBag className="w-5 h-5 text-white" />
+            <h3 className="font-display uppercase tracking-tight">Your Bag</h3>
+            <span className="text-[10px] font-mono text-neutral-400">({items.length})</span>
+          </div>
           <button className="drawer-close" onClick={() => setCartDrawerOpen(false)} aria-label="Close cart">
             <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
           </button>
         </div>
+
+        {/* Free Express Shipping Callout Banner */}
+        <div className="px-4 py-2 bg-neutral-900 border-b border-white/10 flex items-center justify-between font-mono text-[11px] text-neutral-300">
+          <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
+            <Truck className="w-3.5 h-3.5" /> FREE EXPRESS DELIVERY
+          </span>
+          <span className="text-neutral-400">All India</span>
+        </div>
         
         <div className="drawer-items">
           {items.length === 0 ? (
-            <div className="empty-cart">
-              Your bag is empty.<br/>Time to fix that.
+            <div className="empty-cart flex flex-col items-center justify-center py-16 px-4 text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-neutral-500 mb-2">
+                <ShoppingBag className="w-8 h-8" />
+              </div>
+              <div className="font-display text-lg uppercase font-bold text-white">
+                Your bag is empty
+              </div>
+              <p className="font-mono text-xs text-neutral-400 max-w-xs">
+                Check out our latest 240 GSM heavyweight drops and limited streetwear runs.
+              </p>
+              <button
+                onClick={handleExplore}
+                className="btn btn-primary px-6 py-3 font-mono text-xs uppercase font-bold tracking-wider inline-flex items-center gap-2 mt-2"
+              >
+                <span>Explore Drops</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
           ) : (
             items.map((item, idx) => {
@@ -84,20 +118,31 @@ export default function CartDrawer() {
         {items.length > 0 && (
           <div className="drawer-foot">
             <div className="subtotal-row">
-              <span>Subtotal</span>
-              <span>{formatPrice(subtotal)}</span>
+              <span className="font-mono text-xs uppercase text-neutral-400">Subtotal</span>
+              <span className="font-mono text-sm font-bold text-white">{formatPrice(subtotal)}</span>
             </div>
             <div className="subtotal-row total">
-              <span>Total</span>
-              <span>{formatPrice(subtotal)}</span>
+              <span className="font-mono text-sm font-bold uppercase text-white">Total</span>
+              <span className="font-mono text-lg font-black text-white">{formatPrice(subtotal)}</span>
             </div>
-            <button className="btn btn-primary" onClick={handleCheckout} style={{ width: '100%', justifyContent: 'center' }}>
-              Checkout
+            
+            <button 
+              className="btn btn-primary" 
+              onClick={handleCheckout} 
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              <span>PROCEED TO CHECKOUT</span>
+              <ArrowRight className="w-4 h-4 ml-2" />
             </button>
-            <div className="ship-note">Shipping calculated at next step</div>
+            
+            <div className="flex items-center justify-center gap-1.5 text-[10px] font-mono text-neutral-400 mt-2">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>100% Encrypted & Secure • UPI / COD / Cards</span>
+            </div>
           </div>
         )}
       </div>
     </>
   );
 }
+

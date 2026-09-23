@@ -10,7 +10,17 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: 'All Streetwear Collections & Drops | Inkwave',
   description: 'Explore the complete Inkwave underground catalog. 240 GSM heavyweights, oversized silhouettes, graphic tees, denim jeans, and custom streetwear.',
+  alternates: {
+    canonical: '/collections',
+  },
   openGraph: {
+    title: 'All Streetwear Collections & Drops | Inkwave',
+    description: 'Explore the complete Inkwave underground catalog. 240 GSM heavyweights, oversized silhouettes, graphic tees, denim jeans, and custom streetwear.',
+    url: 'https://inkwavefashion.com/collections',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
     title: 'All Streetwear Collections & Drops | Inkwave',
     description: 'Explore the complete Inkwave underground catalog.',
   }
@@ -37,8 +47,50 @@ export default async function CollectionsPage() {
   const validProducts = rawProducts.filter(p => p && (p.title || p.name) && p.id);
   const products = await enrichProductsWithComparePrices(validProducts);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "name": "All Streetwear Collections & Drops | Inkwave",
+        "description": "Explore the complete Inkwave underground catalog.",
+        "url": "https://inkwavefashion.com/collections",
+        "mainEntity": {
+          "@type": "ItemList",
+          "itemListElement": products.slice(0, 16).map((p: any, idx: number) => ({
+            "@type": "ListItem",
+            "position": idx + 1,
+            "url": `https://inkwavefashion.com/product/${p.slug}`,
+            "name": p.title
+          }))
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://inkwavefashion.com"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Collections",
+            "item": "https://inkwavefashion.com/collections"
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-black text-white pt-24 md:pt-32 pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="wrap space-y-8">
         
         {/* Editorial Collection Header */}

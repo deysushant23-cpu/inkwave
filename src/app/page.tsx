@@ -22,9 +22,7 @@ import {
   RotateCcw, 
   Flame, 
   Layers, 
-  Wand2, 
-  Star,
-  Quote
+  Wand2
 } from 'lucide-react';
 
 export const revalidate = 60;
@@ -42,27 +40,21 @@ function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
 export default async function Home() {
   const supabase = await createClient();
 
-  // 1. Fetch active categories, sort orders, reviews, and all CMS configs in parallel
+  // 1. Fetch active categories, sort orders, and all CMS configs in parallel
   const [
     catRes, 
     sortOrderRes, 
     homepageConfigRes,
     newDropsConfigRes,
     bestsellersConfigRes,
-    fitsConfigRes,
-    reviewsRes
+    fitsConfigRes
   ] = await Promise.all([
     (supabase.from('categories') as any).select('*').eq('is_active', true),
     (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'categories_sort_order').single(),
     (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'homepage_config').single(),
     (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'new_drops_config').single(),
     (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'bestsellers_config').single(),
-    (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'curated_fits_config').single(),
-    (supabase.from('product_reviews') as any)
-      .select('id, rating, comment_text, created_at, profiles(full_name, avatar_url), products(title, slug)')
-      .eq('is_approved', true)
-      .order('created_at', { ascending: false })
-      .limit(6)
+    (supabase.from('cms_sections') as any).select('json_content').eq('section_key', 'curated_fits_config').single()
   ]);
 
   const rawCategoriesData = (catRes.data as any[]) || [];
@@ -71,7 +63,6 @@ export default async function Home() {
   const newDropsConfig = (newDropsConfigRes.data?.json_content as any) || {};
   const bestsellersConfig = (bestsellersConfigRes.data?.json_content as any) || {};
   const fitsData = (fitsConfigRes.data?.json_content as any) || {};
-  const approvedReviews = (reviewsRes.data as any[]) || [];
 
   const curatedFits = fitsData?.fits || null;
   const showFits = fitsData?.show ?? true;
@@ -158,28 +149,58 @@ export default async function Home() {
   const newsletterTitle = homepageConfig.newsletterTitle || "JOIN THE INKWAVE COMMUNITY";
   const newsletterDesc = homepageConfig.newsletterDesc || "First access to restocks, unreleased drops, and secret studio runs. No spam, just ink.";
 
-  // High-impact lookbook visual items using real products
-  const lookbookItems = products.slice(0, 3);
-
+  // High-value structured schemas for Google Rich Results
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Store",
-    "name": "Inkwave",
-    "url": "https://inkwavefashion.com",
-    "logo": "https://inkwavefashion.com/logo.png",
-    "image": "https://inkwavefashion.com/logo.png",
-    "description": "Premium Gen-Z Streetwear & Custom Prints. Luxury underground limited-edition drops.",
-    "telephone": "+91-8160321453",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "B/12 Sharmjivi Soc, Umra",
-      "addressLocality": "Surat",
-      "addressRegion": "Gujarat",
-      "postalCode": "395007",
-      "addressCountry": "IN"
-    },
-    "sameAs": [
-      "https://www.instagram.com/inkwavefashion"
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://inkwavefashion.com/#website",
+        "url": "https://inkwavefashion.com",
+        "name": "Inkwave",
+        "description": "Premium Gen-Z Streetwear & Custom Prints. Luxury underground limited-edition drops.",
+        "publisher": {
+          "@id": "https://inkwavefashion.com/#organization"
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://inkwavefashion.com/collections?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "ClothingStore",
+        "@id": "https://inkwavefashion.com/#organization",
+        "name": "Inkwave",
+        "url": "https://inkwavefashion.com",
+        "logo": "https://inkwavefashion.com/logo.png",
+        "image": "https://inkwavefashion.com/logo.png",
+        "description": "Premium Gen-Z Streetwear & Custom Prints. Luxury underground limited-edition drops.",
+        "telephone": "+91-8160321453",
+        "priceRange": "₹₹",
+        "paymentAccepted": "Cash, Credit Card, Debit Card, UPI, NetBanking",
+        "currenciesAccepted": "INR",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "B/12 Sharmjivi Soc, Umra",
+          "addressLocality": "Surat",
+          "addressRegion": "Gujarat",
+          "postalCode": "395007",
+          "addressCountry": "IN"
+        },
+        "sameAs": [
+          "https://www.instagram.com/inkwavefashion"
+        ]
+      },
+      {
+        "@type": "ItemList",
+        "itemListElement": newDropProducts.slice(0, 8).map((p: any, idx: number) => ({
+          "@type": "ListItem",
+          "position": idx + 1,
+          "name": p.title,
+          "url": `https://inkwavefashion.com/product/${p.slug}`
+        }))
+      }
     ]
   };
 
@@ -378,118 +399,12 @@ export default async function Home() {
         )}
 
         {/* ══════════════════════════════════════════════════════════════════
-            6. SHOP BY STYLE (CURATED FITS & CATEGORIES)
+            5. SHOP BY STYLE (CURATED FITS & CATEGORIES)
         ══════════════════════════════════════════════════════════════════ */}
         <ShopByStyle products={products} />
 
         {/* ══════════════════════════════════════════════════════════════════
-            7. EDITORIAL LOOKBOOK / CAMPAIGN GALLERY
-        ══════════════════════════════════════════════════════════════════ */}
-        {lookbookItems.length >= 2 && (
-          <section className="py-16 md:py-24 border-b border-white/10 bg-black">
-            <div className="wrap space-y-10">
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-white/10">
-                <div>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-400 font-bold">
-                    VOL. 04 // EDITORIAL CAMPAIGN
-                  </span>
-                  <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-black uppercase text-white mt-1 tracking-tight">
-                    STREETWEAR LOOKBOOK
-                  </h2>
-                </div>
-                <Link 
-                  href="/collections" 
-                  className="font-mono text-xs uppercase tracking-widest text-white hover:text-neutral-400 transition-colors flex items-center gap-1.5 font-bold hover:underline"
-                >
-                  <span>Shop Campaign</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-
-              {/* Asymmetric Campaign Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
-                {/* Large Featured Card (7 cols) */}
-                {lookbookItems[0] && (
-                  <div className="md:col-span-7 relative group rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 min-h-[420px] md:min-h-[520px] flex flex-col justify-end p-6 sm:p-8">
-                    {lookbookItems[0].images?.[0] && (
-                      <Image
-                        src={lookbookItems[0].images[0]}
-                        alt={lookbookItems[0].title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 60vw"
-                        className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-                    
-                    <div className="relative z-10 space-y-2">
-                      <span className="font-mono text-[10px] text-neutral-400 uppercase tracking-widest">
-                        Editorial Feature // 01
-                      </span>
-                      <h3 className="font-display text-2xl sm:text-4xl font-black uppercase text-white">
-                        {lookbookItems[0].title}
-                      </h3>
-                      <p className="font-mono text-xs text-neutral-300">
-                        Boxy drop-shoulder 240 GSM heavy French Terry cotton.
-                      </p>
-                      <div className="pt-2">
-                        <Link
-                          href={`/product/${lookbookItems[0].slug}`}
-                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black font-mono font-bold text-xs uppercase tracking-wider hover:bg-neutral-200 transition-all shadow-lg"
-                        >
-                          <span>Shop Piece</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 2 Stacked Cards (5 cols) */}
-                <div className="md:col-span-5 grid grid-cols-1 gap-6">
-                  {lookbookItems.slice(1, 3).map((item: any, i: number) => (
-                    <div 
-                      key={item.id}
-                      className="relative group rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 min-h-[240px] flex flex-col justify-end p-5 sm:p-6"
-                    >
-                      {item.images?.[0] && (
-                        <Image
-                          src={item.images[0]}
-                          alt={item.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 40vw"
-                          className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                      
-                      <div className="relative z-10 space-y-1">
-                        <h4 className="font-display text-lg sm:text-xl font-bold uppercase text-white truncate">
-                          {item.title}
-                        </h4>
-                        <div className="flex items-center justify-between pt-1">
-                          <span className="font-mono text-xs font-bold text-neutral-300">
-                            ₹{item.base_price}
-                          </span>
-                          <Link
-                            href={`/product/${item.slug}`}
-                            className="font-mono text-[10px] font-bold uppercase tracking-wider text-white hover:underline flex items-center gap-1"
-                          >
-                            <span>Explore</span>
-                            <ArrowRight className="w-3 h-3" />
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════════════
-            8. WHY INKWAVE (CRAFTSMANSHIP & TRUST)
+            6. WHY INKWAVE (CRAFTSMANSHIP & TRUST)
         ══════════════════════════════════════════════════════════════════ */}
         <section className="py-16 md:py-24 border-b border-white/10 bg-black">
           <div className="wrap space-y-12">
@@ -550,74 +465,7 @@ export default async function Home() {
         </section>
 
         {/* ══════════════════════════════════════════════════════════════════
-            9. CUSTOMER REVIEWS / COMMUNITY PROOF
-        ══════════════════════════════════════════════════════════════════ */}
-        <section className="py-16 md:py-24 border-b border-white/10 bg-neutral-950">
-          <div className="wrap space-y-10">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-white/10">
-              <div>
-                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-400 font-bold">
-                  COMMUNITY REVIEWS // VERIFIED WEARERS
-                </span>
-                <h2 className="font-display text-3xl sm:text-5xl font-black uppercase text-white mt-1 tracking-tight">
-                  TRIBE FEEDBACK
-                </h2>
-              </div>
-            </div>
-
-            {approvedReviews.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {approvedReviews.map((rev: any) => (
-                  <div key={rev.id} className="p-6 rounded-2xl bg-black border border-white/10 flex flex-col justify-between gap-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-1 text-amber-400">
-                        {Array.from({ length: rev.rating || 5 }).map((_, s) => (
-                          <Star key={s} className="w-3.5 h-3.5 fill-current" />
-                        ))}
-                      </div>
-                      <p className="font-mono text-xs text-neutral-300 leading-relaxed">
-                        &ldquo;{rev.comment_text}&rdquo;
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-3 border-t border-white/10 text-[11px] font-mono text-neutral-400">
-                      <span className="font-bold text-white">
-                        {rev.profiles?.full_name || 'Verified Customer'}
-                      </span>
-                      {rev.products?.title && (
-                        <span className="text-[10px] text-neutral-500 truncate max-w-[120px]">
-                          {rev.products.title}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 px-4 rounded-2xl border border-white/10 bg-black/50 max-w-xl mx-auto space-y-3">
-                <Quote className="w-8 h-8 text-neutral-600 mx-auto" />
-                <h4 className="font-display text-xl uppercase font-bold text-white">
-                  Join the Vanguard
-                </h4>
-                <p className="text-xs font-mono text-neutral-400">
-                  Every Inkwave piece is crafted in limited batches. Order your fit and share your review on the product page.
-                </p>
-                <div className="pt-2">
-                  <Link
-                    href="/collections"
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white text-black font-mono font-bold text-xs uppercase tracking-wider hover:bg-neutral-200 transition-all"
-                  >
-                    <span>Shop Latest Drops</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════════════
-            10. INSTAGRAM / SOCIAL PROOF
+            7. INSTAGRAM / SOCIAL PROOF
         ══════════════════════════════════════════════════════════════════ */}
         <section className="py-16 md:py-20 border-b border-white/10 bg-black">
           <div className="wrap space-y-8 text-center">
@@ -670,24 +518,24 @@ export default async function Home() {
         </section>
 
         {/* ══════════════════════════════════════════════════════════════════
-            11. SHOPPABLE REELS SECTION (IF ENABLED)
+            8. SHOPPABLE REELS SECTION (IF ENABLED)
         ══════════════════════════════════════════════════════════════════ */}
         <ReelsSection />
 
         {/* ══════════════════════════════════════════════════════════════════
-            12. EXCLUSIVE OFFERS & DEALS SECTION
+            9. EXCLUSIVE OFFERS & DEALS SECTION
         ══════════════════════════════════════════════════════════════════ */}
         <Scroll3DEffect>
           <OffersSection />
         </Scroll3DEffect>
 
         {/* ══════════════════════════════════════════════════════════════════
-            13. CURATED FITS SECTION (SHOP THE LOOK)
+            10. CURATED FITS SECTION (SHOP THE LOOK)
         ══════════════════════════════════════════════════════════════════ */}
         {showFits && <CuratedFits fits={curatedFits} />}
 
         {/* ══════════════════════════════════════════════════════════════════
-            14. COMMUNITY NEWSLETTER SECTION
+            11. COMMUNITY NEWSLETTER SECTION
         ══════════════════════════════════════════════════════════════════ */}
         <section className="newsletter border-t border-white/10 bg-black py-16 md:py-20">
           <div className="wrap text-center max-w-xl mx-auto space-y-4">

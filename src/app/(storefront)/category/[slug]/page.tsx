@@ -17,25 +17,39 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   const { data: category } = await supabase
     .from('categories')
-    .select('name, description')
+    .select('name, description, slug')
     .ilike('slug', rawSlug)
     .single();
 
   if (!category) return { title: 'Category Not Found | Inkwave' };
   
   const c = category as any;
+  const canonicalSlug = c.slug || rawSlug;
 
   return {
     title: `${c.name} | Inkwave Streetwear`,
-    description: c.description || `Shop the latest ${c.name} at Inkwave.`,
+    description: c.description || `Shop the latest ${c.name} collection at Inkwave. Premium 240 GSM heavyweights, custom prints, and oversized streetwear fits.`,
+    keywords: [
+      c.name,
+      `${c.name} streetwear`,
+      `oversized ${c.name}`,
+      'inkwave fashion',
+      'streetwear india',
+      'heavyweight apparel'
+    ],
+    alternates: {
+      canonical: `/category/${canonicalSlug}`,
+    },
     openGraph: {
-      title: `${c.name} | Inkwave`,
-      description: c.description || `Shop the latest ${c.name} at Inkwave.`,
+      title: `${c.name} | Inkwave Streetwear`,
+      description: c.description || `Shop the latest ${c.name} collection at Inkwave.`,
+      url: `https://inkwavefashion.com/category/${canonicalSlug}`,
+      type: 'website',
     },
     twitter: {
-      card: 'summary',
-      title: `${c.name} | Inkwave`,
-      description: c.description || `Shop the latest ${c.name} at Inkwave.`,
+      card: 'summary_large_image',
+      title: `${c.name} | Inkwave Streetwear`,
+      description: c.description || `Shop the latest ${c.name} collection at Inkwave.`,
     },
   };
 }
@@ -119,8 +133,53 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const bannerConfig = (bannerRes.data as any)?.json_content as { url?: string, type?: 'image' | 'video' } | undefined;
   const marqueeConfig = (marqueeRes.data as any)?.json_content;
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://inkwavefashion.com';
+  const categoryUrl = `${baseUrl}/category/${category.slug || rawSlug}`;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "name": `${category.name} | Inkwave Streetwear`,
+        "description": category.description || `Shop the latest ${category.name} at Inkwave.`,
+        "url": categoryUrl,
+        "mainEntity": {
+          "@type": "ItemList",
+          "itemListElement": products.slice(0, 16).map((p: any, idx: number) => ({
+            "@type": "ListItem",
+            "position": idx + 1,
+            "url": `${baseUrl}/product/${p.slug}`,
+            "name": p.title
+          }))
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": baseUrl
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": category.name,
+            "item": categoryUrl
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <div className="flex flex-col w-full relative z-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <CursorSpotlight />
 
       {/* ─── PREMIUM PARALLAX HERO ─── */}

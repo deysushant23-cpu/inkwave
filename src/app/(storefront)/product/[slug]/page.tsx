@@ -44,14 +44,31 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     // Fail silently - default to standard product details
   }
 
+  if (!keywords) {
+    keywords = [
+      p.title,
+      `${p.title} inkwave`,
+      'oversized graphic streetwear',
+      '240 gsm french terry',
+      'buy streetwear online india'
+    ];
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://inkwavefashion.com';
+
   return {
     title: seoTitle,
     description: seoDescription,
     keywords,
+    alternates: {
+      canonical: `/product/${slug}`,
+    },
     openGraph: {
       title: seoTitle,
       description: seoDescription,
+      url: `${baseUrl}/product/${slug}`,
       images: [{ url: imageUrl }],
+      type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
@@ -111,27 +128,71 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     ? (reviews.reduce((acc, r: any) => acc + r.rating, 0) / reviews.length).toFixed(1) 
     : '5.0';
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://inkwavefashion.com';
+  const productUrl = `${baseUrl}/product/${product.slug}`;
+  const categorySlug = (product.categories as any)?.slug;
+  const categoryUrl = categorySlug ? `${baseUrl}/category/${categorySlug}` : `${baseUrl}/collections`;
+
   const jsonLd = {
     "@context": "https://schema.org/",
-    "@type": "Product",
-    "name": product.title,
-    "image": product.images || [],
-    "description": product.description || product.title,
-    "sku": product.id,
-    "offers": {
-      "@type": "AggregateOffer",
-      "url": `${process.env.NEXT_PUBLIC_APP_URL || 'https://inkwavefashion.com'}/product/${product.slug}`,
-      "priceCurrency": "INR",
-      "lowPrice": product.price,
-      "highPrice": product.price,
-      "offerCount": variants.length || 1,
-      "availability": "https://schema.org/InStock"
-    },
-    "aggregateRating": reviews.length > 0 ? {
-      "@type": "AggregateRating",
-      "ratingValue": averageRating,
-      "reviewCount": reviews.length
-    } : undefined
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": product.title,
+        "image": product.images || [],
+        "description": product.description || `${product.title} - Heavyweight 240 GSM luxury streetwear by Inkwave.`,
+        "sku": product.id,
+        "brand": {
+          "@type": "Brand",
+          "name": "Inkwave"
+        },
+        "category": categoryName || "Streetwear Apparel",
+        "offers": {
+          "@type": "AggregateOffer",
+          "url": productUrl,
+          "priceCurrency": "INR",
+          "lowPrice": product.price,
+          "highPrice": product.price,
+          "offerCount": variants.length || 1,
+          "itemCondition": "https://schema.org/NewCondition",
+          "availability": "https://schema.org/InStock",
+          "seller": {
+            "@type": "Organization",
+            "name": "Inkwave"
+          }
+        },
+        ...(reviews.length > 0 ? {
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": averageRating,
+            "reviewCount": reviews.length
+          }
+        } : {})
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": baseUrl
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": categoryName || "Collections",
+            "item": categoryUrl
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": product.title,
+            "item": productUrl
+          }
+        ]
+      }
+    ]
   };
 
   return (
