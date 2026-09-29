@@ -585,6 +585,57 @@ export default function CustomPrintStudio() {
     toast.success('Artwork auto-fitted to safe print area');
   };
 
+  // Upgraded AI Background Removal Toggle
+  const handleToggleAIBgRemoval = async (tolerance = 38) => {
+    if (!activeGraphic) return;
+    if (activeGraphic.removeBg && activeGraphic.rawUrl) {
+      commitLayerChange({ processedUrl: activeGraphic.rawUrl, removeBg: false });
+      toast.info('Restored original background');
+    } else {
+      setIsProcessingAI(true);
+      toast.info('✨ AI removing background with edge feathering...');
+      try {
+        const sourceUrl = activeGraphic.rawUrl || activeGraphic.url;
+        const { cleanUrl, hasRemovedBg } = await processImageWithAI(sourceUrl, { tolerance });
+        commitLayerChange({ processedUrl: cleanUrl, removeBg: true, bgTolerance: tolerance });
+        toast.success(hasRemovedBg ? '✨ Background removed cleanly!' : 'AI image processed!');
+      } catch (err) {
+        console.error('Bg removal error:', err);
+        toast.error('Could not process background removal');
+      } finally {
+        setIsProcessingAI(false);
+      }
+    }
+  };
+
+  // 1-Click Preset Location Snapper
+  const handleApplyPlacementPreset = (preset: { name: string; side?: PrintSurface; x: number; y: number; scale?: number }) => {
+    if (!activeGraphic) return;
+    if (preset.side && preset.side !== activeGraphic.side) {
+      handleSelectSurface(preset.side);
+    }
+    commitLayerChange({
+      x: preset.x,
+      y: preset.y,
+      ...(preset.scale ? { scale: preset.scale } : {})
+    });
+    toast.success(`Positioned to ${preset.name}`);
+  };
+
+  // 1-Click Preset Size Snapper
+  const handleApplySizePreset = (scale: number, label: string) => {
+    if (!activeGraphic) return;
+    commitLayerChange({ scale });
+    toast.success(`Size set to ${label} (${scale}%)`);
+  };
+
+  // Rotate Nudge
+  const handleRotateNudge = (delta: number) => {
+    if (!activeGraphic) return;
+    const newRot = ((activeGraphic.rotate || 0) + delta + 360) % 360;
+    commitLayerChange({ rotate: newRot });
+  };
+
   // 1-Tap Streetwear Design Recipe (Instant Preset)
   const handleApplyRecipe = (recipe: DesignRecipe) => {
     // 1. Set Garment color
@@ -1070,163 +1121,340 @@ export default function CustomPrintStudio() {
                       </div>
                     </div>
 
-                    {/* Beginner Quick Adjustments (Scale & Rotation Sliders) */}
-                    <div className="space-y-4">
-                      {/* Scale Slider */}
-                      <div>
-                        <div className="flex items-center justify-between text-xs font-mono text-neutral-300 mb-1.5">
-                          <span>Size / Scale</span>
-                          <span className="font-bold text-white">{activeGraphic.scale}%</span>
+                    {/* ═══ EASY BUTTON SYSTEM FOR FAST CUSTOMIZATION ═══ */}
+                    
+                    {/* 1. AI Background Remover One-Click Action */}
+                    {activeGraphic.layerType === 'image' && (
+                      <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`p-2 rounded-xl ${activeGraphic.removeBg ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-white'}`}>
+                            <Wand2 className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-mono font-bold text-white uppercase flex items-center gap-2">
+                              <span>AI Background Remover</span>
+                              {activeGraphic.removeBg && (
+                                <span className="px-1.5 py-0.5 rounded text-[8px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                  ✓ Cutout Applied
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[10px] font-mono text-neutral-400">
+                              {activeGraphic.removeBg ? 'Transparent background active' : '1-click clean background extraction'}
+                            </div>
+                          </div>
                         </div>
-                        <input 
-                          type="range" 
-                          min={15} 
-                          max={85} 
-                          value={activeGraphic.scale} 
-                          onChange={(e) => updateActiveLayer({ scale: Number(e.target.value) })}
-                          onMouseUp={() => pushHistoryState(graphics)}
-                          onTouchEnd={() => pushHistoryState(graphics)}
-                          className="w-full accent-[var(--accent)] cursor-pointer"
-                        />
-                      </div>
 
-                      {/* Rotation Slider */}
-                      <div>
-                        <div className="flex items-center justify-between text-xs font-mono text-neutral-300 mb-1.5">
-                          <span>Rotation</span>
-                          <span className="font-bold text-white">{activeGraphic.rotate}°</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <input 
-                            type="range" 
-                            min={-180} 
-                            max={180} 
-                            value={activeGraphic.rotate} 
-                            onChange={(e) => updateActiveLayer({ rotate: Number(e.target.value) })}
-                            onMouseUp={() => pushHistoryState(graphics)}
-                            onTouchEnd={() => pushHistoryState(graphics)}
-                            className="flex-1 accent-[var(--accent)] cursor-pointer"
-                          />
-                          <button
-                            onClick={() => commitLayerChange({ rotate: (activeGraphic.rotate + 90) % 360 })}
-                            className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-mono text-neutral-300"
-                            title="Rotate 90 deg"
-                          >
-                            +90°
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Quick Alignment Actions: Center / Auto-fit / Flips */}
-                      <div className="grid grid-cols-4 gap-2 pt-1">
                         <button
-                          onClick={() => handleNudgePosition('center')}
-                          className="py-2 px-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-mono text-neutral-300 hover:text-white flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <Maximize2 className="w-3.5 h-3.5" />
-                          <span>Center</span>
-                        </button>
-                        <button
-                          onClick={handleAutoFit}
-                          className="py-2 px-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-mono text-neutral-300 hover:text-white flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <Scan className="w-3.5 h-3.5" />
-                          <span>Auto-Fit</span>
-                        </button>
-                        <button
-                          onClick={() => commitLayerChange({ flipX: !activeGraphic.flipX })}
-                          className={`py-2 px-3 rounded-xl border text-xs font-mono flex items-center justify-center gap-1.5 transition-all ${
-                            activeGraphic.flipX ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'bg-white/5 border-white/10 text-neutral-300 hover:text-white'
+                          type="button"
+                          disabled={isProcessingAI}
+                          onClick={() => handleToggleAIBgRemoval(activeGraphic.bgTolerance || 38)}
+                          className={`px-4 py-2 rounded-xl font-mono text-xs uppercase font-bold tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                            activeGraphic.removeBg 
+                              ? 'bg-neutral-800 hover:bg-neutral-700 text-white border border-white/20' 
+                              : 'bg-white text-black hover:bg-neutral-200 shadow-md'
                           }`}
                         >
-                          <FlipHorizontal className="w-3.5 h-3.5" />
-                          <span>Flip H</span>
+                          <Wand2 className="w-3.5 h-3.5" />
+                          <span>{activeGraphic.removeBg ? 'Restore Original' : 'Remove Background'}</span>
                         </button>
+                      </div>
+                    )}
+
+                    {/* 2. 1-Tap Placement Presets */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs font-mono text-neutral-300">
+                        <span className="uppercase font-bold text-white flex items-center gap-1.5">
+                          <Compass className="w-3.5 h-3.5 text-[var(--accent)]" />
+                          <span>1-Tap Location Presets</span>
+                        </span>
+                        <span className="text-[10px] text-neutral-400">Instant Snap</span>
+                      </div>
+
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
                         <button
-                          onClick={() => commitLayerChange({ flipY: !activeGraphic.flipY })}
-                          className={`py-2 px-3 rounded-xl border text-xs font-mono flex items-center justify-center gap-1.5 transition-all ${
-                            activeGraphic.flipY ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'bg-white/5 border-white/10 text-neutral-300 hover:text-white'
-                          }`}
+                          type="button"
+                          onClick={() => handleApplyPlacementPreset({ name: 'Center Chest', side: 'front', x: 0, y: 38, scale: 48 })}
+                          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 text-xs font-mono text-neutral-200 flex items-center gap-1.5 transition-all text-left"
                         >
-                          <FlipVertical className="w-3.5 h-3.5" />
-                          <span>Flip V</span>
+                          <span>🎯</span>
+                          <span className="truncate">Center</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPlacementPreset({ name: 'Left Pocket', side: 'front', x: -22, y: 30, scale: 22 })}
+                          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 text-xs font-mono text-neutral-200 flex items-center gap-1.5 transition-all text-left"
+                        >
+                          <span>📍</span>
+                          <span className="truncate">L-Pocket</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPlacementPreset({ name: 'Right Chest', side: 'front', x: 22, y: 30, scale: 22 })}
+                          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 text-xs font-mono text-neutral-200 flex items-center gap-1.5 transition-all text-left"
+                        >
+                          <span>🏷️</span>
+                          <span className="truncate">R-Chest</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPlacementPreset({ name: 'Full Back', side: 'back', x: 0, y: 38, scale: 62 })}
+                          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 text-xs font-mono text-neutral-200 flex items-center gap-1.5 transition-all text-left"
+                        >
+                          <span>🔥</span>
+                          <span className="truncate">Full Back</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPlacementPreset({ name: 'Collar Nape', side: 'back', x: 0, y: 18, scale: 18 })}
+                          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 text-xs font-mono text-neutral-200 flex items-center gap-1.5 transition-all text-left"
+                        >
+                          <span>🏷️</span>
+                          <span className="truncate">Collar Nape</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPlacementPreset({ name: 'Left Sleeve', side: 'sleeve-left', x: 0, y: 30, scale: 26 })}
+                          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 text-xs font-mono text-neutral-200 flex items-center gap-1.5 transition-all text-left"
+                        >
+                          <span>🦾</span>
+                          <span className="truncate">L-Sleeve</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPlacementPreset({ name: 'Right Sleeve', side: 'sleeve-right', x: 0, y: 30, scale: 26 })}
+                          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 text-xs font-mono text-neutral-200 flex items-center gap-1.5 transition-all text-left"
+                        >
+                          <span>🦾</span>
+                          <span className="truncate">R-Sleeve</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleAutoFit()}
+                          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 text-xs font-mono text-neutral-200 flex items-center gap-1.5 transition-all text-left"
+                        >
+                          <span>📐</span>
+                          <span className="truncate">Auto-Fit</span>
                         </button>
                       </div>
                     </div>
 
-                    {/* Advanced Precision Toggle */}
-                    <div className="border-t border-white/10 pt-3">
-                      <button
-                        onClick={() => setShowPrecision(p => !p)}
-                        className="w-full flex items-center justify-between text-xs font-mono uppercase tracking-wider text-neutral-400 hover:text-white py-1"
-                      >
-                        <span className="flex items-center gap-1.5">
-                          <Sliders className="w-3.5 h-3.5 text-[var(--accent)]" />
-                          <span>Precision & Print Finish Settings</span>
+                    {/* 3. Easy Directional Nudge Pad & Alignment */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs font-mono text-neutral-300">
+                        <span className="uppercase font-bold text-white flex items-center gap-1.5">
+                          <Move className="w-3.5 h-3.5 text-[var(--accent)]" />
+                          <span>Position Controller</span>
                         </span>
-                        {showPrecision ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </button>
+                        <span className="text-[10px] text-neutral-400">X:{activeGraphic.x} Y:{activeGraphic.y}</span>
+                      </div>
 
-                      {showPrecision && (
-                        <div className="pt-4 space-y-4">
-                          {/* Nudge Directional Pad */}
-                          <div>
-                            <div className="text-[11px] font-mono text-neutral-400 mb-2 uppercase">Precision Nudge Pad</div>
-                            <div className="flex items-center justify-center gap-2">
-                              <button onClick={() => handleNudgePosition('left', 2)} className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-mono text-xs">
-                                &larr; -2
-                              </button>
-                              <div className="flex flex-col gap-2">
-                                <button onClick={() => handleNudgePosition('up', 2)} className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-mono text-xs">
-                                  &uarr; -2
-                                </button>
-                                <button onClick={() => handleNudgePosition('down', 2)} className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-mono text-xs">
-                                  &darr; +2
-                                </button>
-                              </div>
-                              <button onClick={() => handleNudgePosition('right', 2)} className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-mono text-xs">
-                                &rarr; +2
-                              </button>
-                            </div>
-                          </div>
+                      <div className="p-3 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-between gap-4">
+                        {/* Directional Pad */}
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleNudgePosition('left', 4)}
+                            aria-label="Move Left"
+                            className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white hover:text-black border border-white/15 flex items-center justify-center font-bold text-white transition-all active:scale-95"
+                          >
+                            <ChevronLeft className="w-5 h-5" />
+                          </button>
 
-                          {/* Print Finish Selector */}
-                          <div>
-                            <div className="text-[11px] font-mono text-neutral-400 mb-2 uppercase">Print Finish Style</div>
-                            <div className="grid grid-cols-4 gap-2">
-                              {(['matte', 'puff', 'vintage', 'chrome'] as PrintFinish[]).map((finish) => (
-                                <button
-                                  key={finish}
-                                  onClick={() => commitLayerChange({ finish })}
-                                  className={`py-2 rounded-xl text-[11px] font-mono uppercase font-bold border transition-all ${
-                                    activeGraphic.finish === finish 
-                                      ? 'bg-white text-black border-white' 
-                                      : 'bg-white/5 border-white/10 text-neutral-400 hover:text-white'
-                                  }`}
-                                >
-                                  {finish}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* AI 300 DPI Resolution Booster */}
-                          <div className="pt-2">
+                          <div className="flex flex-col gap-1.5">
                             <button
-                              onClick={handleAIUpscale}
-                              disabled={isUpscalingAI || activeGraphic.isUpscaled}
-                              className={`w-full py-2.5 rounded-2xl border text-xs font-mono uppercase tracking-wider font-bold flex items-center justify-center gap-2 transition-all ${
-                                activeGraphic.isUpscaled
-                                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                                  : 'bg-white/5 border-white/10 hover:bg-white/10 text-white'
-                              }`}
+                              type="button"
+                              onClick={() => handleNudgePosition('up', 4)}
+                              aria-label="Move Up"
+                              className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white hover:text-black border border-white/15 flex items-center justify-center font-bold text-white transition-all active:scale-95"
                             >
-                              <Wand2 className="w-4 h-4 text-[var(--accent)]" />
-                              <span>{activeGraphic.isUpscaled ? '✓ 300 DPI HD Print Quality Applied' : 'Boost to 300 DPI (AI Ultra-HD)'}</span>
+                              <ChevronUp className="w-5 h-5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleNudgePosition('down', 4)}
+                              aria-label="Move Down"
+                              className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white hover:text-black border border-white/15 flex items-center justify-center font-bold text-white transition-all active:scale-95"
+                            >
+                              <ChevronDown className="w-5 h-5" />
                             </button>
                           </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleNudgePosition('right', 4)}
+                            aria-label="Move Right"
+                            className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white hover:text-black border border-white/15 flex items-center justify-center font-bold text-white transition-all active:scale-95"
+                          >
+                            <ChevronRight className="w-5 h-5" />
+                          </button>
                         </div>
-                      )}
+
+                        {/* Quick Centering & Flips */}
+                        <div className="flex flex-col gap-1.5 flex-1 max-w-[140px]">
+                          <button
+                            type="button"
+                            onClick={() => handleNudgePosition('center')}
+                            className="py-2 px-3 rounded-xl bg-white text-black font-bold font-mono text-xs uppercase flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95"
+                          >
+                            <Maximize2 className="w-3.5 h-3.5" />
+                            <span>Center</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => commitLayerChange({ flipX: !activeGraphic.flipX })}
+                            className={`py-2 px-3 rounded-xl border font-mono text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 ${
+                              activeGraphic.flipX ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'bg-white/5 border-white/15 text-neutral-300 hover:text-white'
+                            }`}
+                          >
+                            <FlipHorizontal className="w-3.5 h-3.5" />
+                            <span>Mirror Flip</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 4. 1-Tap Size Buttons */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs font-mono text-neutral-300">
+                        <span className="uppercase font-bold text-white">Size Presets</span>
+                        <span className="font-bold text-white">{activeGraphic.scale}%</span>
+                      </div>
+
+                      <div className="grid grid-cols-4 gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleApplySizePreset(22, 'Small Pocket')}
+                          className={`py-2 px-1 rounded-xl border text-center font-mono text-xs font-bold uppercase transition-all ${
+                            activeGraphic.scale <= 26 ? 'bg-white text-black border-white' : 'bg-white/5 border-white/10 text-neutral-300 hover:text-white'
+                          }`}
+                        >
+                          Small (22%)
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleApplySizePreset(45, 'Medium Chest')}
+                          className={`py-2 px-1 rounded-xl border text-center font-mono text-xs font-bold uppercase transition-all ${
+                            activeGraphic.scale > 26 && activeGraphic.scale <= 52 ? 'bg-white text-black border-white' : 'bg-white/5 border-white/10 text-neutral-300 hover:text-white'
+                          }`}
+                        >
+                          Medium (45%)
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleApplySizePreset(62, 'Large Street')}
+                          className={`py-2 px-1 rounded-xl border text-center font-mono text-xs font-bold uppercase transition-all ${
+                            activeGraphic.scale > 52 && activeGraphic.scale <= 70 ? 'bg-white text-black border-white' : 'bg-white/5 border-white/10 text-neutral-300 hover:text-white'
+                          }`}
+                        >
+                          Large (62%)
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleApplySizePreset(78, 'Max Statement')}
+                          className={`py-2 px-1 rounded-xl border text-center font-mono text-xs font-bold uppercase transition-all ${
+                            activeGraphic.scale > 70 ? 'bg-white text-black border-white' : 'bg-white/5 border-white/10 text-neutral-300 hover:text-white'
+                          }`}
+                        >
+                          Max (78%)
+                        </button>
+                      </div>
+
+                      {/* Continuous Scale Slider for fine-tuning */}
+                      <input 
+                        type="range" 
+                        min={15} 
+                        max={85} 
+                        value={activeGraphic.scale} 
+                        onChange={(e) => updateActiveLayer({ scale: Number(e.target.value) })}
+                        onMouseUp={() => pushHistoryState(graphics)}
+                        onTouchEnd={() => pushHistoryState(graphics)}
+                        className="w-full accent-[var(--accent)] cursor-pointer mt-1"
+                      />
+                    </div>
+
+                    {/* 5. Easy Rotation Buttons */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs font-mono text-neutral-300">
+                        <span className="uppercase font-bold text-white">Rotate Artwork</span>
+                        <span className="font-bold text-white">{activeGraphic.rotate}°</span>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleRotateNudge(-15)}
+                          className="py-2 px-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-mono text-neutral-200 flex items-center justify-center gap-1 transition-all active:scale-95"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>-15°</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => commitLayerChange({ rotate: 0 })}
+                          className="py-2 px-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-mono text-neutral-200 flex items-center justify-center gap-1 transition-all active:scale-95"
+                        >
+                          <span>Reset 0°</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRotateNudge(15)}
+                          className="py-2 px-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-mono text-neutral-200 flex items-center justify-center gap-1 transition-all active:scale-95"
+                        >
+                          <RotateCw className="w-3.5 h-3.5" />
+                          <span>+15°</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 6. AI 300 DPI Resolution Booster & Print Finish Style */}
+                    <div className="border-t border-white/10 pt-3 space-y-3">
+                      <div>
+                        <div className="text-[11px] font-mono text-neutral-400 mb-1.5 uppercase font-bold">Print Finish Texture</div>
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {(['matte', 'puff', 'vintage', 'chrome'] as PrintFinish[]).map((finish) => (
+                            <button
+                              key={finish}
+                              type="button"
+                              onClick={() => commitLayerChange({ finish })}
+                              className={`py-2 rounded-xl text-[10px] font-mono uppercase font-bold border transition-all ${
+                                activeGraphic.finish === finish 
+                                  ? 'bg-white text-black border-white' 
+                                  : 'bg-white/5 border-white/10 text-neutral-400 hover:text-white'
+                              }`}
+                            >
+                              {finish}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleAIUpscale}
+                        disabled={isUpscalingAI || activeGraphic.isUpscaled}
+                        className={`w-full py-2.5 rounded-2xl border text-xs font-mono uppercase tracking-wider font-bold flex items-center justify-center gap-2 transition-all ${
+                          activeGraphic.isUpscaled
+                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                            : 'bg-white/5 border-white/10 hover:bg-white/10 text-white'
+                        }`}
+                      >
+                        <Wand2 className="w-4 h-4 text-[var(--accent)]" />
+                        <span>{activeGraphic.isUpscaled ? '✓ 300 DPI HD Print Quality Applied' : 'Boost to 300 DPI (AI Ultra-HD)'}</span>
+                      </button>
                     </div>
                   </div>
                 ) : (

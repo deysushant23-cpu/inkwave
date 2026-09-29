@@ -1,10 +1,9 @@
 import Link from 'next/link';
-import { createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
-
 export default async function DashboardOrdersPage() {
-  const supabase = await createAdminClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     redirect('/');
@@ -24,7 +23,14 @@ export default async function DashboardOrdersPage() {
     console.error('Error fetching orders:', error);
   }
 
-  const orderList = orders || [];
+  // Deduplicate orders by ID to ensure customer never sees duplicate orders
+  const uniqueOrdersMap = new Map<string, any>();
+  (orders || []).forEach((o: any) => {
+    if (o && o.id && !uniqueOrdersMap.has(o.id)) {
+      uniqueOrdersMap.set(o.id, o);
+    }
+  });
+  const orderList = Array.from(uniqueOrdersMap.values());
 
   return (
     <>

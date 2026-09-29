@@ -1,15 +1,14 @@
 import Link from 'next/link';
 import { ArrowLeft, Check, PackageOpen, Truck, Home } from 'lucide-react';
-import { createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import DownloadInvoiceButton from '@/components/storefront/DownloadInvoiceButton';
 import CancelOrderButton from '@/components/storefront/CancelOrderButton';
 
-
 export default async function TrackOrderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   
-  const supabase = await createAdminClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     redirect('/');

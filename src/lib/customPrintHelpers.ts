@@ -752,86 +752,192 @@ export const SIZING_PRESETS: SizingPreset[] = [
 ];
 
 /**
- * AI Auto-Cleaner: Detects solid/light backgrounds from any JPG/PNG,
- * strips backgrounds automatically, and auto-trims whitespace.
+ * Upgraded AI Background Remover & Alpha-Clean Engine:
+ * - 360-degree multi-point border sampling
+ * - Connected flood-fill (BFS) from outer perimeter to preserve interior graphic colors (e.g. eyes, white text)
+ * - Anti-aliased 3-stage alpha edge feathering
+ * - Automatic transparent boundary trimming
  */
-export function processImageWithAI(base64Image: string): Promise<{ cleanUrl: string; hasRemovedBg: boolean }> {
+export function processImageWithAI(
+  base64Image: string, 
+  options: { tolerance?: number; featherRadius?: number; autoTrim?: boolean } = {}
+): Promise<{ cleanUrl: string; hasRemovedBg: boolean }> {
+  const tolerance = options.tolerance ?? 38;
+  const featherRadius = options.featherRadius ?? 12;
+  const autoTrim = options.autoTrim ?? true;
+
   return new Promise((resolve) => {
     const img = new Image();
+    img.crossOrigin = 'anonymous';
     img.src = base64Image;
     img.onload = () => {
+      const width = img.width;
+      const height = img.height;
+
       const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
       if (!ctx) {
         resolve({ cleanUrl: base64Image, hasRemovedBg: false });
         return;
       }
 
       ctx.drawImage(img, 0, 0);
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const imgData = ctx.getImageData(0, 0, width, height);
       const data = imgData.data;
 
-      // Sample 4 corners to detect background color
-      const corners = [
-        [data[0], data[1], data[2], data[3]],
-        [data[(canvas.width - 1) * 4], data[(canvas.width - 1) * 4 + 1], data[(canvas.width - 1) * 4 + 2], data[(canvas.width - 1) * 4 + 3]],
-        [data[(canvas.height - 1) * canvas.width * 4], data[(canvas.height - 1) * canvas.width * 4 + 1], data[(canvas.height - 1) * canvas.width * 4 + 2], data[(canvas.height - 1) * canvas.width * 4 + 3]],
-        [data[data.length - 4], data[data.length - 3], data[data.length - 2], data[data.length - 1]]
-      ];
-
-      // If already transparent, return as is
-      const isAlreadyTransparent = corners.some(c => c[3] < 50);
-      if (isAlreadyTransparent) {
+      // 1. Check if already has transparent pixels (> 8% of image)
+      let transparentPixelCount = 0;
+      for (let i = 3; i < data.length; i += 4) {
+        if (data[i] < 30) transparentPixelCount++;
+      }
+      if (transparentPixelCount > (data.length / 4) * 0.08) {
+        // Image is already transparent PNG/WebP
         resolve({ cleanUrl: base64Image, hasRemovedBg: false });
         return;
       }
 
-      let rBg = 0, gBg = 0, bBg = 0;
-      corners.forEach(c => {
-        rBg += c[0];
-        gBg += c[1];
-        bBg += c[2];
-      });
-      rBg = Math.round(rBg / 4);
-      gBg = Math.round(gBg / 4);
-      bBg = Math.round(bBg / 4);
+      // 2. Multi-point perimeter boundary sampling (every 8px on top, bottom, left, right)
+      const borderSamples: [number, number, number][] = [];
+      const step = Math.max(1, Math.floor(Math.min(width, height) / 40));
 
-      // Check if corners are homogeneous (indicating a solid photo backdrop)
-      let isHomogeneous = true;
-      corners.forEach(c => {
-        const diff = Math.abs(c[0] - rBg) + Math.abs(c[1] - gBg) + Math.abs(c[2] - bBg);
-        if (diff > 90) isHomogeneous = false;
-      });
+      for (let x = 0; x < width; x += step) {
+        const topIdx = (0 * width + x) * 4;
+        const bottomIdx = ((height - 1) * width + x) * 4;
+        borderSamples.push([data[topIdx], data[topIdx + 1], data[topIdx + 2]]);
+        borderSamples.push([data[bottomIdx], data[bottomIdx + 1], data[bottomIdx + 2]]);
+      }
+      for (let y = 0; y < height; y += step) {
+        const leftIdx = (y * width + 0) * 4;
+        const rightIdx = (y * width + (width - 1)) * 4;
+        borderSamples.push([data[leftIdx], data[leftIdx + 1], data[leftIdx + 2]]);
+        borderSamples.push([data[rightIdx], data[rightIdx + 1], data[rightIdx + 2]]);
+      }
 
-      // Default tolerance for JPG cleanup
-      const tolerance = 42;
-      let removedCount = 0;
+      // Calculate average background color
+      let avgR = 0, avgG = 0, avgB = 0;
+      for (const sample of borderSamples) {
+        avgR += sample[0];
+        avgG += sample[1];
+        avgB += sample[2];
+      }
+      avgR = Math.round(avgR / borderSamples.length);
+      avgG = Math.round(avgG / borderSamples.length);
+      avgB = Math.round(avgB / borderSamples.length);
 
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-
-        const dist = Math.sqrt(
-          Math.pow(r - rBg, 2) +
-          Math.pow(g - gBg, 2) +
-          Math.pow(b - bBg, 2)
+      // Color distance helper
+      const colorDistance = (r1: number, g1: number, b1: number, r2: number, g2: number, b2: number) => {
+        return Math.sqrt(
+          (r1 - r2) * (r1 - r2) * 0.299 +
+          (g1 - g2) * (g1 - g2) * 0.587 +
+          (b1 - b2) * (b1 - b2) * 0.114
         );
+      };
+
+      // 3. Connected Component Flood-Fill (BFS from outer boundary)
+      // This ensures we ONLY remove pixels connected to the background,
+      // preserving white/black shapes (e.g. eyes, logos, text) inside the foreground.
+      const visited = new Uint8Array(width * height);
+      const queue: number[] = [];
+
+      const isBgPixel = (x: number, y: number): boolean => {
+        const idx = (y * width + x) * 4;
+        const r = data[idx];
+        const g = data[idx + 1];
+        const b = data[idx + 2];
+        const dist = colorDistance(r, g, b, avgR, avgG, avgB);
+        return dist < (tolerance * 1.15);
+      };
+
+      // Seed all 4 borders into queue
+      for (let x = 0; x < width; x++) {
+        if (isBgPixel(x, 0)) { queue.push(x, 0); visited[0 * width + x] = 1; }
+        if (isBgPixel(x, height - 1)) { queue.push(x, height - 1); visited[(height - 1) * width + x] = 1; }
+      }
+      for (let y = 0; y < height; y++) {
+        if (isBgPixel(0, y)) { queue.push(0, y); visited[y * width + 0] = 1; }
+        if (isBgPixel(width - 1, y)) { queue.push(width - 1, y); visited[y * width + (width - 1)] = 1; }
+      }
+
+      // BFS Flood-Fill
+      let head = 0;
+      let removedCount = 0;
+      const dx = [1, -1, 0, 0];
+      const dy = [0, 0, 1, -1];
+
+      while (head < queue.length) {
+        const cx = queue[head++];
+        const cy = queue[head++];
+        const cIdx = (cy * width + cx) * 4;
+
+        // Calculate soft edge feather
+        const r = data[cIdx];
+        const g = data[cIdx + 1];
+        const b = data[cIdx + 2];
+        const dist = colorDistance(r, g, b, avgR, avgG, avgB);
 
         if (dist < tolerance) {
-          data[i + 3] = 0; // Set transparent
+          data[cIdx + 3] = 0; // Fully transparent
           removedCount++;
-        } else if (dist < tolerance + 15) {
+        } else {
           // Soft alpha edge feathering
-          const feather = (dist - tolerance) / 15;
-          data[i + 3] = Math.round(data[i + 3] * feather);
+          const featherRatio = Math.max(0, Math.min(1, (dist - tolerance) / featherRadius));
+          data[cIdx + 3] = Math.round(data[cIdx + 3] * featherRatio);
+        }
+
+        // Expand neighbors
+        for (let i = 0; i < 4; i++) {
+          const nx = cx + dx[i];
+          const ny = cy + dy[i];
+
+          if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+            const pos = ny * width + nx;
+            if (visited[pos] === 0 && isBgPixel(nx, ny)) {
+              visited[pos] = 1;
+              queue.push(nx, ny);
+            }
+          }
         }
       }
 
       ctx.putImageData(imgData, 0, 0);
-      const hasRemovedBg = removedCount > (data.length / 4) * 0.1;
+      const hasRemovedBg = removedCount > (width * height) * 0.05;
+
+      // 4. Auto-crop whitespace trim if background was removed
+      if (hasRemovedBg && autoTrim) {
+        let minX = width, minY = height, maxX = 0, maxY = 0;
+        let hasForeground = false;
+
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const alpha = data[(y * width + x) * 4 + 3];
+            if (alpha > 15) {
+              hasForeground = true;
+              if (x < minX) minX = x;
+              if (x > maxX) maxX = x;
+              if (y < minY) minY = y;
+              if (y > maxY) maxY = y;
+            }
+          }
+        }
+
+        if (hasForeground && (maxX > minX) && (maxY > minY)) {
+          const cropW = Math.max(1, maxX - minX + 1);
+          const cropH = Math.max(1, maxY - minY + 1);
+
+          const trimmedCanvas = document.createElement('canvas');
+          trimmedCanvas.width = cropW;
+          trimmedCanvas.height = cropH;
+          const trimmedCtx = trimmedCanvas.getContext('2d');
+          if (trimmedCtx) {
+            trimmedCtx.drawImage(canvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+            resolve({ cleanUrl: trimmedCanvas.toDataURL('image/png'), hasRemovedBg: true });
+            return;
+          }
+        }
+      }
+
       resolve({ cleanUrl: canvas.toDataURL('image/png'), hasRemovedBg });
     };
     img.onerror = () => resolve({ cleanUrl: base64Image, hasRemovedBg: false });
